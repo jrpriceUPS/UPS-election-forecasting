@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * Elliott Morris, The Economist
   - Hierarchical modeling, demographics, inferring state polls from national
   - <https://t.co/OTgETLG2wp>
+  - Looks to be behind a paywall --- should check with UPS (Eli Gandour-Rood) to see if they have an Economist subscription we can access
   - Read by Jake - No
   - Read by Haley - No
 * Elliott Morris, The Economist
@@ -32,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE)
   - Read by Jake - No
   - Read by Haley - No
 
-## Other Names / Sites to Check Out
+## Other Names / Sites for starting to look for articles
 * David Byler
   - Washington Post
 * Ariel Edwards-Levy
