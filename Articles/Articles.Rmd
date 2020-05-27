@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
     - <https://t.co/OTgETLG2wp>
     - Looks to be behind a paywall --- should check with UPS (Eli Gandour-Rood) to see if they have an Economist subscription we can access
     - Read by Jake - No
-    - Read by Haley - No
+    - Read by Haley - Yes
 * Elliott Morris, The Economist
   - Toy election simulator
   - <https://github.com/elliottmorris/toy-us-election-simulator#toy-us-election-simulator>
@@ -37,10 +37,10 @@ knitr::opts_chunk$set(echo = TRUE)
   - Read by Jake - No
   - Read by Haley - No  
 * Harry Enten, CNN Politics
-    - The difference between "double haters" in 2016 and 2020 elections
-    - https://www.cnn.com/2020/05/13/politics/voters-biden-trump-2020-analysis/index.html
-    - Read by Jake - No
-    - Read by Haley - Yes
+- The difference between "double haters" in 2016 and 2020 elections
+- https://www.cnn.com/2020/05/13/politics/voters-biden-trump-2020-analysis/index.html
+- Read by Jake - No
+- Read by Haley - Yes
 
 ## Polling Methodology
 * Nathanial Rakich, FiveThirtyEight
