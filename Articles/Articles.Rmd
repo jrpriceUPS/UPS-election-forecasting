@@ -8,62 +8,56 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## General Election Modeling
-
 * Elliott Morris, The Economist
-  - Hierarchical modeling, demographics, inferring state polls from national
-  - <https://t.co/OTgETLG2wp>
-  - Looks to be behind a paywall --- should check with UPS (Eli Gandour-Rood) to see if they have an Economist subscription we can access
-  - Read by Jake - No
-  - Read by Haley - No
+    - Hierarchical modeling, demographics, inferring state polls from national
+    - <https://t.co/OTgETLG2wp>
+    - Looks to be behind a paywall --- should check with UPS (Eli Gandour-Rood) to see if they have an Economist subscription we can access
+    - Read by Jake - No
+    - Read by Haley - No
 * Elliott Morris, The Economist
-  - Toy election simulator
-  - <https://github.com/elliottmorris/toy-us-election-simulator#toy-us-election-simulator>
-  - Read by Jake - No
-  - Read by Haley - No
-* Elliott Morris, The Economist
-  - Hierarchical modeling, demographics, inferring state polls from national
-  - <https://t.co/OTgETLG2wp>
-  - Read by Jake - No
-  - Read by Haley - No
+    - Toy election simulator
+    - <https://github.com/elliottmorris/toy-us-election-simulator#toy-us-election-simulator>
+    - Read by Jake - No
+    - Read by Haley - No
 
 ## Important Voter Groups 
 * Ariel Edwards-Levy, Huffington Post
-  - Importance of undecided/unsure voters
-  - https://www.huffpost.com/entry/2020-polls-voters-undecided_n_5dcdda2fe4b0294748142dff
+    - Importance of undecided/unsure voters
+    - https://www.huffpost.com/entry/2020-polls-voters-undecided_n_5dcdda2fe4b0294748142dff
 * Harry Enten, CNN Politics
-  - The difference between "double haters" in 2016 and 2020 elections
-  - https://www.cnn.com/2020/05/13/politics/voters-biden-trump-2020-analysis/index.html
-  - Read by Jake - No
-  - Read by Haley - Yes
+    - The difference between "double haters" in 2016 and 2020 elections
+    - https://www.cnn.com/2020/05/13/politics/voters-biden-trump-2020-analysis/index.html
+    - Read by Jake - No
+    - Read by Haley - Yes
 
 ## Polling Methodology
 * Nathanial Rakich, FiveThirtyEight
-  - How to read 2020 polls intelligently
-  - <https://fivethirtyeight.com/features/how-to-read-2020-polls-like-a-fivethirtyeighter/>
-  - Read by Jake - No
-  - Read by Haley - No
+    - How to read 2020 polls intelligently
+    - <https://fivethirtyeight.com/features/how-to-read-2020-polls-like-a-fivethirtyeighter/>
+    - Read by Jake - No
+    - Read by Haley - No
 * Nate Cohn, NY Times/The Upshot
- -Suggests sampling errors have been improved (but not perfected) since 2016
- -https://www.nytimes.com/2020/05/12/upshot/polls-2020-trump-biden.html
- - Read by Jake - No
- - Read by Haley - No
+    -Suggests sampling errors have been improved (but not perfected) since 2016
+    -<https://www.nytimes.com/2020/05/12/upshot/polls-2020-trump-biden.html>
+    - Read by Jake - No
+    - Read by Haley - No
 
 ## Other Names / Sites for starting to look for articles
 * David Byler
-  - Washington Post
+    - Washington Post
 * Ariel Edwards-Levy
-  - Huffington Post Political
-  - Public Opinion Polling
+    - Huffington Post Political
+    - Public Opinion Polling
 * Nate Silver
-  - FiveThirtyEight
+    - FiveThirtyEight
 * Nate Cohn
-  - Upshot
+    - Upshot
 * Dave Wasserman
-  - Cook Political Report
+    - Cook Political Report
 * Harry Enten
 * Geoffrey Skelley
-  - FiveThirtyEight
+    - FiveThirtyEight
 * Sean Trende
-  - Real Clear Politics
+    - Real Clear Politics
 * Larry Sabato
-  - Sabato's Crystal Ball
+    - Sabato's Crystal Ball
