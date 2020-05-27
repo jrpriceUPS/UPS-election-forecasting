@@ -26,12 +26,27 @@ knitr::opts_chunk$set(echo = TRUE)
   - Read by Jake - No
   - Read by Haley - No
 
+## Important Voter Groups 
+* Ariel Edwards-Levy, Huffington Post
+  - Importance of undecided/unsure voters
+  - https://www.huffpost.com/entry/2020-polls-voters-undecided_n_5dcdda2fe4b0294748142dff
+* Harry Enten, CNN Politics
+  - The difference between "double haters" in 2016 and 2020 elections
+  - https://www.cnn.com/2020/05/13/politics/voters-biden-trump-2020-analysis/index.html
+  - Read by Jake - No
+  - Read by Haley - Yes
+
 ## Polling Methodology
 * Nathanial Rakich, FiveThirtyEight
   - How to read 2020 polls intelligently
   - <https://fivethirtyeight.com/features/how-to-read-2020-polls-like-a-fivethirtyeighter/>
   - Read by Jake - No
   - Read by Haley - No
+* Nate Cohn, NY Times/The Upshot
+ -Suggests sampling errors have been improved (but not perfected) since 2016
+ -https://www.nytimes.com/2020/05/12/upshot/polls-2020-trump-biden.html
+ - Read by Jake - No
+ - Read by Haley - No
 
 ## Other Names / Sites for starting to look for articles
 * David Byler
