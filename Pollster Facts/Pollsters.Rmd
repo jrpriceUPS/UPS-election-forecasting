@@ -1,0 +1,75 @@
+---
+title: "Pollsters"
+author: "Jake"
+date: "5/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+538 Ratings from <https://projects.fivethirtyeight.com/pollster-ratings/>
+
+## Marist College
+* 538 Rating: A+
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
+    
+## Monmouth University
+* 538 Rating: A+
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
+    
+## ABC News / The Washington Post
+* 538 Rating: A+
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
+    
+## Siena College / The New York Times Upshot
+* 538 Rating: A+
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
+    
+## Selzer & Co.
+* 538 Rating: A+
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
+
+## Muhlenberg College
+* 538 Rating: A+
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
+    
+## SurveyUSA
+* 538 Rating: A
+* How do they define likely / registered voter?
+    - Enter here
+    - <link here>
+* How do they do weighting? (before / after reporting results)
+    - Enter here
+    - <link here>
