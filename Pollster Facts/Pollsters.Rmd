@@ -60,7 +60,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * Methodology in general: <https://www.nytimes.com/2018/09/06/upshot/live-poll-method.html> 
     - Telephone numbers were selected from an L2 (private voter and model issued data provided) voter file stratified by age, region, gender, party, race and turnout in 2014.
     - Voters were contacted on cellular and landline telephones. Interviewers asked for the person named on the voter file, and ended the interview if the intended respondent was not available.
-    - Member of AAPOR's Transparency Initiative
+    - Charter Member of AAPOR's Transparency Initiative
 * How do they define likely / registered voter?
     - Only call people on file as registered voters (according to L2's data)
     - Final turnout score is 56 percent turnout model and 44 percent self-report, based on a model of validated turnout in prior Upshot/Siena polls
@@ -80,12 +80,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Muhlenberg College
 * 538 Rating: A+
+* Methodology in general: <https://www.muhlenberg.edu/feb2020election/> 
+    - Quality control mechanisms include multiple call-backs, survey pre-testing, and data entry verification 
+    - Exclusively live-caller telephone polls
+    - Charter Member of AAPOR's Transparency Initiative
 * How do they define likely / registered voter?
-    - Enter here
-    - <link here>
+    - REgistered voters are determined by state files
+    - Likely voter is defined as registered voters who have either
+        + voted in at least 2 of the last 4
+general elections 
+        + or who had voted in either the 2018 primary elections or 2017 general election
+        + or if they were a new registrant since the 2016 Presidential Election
 * How do they do weighting? (before / after reporting results)
-    - Enter here
-    - <link here>
+    - Data is weighted to gender, age, region, party, race and educational attainment to reflect voter population parameters.
     
 ## SurveyUSA
 * 538 Rating: A
