@@ -13,12 +13,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Marist College
 * 538 Rating: A+
+* Methodology in general: <http://maristpoll.marist.edu/methods/#sthash.kbYzsqHj.dpbs>
+    - Samples designed for adult >18 population
+    - Random-digit-dialing, geographically stratified proportional to population
+    - Includes mobile phones
+    - Member of AAPOR's Transparency Initiative
+        - Can contact for additional questions
 * How do they define likely / registered voter?
-    - Enter here
-    - <link here>
+    - Report for registered and / or likely voters
+    - Probability turnout model for likely voters
+        - Determines likelihood respondents will vote in current election based upon their chance of vote, interest in election, past election participation
+        - Does *not* weight by party ID
 * How do they do weighting? (before / after reporting results)
-    - Enter here
-    - <link here>
+    - Data cleaned and combined to balance population parameters using stat software
+    - Balances to reflect Census results for age, gender, income, race, and region
     
 ## Monmouth University
 * 538 Rating: A+
