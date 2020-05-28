@@ -2,15 +2,15 @@
 title: "Puromycin Practice"
 author: "Haley Reed"
 date: "5/27/2020"
-output: html_document
+output: pdf_document
 ---
 ```{r global_options, include = FALSE}
-knitr::opts_chunk$set(message=FALSE, 
-tidy.opts=list(width.cutoff=60)) 
+knitr::opts_chunk$set(message=FALSE)
 ```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+options(digits=4)
 ```
 
 **Introduction**
@@ -53,6 +53,10 @@ summary(model1)
 #####Model 2- ANCOVA with different slopes and intercepts
 #Find Model 2
 model2 <- lm(rate ~ logconc *state, data = Puromycin)
+(b0 <- coef(model2)["(Intercept)"])
+(b1 <- coef(model2)["logconc"])
+(b2 <- coef(model2)["stateuntreated"])
+(b3 <- coef(model2)["logconc:stateuntreated"])
 #Info on Model 2
 summary(model2)
 
@@ -67,15 +71,15 @@ anova(model1, model2)
 
 Even though the ANOVA model is slightly more complicated because of the added categorical value of state (treated versus untreated) we ultimately prefer it for the following reasons: 
 
-It has an adjusted multiple R-squared value of 96.29% versus the Simple Linear Regression model’s 86.9%. The ANCOVA model is able to explain 96.29% of the variance in rate, making it a good option for model selection.
+It has an adjusted multiple R-squared value of `r summary(model2)$adj.r.squared` versus the Simple Linear Regression model’s `r summary(model1)$adj.r.squared`. The ANCOVA model is able to explain `r summary(model2)$adj.r.squared*100`% of the variance in rate, making it a good option for model selection.
 
-The ANCOVA model has an AIC value of 172.72, a value 27.32 units lower that the Simple Linear Regression model, meeting the statistical heuristic of significance for AIC because 627.32>2. 
+The ANCOVA model has an AIC value of `r AIC(model2)`, a value `r AIC(model1)-AIC(model2)` units lower that the Simple Linear Regression model, meeting the statistical heuristic of significance for AIC because `r AIC(model1)-AIC(model2)`>2. 
 
 The F-Test produces a P-Value of 2.41 × 10^(-6), a value well below the statistically significant 5%. This means we can reject the null hypothesis that the simpler model is better.
 
 Therefore, we will go forward with the fitted model for ANCOVA given by:
+$$μ [rate ~ conc, state ] = `r b0` + `r b1`(logconc) +`r b3`(logconc) \times I(state=untreated) + `r b2` \times I(state=untreated)$$
 
-$$μ [rate ~ conc, state ] = 209.19 + 85.45(logconc)-23.32(logconc) \times I(state=untreated) - 44.61 \times I(state=untreated)$$
 
 Since the primary difference between our two models is the differentiation between treated and untreated data, it is worth exploring the following confidence intervals:
 
@@ -83,8 +87,11 @@ Since the primary difference between our two models is the differentiation betwe
 library(knitr)
 kable(confint(model2))
 ```
+```{R, include=FALSE}
+(beta1CI <- confint(model2)["(Intercept)",])
+```
 
-The 95% confidence interval for the intercept of untreated enzymes is (-58.86,-30.35), meaning we are 95% confident the true mean of untreated enzymes with a concentration of one part per million is between 58.86 and 30.35 counts per minute slower than the true mean of treated enzyme with a concentration of one part per million.
+The 95% confidence interval for the intercept of treated enzymes is (`r beta1CI`), meaning we are 95% confident the true mean of untreated enzymes with a concentration of one part per million is between 58.86 and 30.35 counts per minute slower than the true mean of treated enzyme with a concentration of one part per million.
 
 ```{R}
 model2 <- lm(rate ~ logconc *state, data = Puromycin)
@@ -93,19 +100,22 @@ lattice::xyplot(rate~logconc, data = Puromycin, main="Rates of Reactions",
 ```
 
 Contextually, this means for a treated enzyme (shown in blue):
-* When the concentration is 1, the model predicts a rate of 209.19 counts per minute. 
-* When the concentration goes up by a factor of 10, the rate will increase by 85.45 counts per minute.
+
+* When the concentration is 1, the model predicts a rate of `r b0` counts per minute. 
+* When the concentration goes up by a factor of 10, the rate will increase by `r b1` counts per minute.
+
 And for an untreated Enzyme (shown in pink):
-* When the concentration is 1, the model predicts a rate of 164.58 counts per minute. 
-* When the concentration goes up by a factor of 10, the rate will increase by 62.13 counts per minute.
+
+* When the concentration is 1, the model predicts a rate of `r b0+b3` counts per minute. 
+* When the concentration goes up by a factor of 10, the rate will increase by `r b1+b2` counts per minute.
 
 ```{R, include=FALSE}
 (predict(model2, new = data.frame(logconc= -.39794, state="treated")))
 (predict(model2, new = data.frame(logconc= -.39794, state="treated"),  interval = "confidence"))
-(predict(model2, new = data.frame(logconc= -.39794, state="treated"), interval="predict"))
+predint1 = (predict(model2, new = data.frame(logconc= -.39794, state="treated"), interval="predict"))
 ```
 
-For example, for a treated enzyme with a concentration of .4 parts per million, our model predicts a rate of between 154.91 and 195.47 counts per minute.
+For example, for a treated enzyme with a concentration of .4 parts per million, our model predicts a rate of between 175.2 and 195.5 counts per minute.
 
 **Sampling Variability Assumptions**
 
@@ -128,4 +138,4 @@ abline(h = 0)
 
 **Conclusion**
 
-Using Treloar’s data, the ANCOVA model with the variable of concentration logarithmically transformed is an effective linear model for predicting the rate of reaction using the variables of concentration of the substrate and whether or not the enzyme was treated. With this we also found that untreated enzymes have statistically slower rates overall, and the rates increase in pace slower with increases in concentration than their treated counterparts. We can use this model because it meets all sampling variability assumptions. Since this model is able to explain 96.29% of the variation in reaction rates with the logarithmic transformation of concentration and the state (treated or untreated), it is an effective model with relatively high predicting power for exploring these reaction times. However; since these samples were pulled from enzymes within rat livers, inference to the effect of puromycin of rate of reactions for all cells is speculative. Without further biological evidence about how well the enzymes used in this experiment are representative of all cells, we should be careful to not broaden our findings and inferences drawn by the model beyond the enzymes used in Treloar’s experimentation.
+Using Treloar’s data, the ANCOVA model with the variable of concentration logarithmically transformed is an effective linear model for predicting the rate of reaction using the variables of concentration of the substrate and whether or not the enzyme was treated. With this we also found that untreated enzymes have statistically slower rates overall, and the rates increase in pace slower with increases in concentration than their treated counterparts. We can use this model because it meets all sampling variability assumptions. Since this model is able to explain `r summary(model2)$adj.r.squared*100`% of the variation in reaction rates with the logarithmic transformation of concentration and the state (treated or untreated), it is an effective model with relatively high predicting power for exploring these reaction times. However; since these samples were pulled from enzymes within rat livers, inference to the effect of puromycin of rate of reactions for all cells is speculative. Without further biological evidence about how well the enzymes used in this experiment are representative of all cells, we should be careful to not broaden our findings and inferences drawn by the model beyond the enzymes used in Treloar’s experimentation.
