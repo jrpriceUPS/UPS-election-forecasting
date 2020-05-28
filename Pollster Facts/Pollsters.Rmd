@@ -27,6 +27,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * How do they do weighting? (before / after reporting results)
     - Data cleaned and combined to balance population parameters using stat software
     - Balances to reflect Census results for age, gender, income, race, and region
+* Unclear how to get spreadsheet version of poll results --- follow up later
     
 ## Monmouth University
 * 538 Rating: A+
