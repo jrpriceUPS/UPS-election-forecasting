@@ -66,12 +66,12 @@ knitr::opts_chunk$set(echo = TRUE)
     
 ## Selzer & Co.
 * 538 Rating: A+
+* Links to polls: <https://www.grinnell.edu/poll/methodology>
 * How do they define likely / registered voter?
-    - Enter here
-    - <link here>
+    - Unclear how they do likely voters
 * How do they do weighting? (before / after reporting results)
-    - Enter here
-    - <link here>
+    - Weighted before publishing
+    - Weighted by sex, age, race, education (based on census)
 
 ## Muhlenberg College
 * 538 Rating: A+
