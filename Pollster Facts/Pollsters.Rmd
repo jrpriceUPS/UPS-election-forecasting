@@ -57,12 +57,17 @@ knitr::opts_chunk$set(echo = TRUE)
     
 ## Siena College / The New York Times Upshot
 * 538 Rating: A+
+* Methodology in general: <https://www.nytimes.com/2018/09/06/upshot/live-poll-method.html> 
+    - Telephone numbers were selected from an L2 (private voter and model issued data provided) voter file stratified by age, region, gender, party, race and turnout in 2014.
+    - Voters were contacted on cellular and landline telephones. Interviewers asked for the person named on the voter file, and ended the interview if the intended respondent was not available.
+    - Member of AAPOR's Transparency Initiative
 * How do they define likely / registered voter?
-    - Enter here
-    - <link here>
+    - Only call people on file as registered voters (according to L2's data)
+    - Final turnout score is 56 percent turnout model and 44 percent self-report, based on a model of validated turnout in prior Upshot/Siena polls
 * How do they do weighting? (before / after reporting results)
-    - Enter here
-    - <link here>
+    - The sample is weighted to match Upshot estimates for the composition of the likely electorate by age, race, region, turnout, party, gender and education.
+    - The party weight is partisan primary vote history or party registration, or, in the states where neither is available, a model of likely support for Donald J. Trump in the 2016 presidential election.
+    - Voter file data is used for weighting, except for education.
     
 ## Selzer & Co.
 * 538 Rating: A+
@@ -85,7 +90,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## SurveyUSA
 * 538 Rating: A
 * Methodology in general
-    - Sometimes 100% by telephone; in some cases, 100% online; and in other cases, a blend of the two. 
+    - Sometimes 100% by telephone; in some cases, 100% online; and in other cases, a blend of the two.
     - Landlines are interviewed using both live interviews and prerecorded robo-calls.
     - The youngest male is requested on approximately 30% of calls to home phones, the youngest adult is requested on approximately 70% of calls. 
 * How do they define likely / registered voter?
