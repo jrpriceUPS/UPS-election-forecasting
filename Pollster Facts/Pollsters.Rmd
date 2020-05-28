@@ -40,12 +40,14 @@ knitr::opts_chunk$set(echo = TRUE)
     
 ## ABC News / The Washington Post
 * 538 Rating: A+
+* Overview of standards: <https://abcnews.go.com/US/PollVault/abc-news-polling-methodology-standards/story?id=145373>
+* Archive: <https://www.washingtonpost.com/polling/2019/05/24/washington-post-poll-archive/>
+* Crosstabs: Published as google spreadsheet
 * How do they define likely / registered voter?
-    - Enter here
-    - <link here>
+    - Apply likely voter models before publishing once we get closer to election day
+    - Crosstabs: Party ID, Sex, Ideology, Age, Education, Race / Sex / Ed Cross, etc.
 * How do they do weighting? (before / after reporting results)
-    - Enter here
-    - <link here>
+    - Weighting completed before reporting
     
 ## Siena College / The New York Times Upshot
 * 538 Rating: A+
