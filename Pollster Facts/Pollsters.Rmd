@@ -85,7 +85,7 @@ knitr::opts_chunk$set(echo = TRUE)
     - Exclusively live-caller telephone polls
     - Charter Member of AAPOR's Transparency Initiative
 * How do they define likely / registered voter?
-    - REgistered voters are determined by state files
+    - Registered voters are determined by state files
     - Likely voter is defined as registered voters who have either
         + voted in at least 2 of the last 4
 general elections 

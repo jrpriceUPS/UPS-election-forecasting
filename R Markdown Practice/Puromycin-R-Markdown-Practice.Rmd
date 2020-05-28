@@ -2,7 +2,7 @@
 title: "Puromycin Practice"
 author: "Haley Reed"
 date: "5/27/2020"
-output: pdf_document
+output: html_document
 ---
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(message=FALSE)
@@ -78,7 +78,7 @@ The ANCOVA model has an AIC value of `r AIC(model2)`, a value `r AIC(model1)-AIC
 The F-Test produces a P-Value of 2.41 × 10^(-6), a value well below the statistically significant 5%. This means we can reject the null hypothesis that the simpler model is better.
 
 Therefore, we will go forward with the fitted model for ANCOVA given by:
-$$μ [rate ~ conc, state ] = `r b0` + `r b1`(logconc) +`r b3`(logconc) \times I(state=untreated) + `r b2` \times I(state=untreated)$$
+$$\mu  [rate ~ conc, state ] = `r b0` + `r b1`(logconc) +`r b3`(logconc) \times I(state=untreated) + `r b2` \times I(state=untreated)$$
 
 
 Since the primary difference between our two models is the differentiation between treated and untreated data, it is worth exploring the following confidence intervals:
