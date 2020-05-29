@@ -108,3 +108,4 @@ general elections
 * How do they do weighting? (before / after reporting results)
     - responses are minimally weighted to U.S. Census targets or voter file targets for gender, age and race. Cell (target) weighting is used.
     - <https://www.surveyusa.net/methodology/>
+    

@@ -3,6 +3,7 @@ title: "Puromycin Practice"
 author: "Haley Reed"
 date: "5/27/2020"
 output: pdf_document
+bibliography: electionworkingbib.bib
 ---
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(message=FALSE)
@@ -139,3 +140,12 @@ abline(h = 0)
 **Conclusion**
 
 Using Treloar’s data, the ANCOVA model with the variable of concentration logarithmically transformed is an effective linear model for predicting the rate of reaction using the variables of concentration of the substrate and whether or not the enzyme was treated. With this we also found that untreated enzymes have statistically slower rates overall, and the rates increase in pace slower with increases in concentration than their treated counterparts. We can use this model because it meets all sampling variability assumptions. Since this model is able to explain `r summary(model2)$adj.r.squared*100`% of the variation in reaction rates with the logarithmic transformation of concentration and the state (treated or untreated), it is an effective model with relatively high predicting power for exploring these reaction times. However; since these samples were pulled from enzymes within rat livers, inference to the effect of puromycin of rate of reactions for all cells is speculative. Without further biological evidence about how well the enzymes used in this experiment are representative of all cells, we should be careful to not broaden our findings and inferences drawn by the model beyond the enzymes used in Treloar’s experimentation.
+
+\newpage
+**Works Cited**
+
+---
+#practice .bib for bib refrence
+nocite: |
+  @538rawpolldata
+---
