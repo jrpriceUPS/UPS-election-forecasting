@@ -94,3 +94,23 @@ knitr::opts_chunk$set(echo = TRUE)
     - Real Clear Politics
 * Larry Sabato
     - Sabato's Crystal Ball
+    
+    
+    
+    
+## Academic Articles
+* Election forecasting: Principles and practice
+    - MS Lewis-Beck
+    - <https://journals.sagepub.com/doi/abs/10.1111/j.1467-856X.2005.00178.x>
+* Polls and Votes: The Trial-Heat Presidential Election Forecasting Model, Certainty, and Political Campaigns
+    - J. E. Campbell
+    - <https://journals.sagepub.com/doi/abs/10.1177/1532673x9602400402>
+* Election forecasting for turbulent times
+    - MS Lewis-Beck, C Tien
+    - <https://www.cambridge.org/core/journals/ps-political-science-and-politics/article/election-forecasting-for-turbulent-times/3B2AC3B0805D0F217DA35A396217BD94>
+* US presidential election forecasting: An introduction
+    - MS Lewis-Beck and J.E. Campbell
+    - <https://www.acsu.buffalo.edu/~jcampbel/documents/IJF1Intro_000.pdf>
+* Us presidential election forecasting: Introduction
+    - MS Lewis-Beck and M Stegmaier
+    - <https://www.cambridge.org/core/journals/ps-political-science-and-politics/article/us-presidential-election-forecasting/B8BF256F7E59D68305CA6040ABF03D90>
