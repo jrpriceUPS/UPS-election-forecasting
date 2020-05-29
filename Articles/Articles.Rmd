@@ -63,6 +63,17 @@ knitr::opts_chunk$set(echo = TRUE)
   - https://fivethirtyeight.com/features/how-fivethirtyeight-calculates-pollster-ratings/
   - Read by Jake - No
   - Read by Haley - No
+* Nathaniel Rakich, FiveThirtyEight
+  - Explanation of polling error coming into 2020 election 
+  -<https://fivethirtyeight.com/features/weve-updated-our-pollster-ratings-ahead-of-the-2020-general-election/>
+  - Read by Jake - No
+  - Read by Haley - No  
+  
+* AAPOR
+  - Links to standard definitions/recommendations for polling practices. (might be a little long to read all of it, but good reference point.)
+  -<https://www.aapor.org/Standards-Ethics/Standard-Definitions-(1).aspx>
+  - Read by Jake - No
+  - Read by Haley - No   
 
 ## Other Names / Sites for starting to look for articles
 * David Byler
