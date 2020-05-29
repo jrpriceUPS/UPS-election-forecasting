@@ -9,3 +9,27 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+mydata <- read.csv("~/desktop/research/UPS-election-forecasting/raw-polls_538.csv")
+
+#pollsterOfChoice=""
+pollsterOfChoice="SurveyUSA"
+
+#raceOfChoice=""
+raceOfChoice ="Pres-G"
+
+library(lubridate)
+daysBack=7
+#mydata$electiondate <- mdy(mydata$electiondate)
+#dayAcceptable = mydata$electiondate-days(daysBack)
+#cbind(mydata, dayAcceptable)
+
+mydata=(subset(mydata,pollster==pollsterOfChoice))
+mydata=(subset(mydata,mydata$type_simple==raceOfChoice))
+mydata=(subset(mydata, mydata$year>2012))
+#mydata=(subset(mydata), mydata$polldate>dayAcceptable))
+
+library(knitr)
+kable(mydata)
+
+```
