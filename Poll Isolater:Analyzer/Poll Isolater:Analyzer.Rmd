@@ -1,5 +1,5 @@
 ---
-title: "Poll Isolater/Analyzer"
+title: "Poll Isolator/Analyzer"
 author: "Haley Reed"
 date: "5/29/2020"
 output: html_document
@@ -40,15 +40,17 @@ mydata$electiondate = mdy(mydata$electiondate)
 mydata$polldate = mdy(mydata$polldate)
 
 #load the the survival package (needed to find nearest date)
-library(survival)
+#library(survival)
 
 #Use only the most recent poll:
 #loop to isolate each election and the poll closest to the election date
 
+compDate=mdy("1998-1-1")
 for (val in mydata$race_id) {
-  dateToUse = min(abs(mydata$polldate - mydata$electiondate))
-  
-  mydata=(subset(mydata, mydata$polldate==dateToUse))
+  if (mydata$polldate>compDate){
+   compDate=polldate
+  }
+  mydata=(subset(mydata, mydata$polldate==compDate))
 }
 library(knitr)
 kable(mydata)
