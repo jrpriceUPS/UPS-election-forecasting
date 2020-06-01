@@ -10,24 +10,29 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+#load the data
+#538
 mydata <- read.csv("~/desktop/research/UPS-election-forecasting/raw-polls_538.csv")
 
+#establish which poll and race to choose from
 #pollsterOfChoice=""
 pollsterOfChoice="SurveyUSA"
-
 #raceOfChoice=""
 raceOfChoice ="Pres-G"
 
+#load lubridate for dates, change dates to date data type. 
 library(lubridate)
-daysBack=7
-#mydata$electiondate <- mdy(mydata$electiondate)
-#dayAcceptable = mydata$electiondate-days(daysBack)
-#cbind(mydata, dayAcceptable)
-
+mydata$electiondate = mdy(mydata$electiondate)
+mydata$polldate = mdy(mydata$polldate)
+#establish how many days back you will allow the poll to be from election day.
+dayAcceptable = mydata$electiondate-days(daysBack)
+mydata$daysAcceptable=dayAcceptable
 mydata=(subset(mydata,pollster==pollsterOfChoice))
+
+#subset the data given the restrictions
 mydata=(subset(mydata,mydata$type_simple==raceOfChoice))
 mydata=(subset(mydata, mydata$year>2012))
-#mydata=(subset(mydata), mydata$polldate>dayAcceptable))
+mydata=(subset(mydata, mydata$polldate>=mydata$daysAcceptable))
 
 library(knitr)
 kable(mydata)
