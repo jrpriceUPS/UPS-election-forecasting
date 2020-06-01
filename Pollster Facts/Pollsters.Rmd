@@ -109,3 +109,9 @@ general elections
     - responses are minimally weighted to U.S. Census targets or voter file targets for gender, age and race. Cell (target) weighting is used.
     - <https://www.surveyusa.net/methodology/>
     
+## Strategic Vision LLC
+* 538 Rating: F
+* Methodology in general 
+    - AAPOR was unable to obtain info about who sponsored the survey; who conducted it; a description of the underlying sampling frame; an accounting of how “likely voters” were identified and selected; response rates; and a description of any weighting or estimating procedures used. <https://www.aapor.org/Communications/Press-Releases/AAPOR-Raises-Objections-to-Actions-by-Atlanta-Base.aspx>
+* How do they supposedly use likely/register voters?
+    - A poll from 2008 reports "600 likely Republican primary voters and 600 likely Democratic primary voters, aged 18+, and conducted January 4-6, 2008". This is the only methodological statement for the whole poll. <https://www.realclearpolitics.com/articles/docs/SV_NH08.html>
