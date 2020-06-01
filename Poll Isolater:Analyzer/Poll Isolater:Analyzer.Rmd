@@ -10,33 +10,73 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
 
+This file uses data from the FiveThirtyEight repository to isolate an individual pollster and their most recent polls at the time of every election in the dataset for the indicated years.
 
 ```{r}
 #load the data
 #538
 mydata <- read.csv("raw-polls_538.csv")
+```
 
-#establish which poll and race to choose from
-#pollsterOfChoice=""
+```{r}
+#Establish which pollster you wish to analyze:
 pollsterOfChoice="SurveyUSA"
-#raceOfChoice=""
-raceOfChoice ="Pres-G"
+#Establish which years you wish to use data from (between 1998 and 2020):
+earlyYear=1998
+lateYear=2020
+```
+
+This file will analyze data from `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear`.
+
+```{r}
+#Subset for constraints given above.
+mydata=(subset(mydata,pollster==pollsterOfChoice))
+mydata=(subset(mydata, mydata$year>=1998))
+mydata=(subset(mydata, mydata$year<=2020))
 
 #load lubridate for dates, change dates to date data type. 
 library(lubridate)
 mydata$electiondate = mdy(mydata$electiondate)
 mydata$polldate = mdy(mydata$polldate)
-#establish how many days back you will allow the poll to be from election day.
-dayAcceptable = mydata$electiondate-days(daysBack)
-mydata$daysAcceptable=dayAcceptable
-mydata=(subset(mydata,pollster==pollsterOfChoice))
 
-#subset the data given the restrictions
-mydata=(subset(mydata,mydata$type_simple==raceOfChoice))
-mydata=(subset(mydata, mydata$year>2012))
-mydata=(subset(mydata, mydata$polldate>=mydata$daysAcceptable))
+#load the the survival package (needed to find nearest date)
+library(survival)
 
+#Use only the most recent poll:
+#loop to isolate each election and the poll closest to the election date
+
+for (val in mydata$race_id) {
+  dateToUse = min(abs(mydata$polldate - mydata$electiondate))
+  
+  mydata=(subset(mydata, mydata$polldate==dateToUse))
+}
 library(knitr)
 kable(mydata)
-
 ```
+
+# ```{r}
+# #establish which poll and race to choose from
+# #pollsterOfChoice=""
+# pollsterOfChoice="SurveyUSA"
+# #raceOfChoice=""
+# raceOfChoice ="Pres-G"
+# 
+# #load lubridate for dates, change dates to date data type. 
+# library(lubridate)
+# mydata$electiondate = mdy(mydata$electiondate)
+# mydata$polldate = mdy(mydata$polldate)
+# #establish how many days back you will allow the poll to be from election day.
+# daysBack=20
+# dayAcceptable = mydata$electiondate-days(daysBack)
+# mydata$daysAcceptable=dayAcceptable
+# mydata=(subset(mydata,pollster==pollsterOfChoice))
+# 
+# #subset the data given the restrictions
+# mydata=(subset(mydata,mydata$type_simple==raceOfChoice))
+# mydata=(subset(mydata, mydata$year>2012))
+# mydata=(subset(mydata, mydata$polldate>=mydata$daysAcceptable))
+# 
+# library(knitr)
+# kable(mydata)
+# 
+# ```
