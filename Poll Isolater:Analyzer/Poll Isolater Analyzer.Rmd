@@ -15,7 +15,7 @@ This file uses data from the FiveThirtyEight repository to isolate an individual
 
 ```{r, echo=FALSE}
 #load the data
-#538
+#in this case from 538
 mydata <- read.csv("raw-polls_538.csv")
 ```
 
@@ -35,43 +35,89 @@ mydata=(subset(mydata,pollster==pollsterOfChoice))
 mydata=(subset(mydata, mydata$year>=1998))
 mydata=(subset(mydata, mydata$year<=2020))
 
-#load lubridate for dates, change dates to date data type. 
-library(lubridate)
-mydata$electiondate = mdy(mydata$electiondate)
-mydata$polldate = mdy(mydata$polldate)
+#use lubridate to change dates from character to date data type for functionality. 
+mydata$electiondate = lubridate::mdy(mydata$electiondate)
+mydata$polldate = lubridate::mdy(mydata$polldate)
 
-#load the the survival package (needed to find nearest date)
-#library(survival)
+```
 
+```{r, echo=FALSE}
 #Use only the most recent poll for each election:
-library(data.table)
-library(knitr)
+#Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
+onlyRecentData=(data.table::setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
+#Create a table for onlyRecentData with knitr package.
+knitr::kable(onlyRecentData)
 ```
 
-```{r, echo=FALSE}
-kable(setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
-onlyRecentData=(setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
-```
-
-The density plot and summary statistics for margin of error for `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear` is shown below.
+The plot and summary statistics for margin of error for `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear` is shown below.
 
 ```{r, echo=FALSE}
+#plot error in polling (absolute value of bias) as a dependent variable of the date of the election. 
 plot(onlyRecentData$electiondate,onlyRecentData$error, main="Margin of Error of Polls", xlab="Election Date", ylab="Margin of Error")
+#create a base 0 line - visualizes where a poll with no error would be.
 abline(0,0,col="blue")  
 
+#provide summary statistics for the error.
 summary(onlyRecentData$error)
 ```
 
-The density plot and summary statistics for bias towards Republican candidates is shown below:
+The plot and summary statistics for bias towards Republican candidates is shown below:
 
 ```{r, echo=FALSE}
+#To check for partisan bias, will subset data down to just the races where candidate 1 and candidate 2 are running on two different party tickets.
 twoPartyTicket=subset(onlyRecentData,cand1_party!=cand2_party)
+#defensive programming against NA values for bias (appears when one of the candidates is an independent) 
+twoPartyTicket=subset(twoPartyTicket, !is.na(bias))
+#plot bias towards republicans in polling as a dependent variable of the date of the election.
 plot(twoPartyTicket$electiondate,twoPartyTicket$bias, main="Bias of Polls towards Republican Candidates", xlab="Election Date", ylab="Bias")
+#create a base 0 line - visualizes where a poll with no bias would be. 
 abline(0,0,col="blue")
+#provide summary statistics for the bias.
 summary(twoPartyTicket$bias)
 ```
 
+
+The density plot for the bias that `r pollsterOfChoice` shows for republican candidates between the years `r earlyYear` and `r lateYear` is shown below.
+```{r}
+#use density function of bias in the twoPartyTicket dataset to plot.
+plot(density(twoPartyTicket$bias), main="Density Plot of Bias", xlab="Rebulican Bias")
+```
+
 Additionally, `r pollsterOfChoice` correctly predicted `r mean(onlyRecentData$rightcall)*100`% of races in their last poll for every election polled from `r earlyYear` to `r lateYear`.
+
+\newpage
+### All Polls
+
+After exploring the data with only the most recent polls before every election, we can compare these findings to data that includes all polls. What is the difference between their error? Their bias? Their predictive power?
+
+The plot and summary statistics for margin of error from all polls conducted by `r pollsterOfChoice` between `r earlyYear` and `r lateYear` is shown below.
+
+```{r, echo=FALSE}
+#plot error in polling (absolute value of bias) as a dependent variable of the date of the election. 
+plot(mydata$electiondate,mydata$error, main="Margin of Error for all Polls", xlab="Election Date", ylab="Margin of Error")
+#create a base 0 line - visualizes where a poll with no error would be.
+abline(0,0,col="blue")  
+
+#provide summary statistics for the error.
+summary(mydata$error)
+```
+
+The plot and summary statistics for bias towards republican candidates for all polls conducted by `r pollsterOfChoice` between `r earlyYear` and `r lateYear` is shown below.
+
+```{r, echo=FALSE}
+#To check for partisan bias, will subset data down to just the races where candidate 1 and candidate 2 are running on two different party tickets.
+alltwoPartyTicket=subset(mydata,cand1_party!=cand2_party)
+#defensive programming against NA values for bias (appears when one of the candidates is an independent) 
+alltwoPartyTicket=subset(alltwoPartyTicket, !is.na(bias))
+#plot bias towards republicans in polling as a dependent variable of the date of the election.
+plot(alltwoPartyTicket$electiondate,alltwoPartyTicket$bias, main="Bias of Polls towards Republican Candidates for all Polls", xlab="Election Date", ylab="Bias")
+#create a base 0 line - visualizes where a poll with no bias would be. 
+abline(0,0,col="blue")
+#provide summary statistics for the bias.
+summary(alltwoPartyTicket$bias)
+```
+
+Additionally, `r pollsterOfChoice` correctly predicted `r mean(mydata$rightcall)*100`% of races in their last poll for every election polled from `r earlyYear` to `r lateYear`.
 
 \newpage
 ## Works Cited
