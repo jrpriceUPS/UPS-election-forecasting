@@ -3,10 +3,11 @@ title: "Pollster Analyzer"
 author: "Haley Reed"
 date: "5/29/2020"
 output: html_document
+bibliography: electionworkingbib.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
 
@@ -18,7 +19,7 @@ This file uses data from the FiveThirtyEight repository to isolate an individual
 mydata <- read.csv("raw-polls_538.csv")
 ```
 
-```{r}
+```{r, echo=TRUE}
 #Establish which pollster you wish to analyze:
 pollsterOfChoice="SurveyUSA"
 #Establish which years you wish to use data from (between 1998 and 2020):
@@ -71,3 +72,13 @@ summary(twoPartyTicket$bias)
 ```
 
 Additionally, `r pollsterOfChoice` correctly predicted `r mean(onlyRecentData$rightcall)*100`% of races in their last poll for every election polled from `r earlyYear` to `r lateYear`.
+
+\newpage
+## Works Cited
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+
+---
