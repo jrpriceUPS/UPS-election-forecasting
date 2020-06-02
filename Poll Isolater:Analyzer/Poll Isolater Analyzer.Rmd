@@ -42,28 +42,13 @@ mydata$polldate = mdy(mydata$polldate)
 #load the the survival package (needed to find nearest date)
 #library(survival)
 
-#Use only the most recent poll:
-#loop to isolate each election and the poll closest to the election date
-
-#instantiate an empty dataframe
-recentPollsData=(subset(mydata, mydata$year<1950))
-
-#instantiate a date to compare by
-compDate=mdy("1998-01-01")
-#loop through each election being polled (by race id)
-for (val in mydata$race_id) {
-#ignore null or na values of polldates  
-  if (!is.null(mydata$polldate) || !is.na(mydata$electiondate)) {
-   #if the poll date is greater that the current comparsion date, replace the current comparsion date.
-    if (mydata$polldate>compDate){
-   compDate=mydata$polldate
-   }
-  }
-  #create a subset with just the most recent polls, add to our new data frame. 
-  recentPollsData = rbind(recentPollsData, (subset(mydata, mydata$polldate==compDate)))
-}
+#Use only the most recent poll for each election:
+library(data.table)
 library(knitr)
-kable(recentPollsData)
+kable(setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
+
+
+
 ```
 
 # ```{r}

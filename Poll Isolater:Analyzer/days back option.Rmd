@@ -1,0 +1,37 @@
+---
+title: "analyzer with days back option"
+author: "Haley Reed"
+date: "6/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+ #establish which poll and race to choose from
+ #pollsterOfChoice=""
+ pollsterOfChoice="SurveyUSA"
+#raceOfChoice=""
+ raceOfChoice ="Pres-G"
+
+#load lubridate for dates, change dates to date data type.
+library(lubridate)
+mydata$electiondate = mdy(mydata$electiondate)
+mydata$polldate = mdy(mydata$polldate)
+#establish how many days back you will allow the poll to be from election day.
+daysBack=20
+dayAcceptable = mydata$electiondate-days(daysBack)
+mydata$daysAcceptable=dayAcceptable
+mydata=(subset(mydata,pollster==pollsterOfChoice))
+
+#subset the data given the restrictions
+mydata=(subset(mydata,mydata$type_simple==raceOfChoice))
+mydata=(subset(mydata, mydata$year>2012))
+mydata=(subset(mydata, mydata$polldate>=mydata$daysAcceptable))
+
+library(knitr)
+kable(mydata)
+
+```
