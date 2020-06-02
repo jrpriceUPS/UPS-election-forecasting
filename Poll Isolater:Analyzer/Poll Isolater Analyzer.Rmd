@@ -51,6 +51,7 @@ knitr::kable(onlyRecentData)
 
 The plot and summary statistics for margin of error for `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear` is shown below.
 
+
 ```{r, echo=FALSE}
 #plot error in polling (absolute value of bias) as a dependent variable of the date of the election. 
 plot(onlyRecentData$electiondate,onlyRecentData$error, main="Margin of Error of Polls", xlab="Election Date", ylab="Margin of Error")
@@ -82,6 +83,7 @@ The density plot for the bias that `r pollsterOfChoice` shows for republican can
 #use density function of bias in the twoPartyTicket dataset to plot.
 plot(density(twoPartyTicket$bias), main="Density Plot of Bias", xlab="Rebulican Bias")
 ```
+
 
 Additionally, `r pollsterOfChoice` correctly predicted `r mean(onlyRecentData$rightcall)*100`% of races in their last poll for every election polled from `r earlyYear` to `r lateYear`.
 
@@ -115,9 +117,41 @@ plot(alltwoPartyTicket$electiondate,alltwoPartyTicket$bias, main="Bias of Polls 
 abline(0,0,col="blue")
 #provide summary statistics for the bias.
 summary(alltwoPartyTicket$bias)
+
+#evaluate if including all polls or just the most recent ones did a better job.
+evaluatePredictive=mean(onlyRecentData$rightcall)>=mean(mydata$rightcall)
+#evaluate the predictive difference.
+predictiveDiff=mean(onlyRecentData$rightcall)-mean(mydata$rightcall)
 ```
 
-Additionally, `r pollsterOfChoice` correctly predicted `r mean(mydata$rightcall)*100`% of races in their last poll for every election polled from `r earlyYear` to `r lateYear`.
+
+The mean bias for every year is displayed in the table and graph below.  
+
+```{r}
+#To explore whether the bias of a pollster depends on the year...
+#create new data frame to easily see average bias each year
+Year = alltwoPartyTicket$year
+Bias = alltwoPartyTicket$bias
+df <- data.frame(Year, Bias)
+
+#aggregate the data to find the mean for each year
+yearmeans=aggregate(.~Year, data=df, mean)
+#display this table of mean biases for each year in r. 
+knitr::kable(yearmeans)
+
+#plot averaged yearly bias as a dependent variable of time in years
+plot(yearmeans$Year, yearmeans$Bias, main="Averaged Yearly Bias", xlab="Year", ylab="Bias towards Republican Party")
+#create a base 0 line - visualizes where a poll with no bias would be. 
+abline(0,0,col="blue")
+
+```
+
+For `r pollsterOfChoice` the standard deviation of averaged yearly biases is `r sd(yearmeans$Bias)`. 
+
+
+Additionally, `r if(evaluatePredictive){"using just the most recent poll from each election predicted more races correctly than using all polls."}` `r if(evaluatePredictive==FALSE){"using just all the polls from ever election predicted more races correctly than using just the most recent poll from each election."}`
+`r pollsterOfChoice` correctly predicted `r mean(mydata$rightcall)*100`% of races using all polls from every election polled from `r earlyYear` to `r lateYear`.
+
 
 \newpage
 ## Works Cited
