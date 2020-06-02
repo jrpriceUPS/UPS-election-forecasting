@@ -1,5 +1,5 @@
 ---
-title: "Poll Isolator/Analyzer"
+title: "Pollster Analyzer"
 author: "Haley Reed"
 date: "5/29/2020"
 output: html_document
@@ -26,9 +26,9 @@ earlyYear=1998
 lateYear=2020
 ```
 
-This file will analyze data from `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear`.
+This file will analyze data from `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear`. This particular subset of data is shown in the table below:
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 #Subset for constraints given above.
 mydata=(subset(mydata,pollster==pollsterOfChoice))
 mydata=(subset(mydata, mydata$year>=1998))
@@ -45,35 +45,29 @@ mydata$polldate = mdy(mydata$polldate)
 #Use only the most recent poll for each election:
 library(data.table)
 library(knitr)
-kable(setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
-
-
-
 ```
 
-# ```{r}
-# #establish which poll and race to choose from
-# #pollsterOfChoice=""
-# pollsterOfChoice="SurveyUSA"
-# #raceOfChoice=""
-# raceOfChoice ="Pres-G"
-# 
-# #load lubridate for dates, change dates to date data type. 
-# library(lubridate)
-# mydata$electiondate = mdy(mydata$electiondate)
-# mydata$polldate = mdy(mydata$polldate)
-# #establish how many days back you will allow the poll to be from election day.
-# daysBack=20
-# dayAcceptable = mydata$electiondate-days(daysBack)
-# mydata$daysAcceptable=dayAcceptable
-# mydata=(subset(mydata,pollster==pollsterOfChoice))
-# 
-# #subset the data given the restrictions
-# mydata=(subset(mydata,mydata$type_simple==raceOfChoice))
-# mydata=(subset(mydata, mydata$year>2012))
-# mydata=(subset(mydata, mydata$polldate>=mydata$daysAcceptable))
-# 
-# library(knitr)
-# kable(mydata)
-# 
-# ```
+```{r, echo=FALSE}
+kable(setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
+onlyRecentData=(setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
+```
+
+The density plot and summary statistics for margin of error for `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear` is shown below.
+
+```{r, echo=FALSE}
+plot(onlyRecentData$electiondate,onlyRecentData$error, main="Margin of Error of Polls", xlab="Election Date", ylab="Margin of Error")
+abline(0,0,col="blue")  
+
+summary(onlyRecentData$error)
+```
+
+The density plot and summary statistics for bias towards Republican candidates is shown below:
+
+```{r, echo=FALSE}
+twoPartyTicket=subset(onlyRecentData,cand1_party!=cand2_party)
+plot(twoPartyTicket$electiondate,twoPartyTicket$bias, main="Bias of Polls towards Republican Candidates", xlab="Election Date", ylab="Bias")
+abline(0,0,col="blue")
+summary(twoPartyTicket$bias)
+```
+
+Additionally, `r pollsterOfChoice` correctly predicted `r mean(onlyRecentData$rightcall)*100`% of races in their last poll for every election polled from `r earlyYear` to `r lateYear`.
