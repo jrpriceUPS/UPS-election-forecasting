@@ -75,6 +75,8 @@ knitr::opts_chunk$set(echo = TRUE)
   - Read by Haley - Yes
 * AAPOR's review of Strategic Vision LLC,AAPOR
   - AAPOR expresses concern over lack of transparency of Strategic Vision's polling practices and reports they are in violation of the association’s Code of Professional Ethics and Practices.
+  - Read by Jake - No
+  - Read by Haley - Yes
 * AAPOR
   - Links to standard definitions/recommendations for polling practices. (might be a little long to read all of it, but good reference point.)
   -<https://www.aapor.org/Standards-Ethics/Standard-Definitions-(1).aspx>
