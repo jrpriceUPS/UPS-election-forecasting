@@ -46,7 +46,7 @@ mydata$polldate = lubridate::mdy(mydata$polldate)
 #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
 onlyRecentData=(data.table::setDT(mydata)[,.SD[which.max(polldate)],keyby=race_id])
 #Create a table for onlyRecentData with knitr package.
-knitr::kable(onlyRecentData)
+knitr::kable(head(onlyRecentData))
 ```
 
 The plot and summary statistics for margin of error for `r pollsterOfChoice` between the years of `r earlyYear` and `r lateYear` is shown below.
