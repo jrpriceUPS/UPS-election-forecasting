@@ -21,7 +21,7 @@ mydata <- read.csv("raw-polls_538.csv")
 
 ```{r, echo=TRUE}
 #Establish which pollster you wish to analyze:
-pollsterOfChoice="Emerson College"
+pollsterOfChoice="Mitchell Research & Communications"
 #Establish which years you wish to use data from (between 1998 and 2020):
 earlyYear=1998
 lateYear=2020
@@ -118,7 +118,7 @@ summary(alltwoPartyTicket$bias)
 
 
 #evaluate if including all polls or just the most recent ones did a better job.
-evaluatePredictive=mean(onlyRecentData$rightcall)>=mean(mydata$rightcall)
+evaluatePredictive=mean(onlyRecentData$rightcall)>mean(mydata$rightcall)
 #evaluate the predictive difference.
 predictiveDiff=mean(onlyRecentData$rightcall)-mean(mydata$rightcall)
 ```
@@ -149,7 +149,7 @@ abline(0,0,col="blue")
 For `r pollsterOfChoice` the standard deviation of averaged yearly biases is `r sd(yearmeans$Bias)`. 
 
 
-Additionally, `r if(evaluatePredictive){"using just the most recent poll from each election predicted more races correctly than using all polls."}` `r if(evaluatePredictive==FALSE){"using just all the polls from ever election predicted more races correctly than using just the most recent poll from each election."}`
+Additionally, `r if(evaluatePredictive==TRUE){"using just the most recent poll from each election predicted more races correctly than using all polls."}` `r if(evaluatePredictive==FALSE){"using all the polls from every election predicted more races correctly than using just the most recent poll from each election."}`
 `r pollsterOfChoice` correctly predicted `r mean(mydata$rightcall)*100`% of races using all polls from every election polled from `r earlyYear` to `r lateYear`.
 
 \newpage

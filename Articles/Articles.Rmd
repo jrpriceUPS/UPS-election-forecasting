@@ -57,17 +57,17 @@ knitr::opts_chunk$set(echo = TRUE)
   - Looks at what makes a good pollster and when shocking data isn't an outlier - but the start of a new trend
   - <https://fivethirtyeight.com/features/selzer/>
   - Read by Jake - No
-  - Read by Haley - No
+  - Read by Haley - Yes
 * Nate Silver, FiveThirtyEight 
   - More in depth explanation of pollster ratings and pollster methods
-  - https://fivethirtyeight.com/features/how-fivethirtyeight-calculates-pollster-ratings/
+  - <https://fivethirtyeight.com/features/how-fivethirtyeight-calculates-pollster-ratings/>
   - Read by Jake - No
   - Read by Haley - No
 * Nathaniel Rakich, FiveThirtyEight
   - Explanation of polling error coming into 2020 election 
   -<https://fivethirtyeight.com/features/weve-updated-our-pollster-ratings-ahead-of-the-2020-general-election/>
   - Read by Jake - No
-  - Read by Haley - No  
+  - Read by Haley - Yes  
 * Pollster Fraud (By Strategic Vision LLC), FiveThirtyEight
   - Creates the case for Strategic Vision's pollester fraud and what that looks like
   - <https://fivethirtyeight.com/features/strategic-vision-polls-exhibit-unusual/>
@@ -82,6 +82,12 @@ knitr::opts_chunk$set(echo = TRUE)
   -<https://www.aapor.org/Standards-Ethics/Standard-Definitions-(1).aspx>
   - Read by Jake - No
   - Read by Haley - No   
+* Nate Cohn, The Upshot
+  - Explains why online pollster is more challenging to determine. 
+  - <https://docs.google.com/document/d/1plbd2h43c9KVyNXz1cTqLExuEtoi41Eq86f-nc2BiXU/edit>
+  - Read by Jake - No
+  - Read by Haley - Yes
+  
 
 ## Other Names / Sites for starting to look for articles
 * David Byler
