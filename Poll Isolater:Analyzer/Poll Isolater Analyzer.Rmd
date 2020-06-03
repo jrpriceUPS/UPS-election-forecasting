@@ -126,5 +126,16 @@ Additionally, `r pollsterOfChoice` correctly predicted `r mean(mydata$rightcall)
 #.bib for bib refrence
 nocite: |
   @538rawpolldata
-
+  @MaristAcademy
+  @2020PrimaryUndecided
+  @marginOfError
+  @ToyElectionSimulation
+  @MRPModelSubgroups
+  @DoubleHaters
+  @ReadPollsBetter
+  @GoodOnlinePolls
+  @UpdatePollster2020
+  @StatePollsGettingBetter
+  @StrategicVisionFraud
+  @StrategicVisionAAPOR
 ---

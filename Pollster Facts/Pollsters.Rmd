@@ -109,6 +109,17 @@ general elections
     - responses are minimally weighted to U.S. Census targets or voter file targets for gender, age and race. Cell (target) weighting is used.
     - <https://www.surveyusa.net/methodology/>
     
+## YouGov
+* 538 Rating: B
+* Methodology in general: <https://smpa.gwu.edu/sites/g/files/zaxdzs2046/f/downloads/YG_Matching_and_weighting_basic_description.pdf>
+    - Online with sample matching (	methodology	for	selection of	representative	samples	from non-randomly selected pools of respondents). Random sample is drawn from target population to get target sample. For each member of target same, one or more matching members from opt-in respondents are chosen, therefore it is "representative of the target population". 
+    - Uses proximity matching method by defining a distance function which describes how "close" the values of x and y are for each particular attribute. 
+    - The	intuition	behind	sample	matching	is	analogous	to	stratified	sampling
+* How do they define likely / registered voter?
+    - 	Data on	reported 2012 voter	registration and	turnout	from the November 2012 Current Population Survey was	matched	to	this frame using a	weighted Euclidean distance	metric.
+* How do they do weighting? (before / after reporting results)
+    - Matched cases and the frame are combined and a a logistic regression is estimated for inclusion in the frame. 
+    
 ## Mitchell Research & Communications
 * 538 Rating: C-
 * Methodology in general: <http://big.assets.huffingtonpost.com/Mitchell-FOX2DetroitMIPollDEM3616.pdf>
