@@ -495,7 +495,7 @@ summary {
 </ul></li>
 <li>How do they define likely / registered voter?
 <ul>
-<li>REgistered voters are determined by state files</li>
+<li>Registered voters are determined by state files</li>
 <li>Likely voter is defined as registered voters who have either
 <ul>
 <li>voted in at least 2 of the last 4 general elections</li>
@@ -532,6 +532,60 @@ summary {
 <ul>
 <li>responses are minimally weighted to U.S. Census targets or voter file targets for gender, age and race. Cell (target) weighting is used.</li>
 <li><a href="https://www.surveyusa.net/methodology/" class="uri">https://www.surveyusa.net/methodology/</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="yougov" class="section level2">
+<h2>YouGov</h2>
+<ul>
+<li>538 Rating: B</li>
+<li>Methodology in general: <a href="https://smpa.gwu.edu/sites/g/files/zaxdzs2046/f/downloads/YG_Matching_and_weighting_basic_description.pdf" class="uri">https://smpa.gwu.edu/sites/g/files/zaxdzs2046/f/downloads/YG_Matching_and_weighting_basic_description.pdf</a>
+<ul>
+<li>Online with sample matching ( methodology for selection of representative samples from non-randomly selected pools of respondents). Random sample is drawn from target population to get target sample. For each member of target same, one or more matching members from opt-in respondents are chosen, therefore it is “representative of the target population”.</li>
+<li>Uses proximity matching method by defining a distance function which describes how “close” the values of x and y are for each particular attribute.</li>
+<li>The intuition behind sample matching is analogous to stratified sampling</li>
+</ul></li>
+<li>How do they define likely / registered voter?
+<ul>
+<li>Data on reported 2012 voter registration and turnout from the November 2012 Current Population Survey was matched to this frame using a weighted Euclidean distance metric.</li>
+</ul></li>
+<li>How do they do weighting? (before / after reporting results)
+<ul>
+<li>Matched cases and the frame are combined and a a logistic regression is estimated for inclusion in the frame.</li>
+</ul></li>
+</ul>
+</div>
+<div id="mitchell-research-communications" class="section level2">
+<h2>Mitchell Research &amp; Communications</h2>
+<ul>
+<li>538 Rating: C-</li>
+<li>Methodology in general: <a href="http://big.assets.huffingtonpost.com/Mitchell-FOX2DetroitMIPollDEM3616.pdf" class="uri">http://big.assets.huffingtonpost.com/Mitchell-FOX2DetroitMIPollDEM3616.pdf</a>
+<ul>
+<li>IVR (automated) telephone (landlines only)</li>
+<li>Some mixed mode: identical surveys to the mobile devices of 18-40 year old registered voters.</li>
+</ul></li>
+<li>How do they define likely / registered voter?
+<ul>
+<li>Voters self identify if registered. Asked in phone call.</li>
+<li>Likely voters were determined by asking if they were definitely voting, probably voting, not sure yet, or definitely not voting. Everyone but the “definitely not voting” group was included in the likely voter poll.</li>
+</ul></li>
+<li>How do they do weighting? (before / after reporting results)
+<ul>
+<li>Weighting done on age, race, and gender to assure the demographics of those called were consistent with likely voter turnout.</li>
+</ul></li>
+</ul>
+</div>
+<div id="strategic-vision-llc" class="section level2">
+<h2>Strategic Vision LLC</h2>
+<ul>
+<li>538 Rating: F</li>
+<li>Methodology in general
+<ul>
+<li>AAPOR was unable to obtain info about who sponsored the survey; who conducted it; a description of the underlying sampling frame; an accounting of how “likely voters” were identified and selected; response rates; and a description of any weighting or estimating procedures used. <a href="https://www.aapor.org/Communications/Press-Releases/AAPOR-Raises-Objections-to-Actions-by-Atlanta-Base.aspx" class="uri">https://www.aapor.org/Communications/Press-Releases/AAPOR-Raises-Objections-to-Actions-by-Atlanta-Base.aspx</a></li>
+</ul></li>
+<li>How do they supposedly use likely/register voters?
+<ul>
+<li>A poll from 2008 reports “600 likely Republican primary voters and 600 likely Democratic primary voters, aged 18+, and conducted January 4-6, 2008”. This is the only methodological statement for the whole poll. <a href="https://www.realclearpolitics.com/articles/docs/SV_NH08.html" class="uri">https://www.realclearpolitics.com/articles/docs/SV_NH08.html</a></li>
 </ul></li>
 </ul>
 </div>
