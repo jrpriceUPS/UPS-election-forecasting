@@ -32,8 +32,8 @@ This file will analyze data from `r pollsterOfChoice` between the years of `r ea
 ```{r, include=FALSE}
 #Subset for constraints given above.
 mydata=(subset(mydata,pollster==pollsterOfChoice))
-mydata=(subset(mydata, mydata$year>=1998))
-mydata=(subset(mydata, mydata$year<=2020))
+mydata=(subset(mydata, mydata$year>=earlyYear))
+mydata=(subset(mydata, mydata$year<=lateYear))
 
 #use lubridate to change dates from character to date data type for functionality. 
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
@@ -151,6 +151,64 @@ For `r pollsterOfChoice` the standard deviation of averaged yearly biases is `r 
 
 Additionally, `r if(evaluatePredictive==TRUE){"using just the most recent poll from each election predicted more races correctly than using all polls."}` `r if(evaluatePredictive==FALSE){"using all the polls from every election predicted more races correctly than using just the most recent poll from each election."}`
 `r pollsterOfChoice` correctly predicted `r mean(mydata$rightcall)*100`% of races using all polls from every election polled from `r earlyYear` to `r lateYear`.
+
+\newpage
+### Comparing Pollsters
+While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group below:
+
+```{r}
+mydata <- read.csv("raw-polls_538.csv")
+pollsterOfChoice1="Rasmussen Reports/Pulse Opinion Research"
+pollsterOfChoice2="Monmouth University"
+pollsterOfChoice3="Marist College"
+pollsterOfChoice4="ABC News/The Washington Post"
+pollsterOfChoice5="SurveyUSA"
+```
+
+This file will analyze data from `r pollsterOfChoice1`, `r pollsterOfChoice2`, `r pollsterOfChoice3`, `r pollsterOfChoice4`, and `r pollsterOfChoice5` between the years of `r earlyYear` and `r lateYear`. This particular subset of data is shown in the table below:
+
+```{r}
+#use lubridate to change dates from character to date data type for functionality. 
+mydata$electiondate = lubridate::mdy(mydata$electiondate)
+mydata$polldate = lubridate::mdy(mydata$polldate)
+
+#Subset for constraints given above.
+mydata=(subset(mydata, mydata$year>=earlyYear))
+mydata=(subset(mydata, mydata$year<=lateYear))
+
+
+mydata1=(subset(mydata,pollster==pollsterOfChoice1))
+mydata2=(subset(mydata,pollster==pollsterOfChoice2))
+mydata3=(subset(mydata,pollster==pollsterOfChoice3))
+mydata4=(subset(mydata,pollster==pollsterOfChoice4))
+mydata5=(subset(mydata,pollster==pollsterOfChoice5))
+
+
+
+
+
+#Use only the most recent poll for each election:
+#Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
+onlyRecentData1=(data.table::setDT(mydata1)[,.SD[which.max(polldate)],keyby=race_id])
+onlyRecentData2=(data.table::setDT(mydata2)[,.SD[which.max(polldate)],keyby=race_id])
+onlyRecentData3=(data.table::setDT(mydata3)[,.SD[which.max(polldate)],keyby=race_id])
+onlyRecentData4=(data.table::setDT(mydata4)[,.SD[which.max(polldate)],keyby=race_id])
+onlyRecentData5=(data.table::setDT(mydata5)[,.SD[which.max(polldate)],keyby=race_id])
+#combine all the rows
+total = rbind(onlyRecentData1,onlyRecentData2, onlyRecentData3, onlyRecentData4, onlyRecentData5)
+
+#Create a table for onlyRecentData with knitr package.
+
+#will come back later and make this table better.
+
+knitr::kable(head(total))
+
+lattice::xyplot(total$electiondate ~ total$bias | total$pollster,
+ main="Scatter Plots by Pollster",
+ xlab="Election Date", ylab="Bias") 
+
+```
+
 
 \newpage
 ## Works Cited
