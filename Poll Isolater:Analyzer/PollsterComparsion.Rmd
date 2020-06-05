@@ -1,13 +1,40 @@
-#Comparing Pollsters
-#While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group below:
-  
+---
+title: "Pollster Comparsion"
+author: "Haley Reed"
+date: "6/5/2020"
+output: html_document
+---
 
-#load all the data
-mydata <- read.csv("raw-polls_538.csv")
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = dirname(getwd()))
+```
+
+
+##Comparing Pollsters
+While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group of pollsters below (and dates for which you wish to see a comparison):
+
+```{r, echo=TRUE}
+pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University", "Marist College", "ABC News/The Washington Post","SurveyUSA")
 
 #Establish which years you wish to use data from (between 1998 and 2020):
 earlyYear=1998
 lateYear=2020
+```
+
+This file uses data from the FiveThirtyEight repository isolate the specified pollsters and their most recent polls at the time of every election in the dataset for the indicated years.
+
+```{r, echo=FALSE}
+
+#load the data
+#in this case from 538
+mydata <- read.csv("raw-polls_538.csv")
+```
+  
+```{r}
+
+
 
 #use lubridate to change dates from character to date data type for functionality. 
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
@@ -18,9 +45,7 @@ mydata=(subset(mydata, mydata$year>=earlyYear))
 mydata=(subset(mydata, mydata$year<=lateYear))
 
 
-#list all pollsters you wish to compare.
-pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University",
-             "Marist College", "ABC News/The Washington Post","SurveyUSA", "Quinnipiac University")
+
 
 #create empty data frame, while maintaining all columns from the mydata structure
 myDataMyPollsters=  mydata[0,]
@@ -89,7 +114,16 @@ colnames(df1) <- x
 
 
 
+
+```
+
+```{r}
+
 lattice::splom(subset(df1, select=pollsters))
 
-
+# df1 %>%
+#   ggplot2::ggplot() +
+#   ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
+#   ggforce::facet_matrix(vars(pollsters))
+```
 
