@@ -1,91 +1,95 @@
+#Comparing Pollsters
+#While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group below:
+  
+
+#load all the data
 mydata <- read.csv("raw-polls_538.csv")
-pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University",
-             "Marist College", "ABC News/The Washington Post","SurveyUSA")
 
-pollsterOfChoice1="Rasmussen Reports/Pulse Opinion Research"
-pollsterOfChoice2="Monmouth University"
-pollsterOfChoice3="Marist College"
-pollsterOfChoice4="ABC News/The Washington Post"
-pollsterOfChoice5="SurveyUSA"
-
-
-
+#Establish which years you wish to use data from (between 1998 and 2020):
+earlyYear=1998
+lateYear=2020
 
 #use lubridate to change dates from character to date data type for functionality. 
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
 mydata$polldate = lubridate::mdy(mydata$polldate)
 
-#Subset for constraints given above.
+#Subset for year constraints given above.
 mydata=(subset(mydata, mydata$year>=earlyYear))
 mydata=(subset(mydata, mydata$year<=lateYear))
 
 
-mydata1=(subset(mydata,pollster==pollsterOfChoice1))
-mydata2=(subset(mydata,pollster==pollsterOfChoice2))
-mydata3=(subset(mydata,pollster==pollsterOfChoice3))
-mydata4=(subset(mydata,pollster==pollsterOfChoice4))
-mydata5=(subset(mydata,pollster==pollsterOfChoice5))
+#list all pollsters you wish to compare.
+pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University",
+             "Marist College", "ABC News/The Washington Post","SurveyUSA")
+
+#create empty data frame, while maintaining all columns from the mydata structure
+myDataMyPollsters=  mydata[0,]
+
+#run a loop to fill this data frame with every pollster specified above
+for(myPollster in unique(pollsters))
+{
+  #subset to a dataset with just each pollster
+  subpoll=subset(total, pollster==myPollster)
+  #Use only the most recent poll for each election:
+  #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
+  onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
+  #combine each of these subsets together
+  myDataMyPollsters=rbind(myDataMyPollsters, onlyRecentData1)
+}
 
 
-#Use only the most recent poll for each election:
-#Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
-onlyRecentData1=(data.table::setDT(mydata1)[,.SD[which.max(polldate)],keyby=race_id])
-onlyRecentData2=(data.table::setDT(mydata2)[,.SD[which.max(polldate)],keyby=race_id])
-onlyRecentData3=(data.table::setDT(mydata3)[,.SD[which.max(polldate)],keyby=race_id])
-onlyRecentData4=(data.table::setDT(mydata4)[,.SD[which.max(polldate)],keyby=race_id])
-onlyRecentData5=(data.table::setDT(mydata5)[,.SD[which.max(polldate)],keyby=race_id])
-#combine all the rows
-total = rbind(onlyRecentData1,onlyRecentData2, onlyRecentData3, onlyRecentData4, onlyRecentData5)
 
+#create new data frame.
 df1 <- data.frame(matrix(ncol = 7, nrow = 0))
-x <- c("Race","Election Date",pollsterOfChoice1, pollsterOfChoice2, pollsterOfChoice3,pollsterOfChoice4, pollsterOfChoice5)
+#First two columns will just be Race and Election Date
+x <- c("Race","Election Date")
+
+
+#define x as the column names for our new dataframe.
 colnames(df1) <- x
 
-
-for(myRace in unique(total$race_id))
+#loop through pollster filtered data to fill the data frame
+for(myRace in unique(myDataMyPollsters$race_id))
 {
-
-subrace=subset(total, race_id==myRace)
-head(subrace)
-
-
+#subset the data to only one race at a time
+subrace=subset(myDataMyPollsters, race_id==myRace)
+#Choose a year by picking year of first data point in the frame
 myYear=subrace$year[1]
 
 
-p1bias=subset(subrace, pollster==pollsterOfChoice1)$bias
-if(length(p1bias)==0){
-  p1bias=NA
+#create new data frame to store info from each race
+newline=data.frame("Race"=myRace, "Election Date"=myYear)
+
+#Loop through each pollster to find their bias
+for(myPollster in unique(pollsters))
+{
+#get bias for that pollster
+pbias=subset(subrace, pollster==myPollster)$bias
+if(length(pbias)==0){
+  pbias=NA
 }
-p2bias=subset(subrace, pollster==pollsterOfChoice2)$bias
-if(length(p2bias)==0){
-  p2bias=NA
-}
-p3bias=subset(subrace, pollster==pollsterOfChoice3)$bias
-if(length(p3bias)==0){
-  p3bias=NA
-}
-p4bias=subset(subrace, pollster==pollsterOfChoice4)$bias
-if(length(p4bias)==0){
-  p4bias=NA
-}
-p5bias=subset(subrace, pollster==pollsterOfChoice5)$bias
-if(length(p5bias)==0){
-  p5bias=NA
+#add that pollster's bias to individual race's data frame
+newline = cbind(newline, pbias)
 }
 
-newline=data.frame("Race"=myRace, "Election Date"=myYear,
-                   pollsterOfChoice1=p1bias, 
-                   pollsterOfChoice2=p2bias, 
-                   pollsterOfChoice3=p3bias, 
-                   pollsterOfChoice4=p4bias,
-                   pollsterOfChoice5=p5bias)
 
+#add the individual race data frames together 
 df1=rbind(df1, newline)
 }
 
+#loop through list of desired pollsters for the rest of the columns
+for(myPollster in unique(pollsters))
+{
+  #Append pollster names to column name list
+  x=c(x,myPollster)
+}
 
-lattice::splom(subset(df1, select=c(pollsterOfChoice1, pollsterOfChoice2,
-                                    pollsterOfChoice3, pollsterOfChoice4, pollsterOfChoice5)))
+#define x as the column names for our new dataframe.
+colnames(df1) <- x
+
+
+
+lattice::splom(subset(df1, select=pollsters))
 
 
 
