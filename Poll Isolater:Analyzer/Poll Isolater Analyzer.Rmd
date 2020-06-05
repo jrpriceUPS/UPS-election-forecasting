@@ -203,9 +203,17 @@ total = rbind(onlyRecentData1,onlyRecentData2, onlyRecentData3, onlyRecentData4,
 
 knitr::kable(head(total))
 
-lattice::xyplot(total$electiondate ~ total$bias | total$pollster,
- main="Scatter Plots by Pollster",
- xlab="Election Date", ylab="Bias") 
+
+#lattice::xyplot(onlyRecentData1$bias ~ onlyRecentData2$bias ,main="Scatter Plots by Pollster",xlab=pollsterOfChoice1, ylab=pollsterOfChoice2 )
+
+#lattice::xyplot(total$electiondate ~ total$bias,main="Scatter Plots by Pollster",xlab="Election Date", ylab="Bias") 
+
+#newdataframe=merge(onlyRecentData1,onlyRecentData2, onlyRecentData3, onlyRecentData4, onlyRecentData5, by.x="race", by.y="bias")
+#simpledata = data.table()
+#for (val in unique(total$race_id)){
+  #x=c(total$race_id, total$pollster, total$polldate, total$bias)
+ # rbind(simpledata, x)
+#}
 
 ```
 

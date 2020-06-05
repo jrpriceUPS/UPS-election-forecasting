@@ -62,7 +62,7 @@ knitr::opts_chunk$set(echo = TRUE)
   - More in depth explanation of pollster ratings and pollster methods
   - <https://fivethirtyeight.com/features/how-fivethirtyeight-calculates-pollster-ratings/>
   - Read by Jake - No
-  - Read by Haley - No
+  - Read by Haley - Yes
 * Nathaniel Rakich, FiveThirtyEight
   - Explanation of polling error coming into 2020 election 
   -<https://fivethirtyeight.com/features/weve-updated-our-pollster-ratings-ahead-of-the-2020-general-election/>
