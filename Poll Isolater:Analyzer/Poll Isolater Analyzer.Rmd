@@ -203,6 +203,10 @@ total = rbind(onlyRecentData1,onlyRecentData2, onlyRecentData3, onlyRecentData4,
 
 knitr::kable(head(total))
 
+df1 <- data.frame(matrix(ncol = 7, nrow = 0))
+x <- c("Race","Election Date",pollsterOfChoice1, pollsterOfChoice2, pollsterOfChoice3,pollsterOfChoice4, pollsterOfChoice5)
+colnames(df1) <- x
+
 
 #lattice::xyplot(onlyRecentData1$bias ~ onlyRecentData2$bias ,main="Scatter Plots by Pollster",xlab=pollsterOfChoice1, ylab=pollsterOfChoice2 )
 
@@ -210,7 +214,13 @@ knitr::kable(head(total))
 
 #newdataframe=merge(onlyRecentData1,onlyRecentData2, onlyRecentData3, onlyRecentData4, onlyRecentData5, by.x="race", by.y="bias")
 #simpledata = data.table()
+
+#y <- read.csv(text="Race,Election Date, Bias 1, Bias 2, Bias 3, #Bias 4, Bias 5")
+#y1 = data.frame(Race=NA, ElectionDate=NA, Bias1=NA, Bias2=NA, #Bias3=NA, Bias4=NA, Bias5=NA)[numeric(0), ]
+
 #for (val in unique(total$race_id)){
+  #rbind(y,list(total$race,total$electiondate,total$bias))
+#}
   #x=c(total$race_id, total$pollster, total$polldate, total$bias)
  # rbind(simpledata, x)
 #}
