@@ -20,7 +20,7 @@ mydata=(subset(mydata, mydata$year<=lateYear))
 
 #list all pollsters you wish to compare.
 pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University",
-             "Marist College", "ABC News/The Washington Post","SurveyUSA")
+             "Marist College", "ABC News/The Washington Post","SurveyUSA", "Quinnipiac University")
 
 #create empty data frame, while maintaining all columns from the mydata structure
 myDataMyPollsters=  mydata[0,]
@@ -29,7 +29,7 @@ myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(pollsters))
 {
   #subset to a dataset with just each pollster
-  subpoll=subset(total, pollster==myPollster)
+  subpoll=subset(mydata, pollster==myPollster)
   #Use only the most recent poll for each election:
   #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
   onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
