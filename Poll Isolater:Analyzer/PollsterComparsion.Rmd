@@ -1,8 +1,9 @@
 ---
-title: "Pollster Comparsion"
+title: "Comparing Pollsters"
 author: "Haley Reed"
 date: "6/5/2020"
 output: html_document
+bibliography: electionworkingbib.bib
 ---
 
 
@@ -12,7 +13,7 @@ knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
 
 
-##Comparing Pollsters
+
 While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group of pollsters below (and dates for which you wish to see a comparison):
 
 ```{r, echo=TRUE}
@@ -23,8 +24,9 @@ earlyYear=1998
 lateYear=2020
 ```
 
-This file uses data from the FiveThirtyEight repository isolate the specified pollsters and their most recent polls at the time of every election in the dataset for the indicated years.
+This file uses data from the FiveThirtyEight's repository to isolate the specified pollsters and their most recent polls at the time of every election in the dataset for the indicated years.
 
+We can see the bias from the last poll for every election from each pollster. A segment of that data is shown in the table below:
 ```{r, echo=FALSE}
 
 #load the data
@@ -46,7 +48,6 @@ mydata=(subset(mydata, mydata$year<=lateYear))
 
 
 
-
 #create empty data frame, while maintaining all columns from the mydata structure
 myDataMyPollsters=  mydata[0,]
 
@@ -54,7 +55,7 @@ myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(pollsters))
 {
   #subset to a dataset with just each pollster
-  subpoll=subset(myDataMyPollsters, pollster==myPollster)
+  subpoll=subset(mydata, pollster==myPollster)
   #Use only the most recent poll for each election:
   #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
   onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
@@ -76,30 +77,30 @@ colnames(df1) <- x
 #loop through pollster filtered data to fill the data frame
 for(myRace in unique(myDataMyPollsters$race_id))
 {
-#subset the data to only one race at a time
-subrace=subset(myDataMyPollsters, race_id==myRace)
-#Choose a year by picking year of first data point in the frame
-myYear=subrace$year[1]
-myRaceName=subrace$race[1]
-
-#create new data frame to store info from each race
-newline=data.frame("Race"=myRaceName, "Election Date"=myYear)
-
-#Loop through each pollster to find their bias
-for(myPollster in unique(pollsters))
-{
-#get bias for that pollster
-pbias=subset(subrace, pollster==myPollster)$bias
-if(length(pbias)==0){
-  pbias=NA
-}
-#add that pollster's bias to individual race's data frame
-newline = cbind(newline, pbias)
-}
-
-
-#add the individual race data frames together 
-df1=rbind(df1, newline)
+  #subset the data to only one race at a time
+  subrace=subset(myDataMyPollsters, race_id==myRace)
+  #Choose a year by picking year of first data point in the frame
+  myYear=subrace$year[1]
+  RaceName=subrace$race
+  
+  #create new data frame to store info from each race
+  newline=data.frame("Race"=RaceName, "Election Date"=myYear)
+  
+  #Loop through each pollster to find their bias
+  for(myPollster in unique(pollsters))
+  {
+    #get bias for that pollster
+    pbias=subset(subrace, pollster==myPollster)$bias
+    if(length(pbias)==0){
+      pbias=NA
+    }
+    #add that pollster's bias to individual race's data frame
+    newline = cbind(newline, pbias)
+  }
+  
+  
+  #add the individual race data frames together 
+  df1=rbind(df1, newline)
 }
 
 #loop through list of desired pollsters for the rest of the columns
@@ -113,17 +114,35 @@ for(myPollster in unique(pollsters))
 colnames(df1) <- x
 
 
-
-
+#show a table in RMarkdown
+knitr::kable(head(df1))
 ```
+
+Since there are concerns about the effect of herding on polling credibility, it is important to look at the correlation matrix shown below:
 
 ```{r}
-
+#scatterplot matrix to show correlation
 lattice::splom(subset(df1, select=pollsters))
 
-# df1 %>%
-#   ggplot2::ggplot() +
-#   ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
-#   ggforce::facet_matrix(vars(pollsters))
 ```
 
+Additionally, a density plot that compares pollster error can be seen below:
+
+```{r}
+#density plot 
+lattice::densityplot(~bias,data=myDataMyPollsters,
+            groups=pollster,
+            xlab="Bias",
+            main="Pollster Bias",
+            plot.points=TRUE,
+            auto.key=TRUE)
+```
+
+\newpage
+## Works Cited
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+---

@@ -1,6 +1,6 @@
 #Comparing Pollsters
 #While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group below:
-  
+
 
 #load all the data
 mydata <- read.csv("raw-polls_538.csv")
@@ -29,7 +29,7 @@ myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(pollsters))
 {
   #subset to a dataset with just each pollster
-  subpoll=subset(myDataMyPollsters, pollster==myPollster)
+  subpoll=subset(mydata, pollster==myPollster)
   #Use only the most recent poll for each election:
   #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
   onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
@@ -51,30 +51,30 @@ colnames(df1) <- x
 #loop through pollster filtered data to fill the data frame
 for(myRace in unique(myDataMyPollsters$race_id))
 {
-#subset the data to only one race at a time
-subrace=subset(myDataMyPollsters, race_id==myRace)
-#Choose a year by picking year of first data point in the frame
-myYear=subrace$year[1]
-myRaceName=subrace$race[1]
-
-#create new data frame to store info from each race
-newline=data.frame("Race"=myRaceName, "Election Date"=myYear)
-
-#Loop through each pollster to find their bias
-for(myPollster in unique(pollsters))
-{
-#get bias for that pollster
-pbias=subset(subrace, pollster==myPollster)$bias
-if(length(pbias)==0){
-  pbias=NA
-}
-#add that pollster's bias to individual race's data frame
-newline = cbind(newline, pbias)
-}
-
-
-#add the individual race data frames together 
-df1=rbind(df1, newline)
+  #subset the data to only one race at a time
+  subrace=subset(myDataMyPollsters, race_id==myRace)
+  #Choose a year by picking year of first data point in the frame
+  myYear=subrace$year[1]
+  
+  
+  #create new data frame to store info from each race
+  newline=data.frame("Race"=myRace, "Election Date"=myYear)
+  
+  #Loop through each pollster to find their bias
+  for(myPollster in unique(pollsters))
+  {
+    #get bias for that pollster
+    pbias=subset(subrace, pollster==myPollster)$bias
+    if(length(pbias)==0){
+      pbias=NA
+    }
+    #add that pollster's bias to individual race's data frame
+    newline = cbind(newline, pbias)
+  }
+  
+  
+  #add the individual race data frames together 
+  df1=rbind(df1, newline)
 }
 
 #loop through list of desired pollsters for the rest of the columns
@@ -89,7 +89,24 @@ colnames(df1) <- x
 
 
 
+#scatterplot to visualize correlation
 lattice::splom(subset(df1, select=pollsters))
+
+
+#alternative scatterplot
+ggplot2::ggplot(df1) +
+   ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
+   ggforce::facet_matrix(vars(pollsters))
+
+#density plot
+
+lattice::densityplot(~bias,data=myDataMyPollsters,
+            groups=pollster,
+            xlab="Bias",
+            main="Pollster Bias",
+            plot.points=TRUE,
+            auto.key=TRUE)
+
 
 
 
