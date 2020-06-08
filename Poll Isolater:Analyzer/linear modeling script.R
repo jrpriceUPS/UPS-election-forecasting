@@ -31,7 +31,7 @@ for(myPollster in unique(mydata$pollster))
   subpoll=subset(mydata, pollster==myPollster)
   
   #if that subset has more than thirty entries, use it:
-  if(nrow(subpoll)>100){
+  if(nrow(subpoll)>300){
   #Use only the most recent poll for each election:
   #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
   onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
@@ -63,7 +63,7 @@ myDataMyPollsters$pollster <- as.factor(myDataMyPollsters$pollster)
 library(ggplot2)
 ggplot(myDataMyPollsters, aes(x=year, y=bias, color=pollster)) +
   geom_point() +
-  geom_smooth(method=lm, , se=FALSE, fullrange=TRUE)
+  geom_smooth(method=lm)
 # Remove confidence intervals
 # Extend the regression lines
 
@@ -99,5 +99,17 @@ ggplot(myDataMyPollsters, aes(x=year, y=bias, color=partisan)) +
 model3 = lm(bias~ year + pollster + year:partisan + type_simple + year:type_simple +  year:pollster + partisan , data = myDataMyPollsters)
 summary(model3)
 #no thats not better
+
+#sample size?
+model4 = lm(bias~ year + pollster + year:partisan + type_simple + year:type_simple +  year:pollster + partisan + samplesize , data = myDataMyPollsters)
+summary(model4)
+
+#plot by sample size and pollster
+library(ggplot2)
+ggplot(myDataMyPollsters, aes(x=samplesize, y=bias, color=pollster)) +
+  geom_point() +
+  geom_smooth(method=lm)
+
+#sample size doesn't make it better
 
 

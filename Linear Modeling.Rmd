@@ -1,0 +1,36 @@
+---
+title: "Linear Modeling"
+author: "Haley Reed"
+date: "6/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Linear Modeling
+
+To better understand polls, we can attempt to model the bias from polls with other measurable variables. 
+
+```{r}
+#load the data
+#in this case from 538
+mydata <- read.csv("raw-polls_538.csv")
+```
+
+Choose what years you would like to consider:
+
+```{r, echo=TRUE}
+#Establish which years you wish to use data from (between 1998 and 2020):
+earlyYear=1998
+lateYear=2020
+```
+
+Choose the minimum number (at least 50) of polls you wish a pollster to have before they are considered in the model:
+
+```{r, echo=TRUE}
+minPolls=100
+```
+
+
