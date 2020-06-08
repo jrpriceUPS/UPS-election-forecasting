@@ -110,7 +110,7 @@ As seen above, there is overwhelmingly little partisan polls considered in our d
 The model considered is seen below:
 
 ```{r, include=FALSE}
-model2 = lm(bias ~ year + pollster + type_simple + year:type_simple + year:pollster , data = myDataMyPollsters)
+model2 = lm(bias ~ year:type_simple + year:pollster , data = myDataMyPollsters)
 
 library(gtsummary)
 library(dplyr)
@@ -137,11 +137,17 @@ car::qqp(rstandard(model2))
 lattice::densityplot(rstandard(model2))
 # the residual density plot looks cleary centered on zero and mostly normal with outliers
 # robust linear modeling will probably do a very good job here when we construct our Bayesian model
+
+#multicollinearity?
+
 ```
 
 ### Conclusions
 
-While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data.
+While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data. From these findings, it is also notable that having a variable that considers years or race type or pollsters independent of their interaction with other terms is not better than the model laid out here, which is simply comprised of the following interaction terms:
+
+* year:pollster
+* year:type_simple
 
 
 \newpage

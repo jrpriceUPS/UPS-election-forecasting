@@ -83,8 +83,13 @@ ggplot(myDataMyPollsters, aes(x=year, y=bias, color=type_simple)) +
 # Extend the regression lines
 
 #interaction term with year and type needed?
-model2 = lm(bias~ year + pollster + type_simple + year:type_simple + year:pollster, data = myDataMyPollsters)
+model2 = lm(bias~  year:type_simple + year:pollster, data = myDataMyPollsters)
 summary(model2)
+
+
+model5 = lm(bias~ year:simple_type, data = myDataMyPollsters)
+summary(model5)
+
 
 #plot by year and partisian 
 
@@ -112,4 +117,5 @@ ggplot(myDataMyPollsters, aes(x=samplesize, y=bias, color=pollster)) +
 
 #sample size doesn't make it better
 
-
+modela <- lm(bias ~ year*pollster + year*type_simple, data = myDataMyPollsters)
+summary(modela)
