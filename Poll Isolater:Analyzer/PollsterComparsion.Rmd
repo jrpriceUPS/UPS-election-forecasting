@@ -17,7 +17,7 @@ knitr::opts_knit$set(root.dir = dirname(getwd()))
 While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group of pollsters below (and dates for which you wish to see a comparison):
 
 ```{r, echo=TRUE}
-pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University", "Marist College", "ABC News/The Washington Post","SurveyUSA")
+pollsters= c("Rasmussen Reports/Pulse Opinion Research","Monmouth University", "Marist College", "ABC News/The Washington Post","SurveyUSA","Quinnipiac University")
 
 #Establish which years you wish to use data from (between 1998 and 2020):
 earlyYear=1998

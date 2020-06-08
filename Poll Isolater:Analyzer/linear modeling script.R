@@ -19,7 +19,7 @@ mydata$polldate = lubridate::mdy(mydata$polldate)
 mydata=subset(mydata,cand1_party=="DEM")
 mydata=subset(mydata,cand2_party=="REP")
 
-
+mydata$year = as.factor(mydata$year)
 
 #create empty data frame, while maintaining all columns from the mydata structure
 myDataMyPollsters=  mydata[0,]
@@ -40,4 +40,12 @@ for(myPollster in unique(mydata$pollster))
   }
 }
 
-model = lm(bias~ year + pollster + type_simple + partisan , data = myDataMyPollsters)
+model = lm(bias~ year + pollster + type_simple + partisan + pollster:year , data = myDataMyPollsters)
+summary(model)
+# R^2 value = 19.9% - not bad!
+
+#SVAs
+car::qqp(rstandard(model))
+lattice::densityplot(rstandard(model))
+# the residual density plot looks cleary centered on zero and mostly normal with outliers
+# robust linear modeling will probably do a very good job here when we construct our Bayesian model
