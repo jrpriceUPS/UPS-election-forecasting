@@ -31,7 +31,7 @@ for(myPollster in unique(mydata$pollster))
   subpoll=subset(mydata, pollster==myPollster)
   
   #if that subset has more than thirty entries, use it:
-  if(nrow(subpoll)>200){
+  if(nrow(subpoll)>100){
   #Use only the most recent poll for each election:
   #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
   onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
@@ -49,3 +49,55 @@ car::qqp(rstandard(model))
 lattice::densityplot(rstandard(model))
 # the residual density plot looks cleary centered on zero and mostly normal with outliers
 # robust linear modeling will probably do a very good job here when we construct our Bayesian model
+
+model = lm(bias~ year + pollster + type_simple + partisan , data = myDataMyPollsters)
+summary(model)
+
+
+
+#plot years and pollster
+# Convert cyl column from a numeric to a factor variable
+myDataMyPollsters$pollster <- as.factor(myDataMyPollsters$pollster)
+
+#plot by year and pollster
+library(ggplot2)
+ggplot(myDataMyPollsters, aes(x=year, y=bias, color=pollster)) +
+  geom_point() +
+  geom_smooth(method=lm, , se=FALSE, fullrange=TRUE)
+# Remove confidence intervals
+# Extend the regression lines
+
+
+#helpful to interact year and pollster
+model1 = lm(bias~ year + pollster + type_simple +  year:pollster + partisan , data = myDataMyPollsters)
+summary(model1)
+
+
+
+#plot by year and type_simple
+library(ggplot2)
+ggplot(myDataMyPollsters, aes(x=year, y=bias, color=type_simple)) +
+  geom_point() +
+  geom_smooth(method=lm, , se=FALSE, fullrange=TRUE)
+# Remove confidence intervals
+# Extend the regression lines
+
+#interaction term with year and type needed?
+model2 = lm(bias~ year + pollster + type_simple + year:type_simple + year:pollster + partisan , data = myDataMyPollsters)
+summary(model2)
+
+#plot by year and partisian 
+#plot by year and type_simple
+library(ggplot2)
+ggplot(myDataMyPollsters, aes(x=year, y=bias, color=partisan)) +
+  geom_point() +
+  geom_smooth(method=lm, , se=FALSE, fullrange=TRUE)
+# Remove confidence intervals
+# Extend the regression lines
+
+#interaction with year and partisan needed?
+model3 = lm(bias~ year + pollster + year:partisan + type_simple + year:type_simple +  year:pollster + partisan , data = myDataMyPollsters)
+summary(model3)
+#no thats not better
+
+
