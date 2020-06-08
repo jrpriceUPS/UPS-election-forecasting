@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Linear Modeling
+
 
 To better understand polls, we can attempt to model the bias from polls with other measurable variables. 
 
@@ -33,4 +33,122 @@ Choose the minimum number (at least 50) of polls you wish a pollster to have bef
 minPolls=100
 ```
 
+```{r}
+mydata=(subset(mydata, mydata$year>=earlyYear))
+mydata=(subset(mydata, mydata$year<=lateYear))
 
+#use lubridate to change dates from character to date data type for functionality. 
+mydata$electiondate = lubridate::mdy(mydata$electiondate)
+mydata$polldate = lubridate::mdy(mydata$polldate)
+
+#subset to make sure it is a democratic v. republican race
+mydata=subset(mydata,cand1_party=="DEM")
+mydata=subset(mydata,cand2_party=="REP")
+
+mydata$year = as.factor(mydata$year)
+
+#create empty data frame, while maintaining all columns from the mydata structure
+myDataMyPollsters=  mydata[0,]
+
+#run a loop to fill this data frame with every pollster
+for(myPollster in unique(mydata$pollster))
+{
+  #subset to a dataset with just each pollster
+  subpoll=subset(mydata, pollster==myPollster)
+  
+  #if that subset has more than thirty entries, use it:
+  if(nrow(subpoll)>minPolls){
+  #Use only the most recent poll for each election:
+  #Use setDT function from data.table package to get a subset from mydata with just the max. value of the date element for each race (grouped with the keyby function). Call this new subset of data onlyRecentData.
+  onlyRecentData1=(data.table::setDT(subpoll)[,.SD[which.max(polldate)],keyby=race_id])
+  #combine each of these subsets together
+  myDataMyPollsters=rbind(myDataMyPollsters, onlyRecentData1)
+  }
+}
+```
+
+### Data Exploration
+
+Before modeling our data, we have a few variables in mind. Of consideration are:
+
+* The type of race: senate, house, presidential?
+
+* The year of the election 
+
+* The pollster conducting the poll
+
+* Is the poll partisan? If so, which party funded it?
+
+We can start this exploration by looking into bias modeled as response variable to year, categorized by pollster.  
+
+```{r, include=FALSE}
+#plot by year and pollster
+library(ggplot2)
+ggplot(myDataMyPollsters, aes(x=year, y=bias, color=pollster)) +
+  geom_point() +
+  geom_smooth(method=lm)
+```
+
+We can also take a look at the relationship between year, bias, and election type:
+
+```{r, include=FALSE}
+ggplot(myDataMyPollsters, aes(x=year, y=bias, color=type_simple)) +
+  geom_point() +
+  geom_smooth(method=lm)
+```
+
+Of interest is also the relationship between partisan classification and the bias of poll results. A plot is exploring this is shown below:
+
+```{r, include=FALSE}
+ggplot(myDataMyPollsters, aes(x=year, y=bias, color=partisan)) +
+  geom_point() +
+  geom_smooth(method=lm)
+```
+
+As seen above, there is overwhelmingly little partisan polls considered in our data making it hard to make any credible statements about their apparent effect on bias. Because of this, the partisan status of polls will not be used to model polling bias.
+
+The model considered is seen below:
+
+```{r, include=FALSE}
+model2 = lm(bias ~ year + pollster + type_simple + year:type_simple + year:pollster , data = myDataMyPollsters)
+
+library(gtsummary)
+library(dplyr)
+```
+
+A summary for this model can be seen below:
+$$ \mu  [bias \~ pollster, year, type] $$
+```{r}
+
+tbl_regression(model2)
+
+squared=summary(model2)$adj.r.squared
+```
+
+### Sampling Variablity Assumptions
+
+Q-Q plot seems to trail off at the tails, but it appears about 95% of the points are within the 95% bounds.
+
+The residual density plot seems centered on zero and mostly normal, with some outliers.
+
+```{r}
+#SVAs
+car::qqp(rstandard(model2))
+lattice::densityplot(rstandard(model2))
+# the residual density plot looks cleary centered on zero and mostly normal with outliers
+# robust linear modeling will probably do a very good job here when we construct our Bayesian model
+```
+
+### Conclusions
+
+While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data.
+
+
+\newpage
+## Works Cited
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+---

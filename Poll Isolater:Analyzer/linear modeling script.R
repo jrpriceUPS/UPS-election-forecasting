@@ -83,11 +83,11 @@ ggplot(myDataMyPollsters, aes(x=year, y=bias, color=type_simple)) +
 # Extend the regression lines
 
 #interaction term with year and type needed?
-model2 = lm(bias~ year + pollster + type_simple + year:type_simple + year:pollster + partisan , data = myDataMyPollsters)
+model2 = lm(bias~ year + pollster + type_simple + year:type_simple + year:pollster, data = myDataMyPollsters)
 summary(model2)
 
 #plot by year and partisian 
-#plot by year and type_simple
+
 library(ggplot2)
 ggplot(myDataMyPollsters, aes(x=year, y=bias, color=partisan)) +
   geom_point() +
