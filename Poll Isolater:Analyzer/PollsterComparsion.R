@@ -94,9 +94,9 @@ lattice::splom(subset(df1, select=pollsters))
 
 
 #alternative scatterplot
-ggplot2::ggplot(df1) +
-   ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
-   ggforce::facet_matrix(vars(pollsters))
+# ggplot2::ggplot(df1) +
+#    ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
+#    ggforce::facet_matrix(vars(pollsters))
 
 #density plot
 
@@ -109,4 +109,5 @@ lattice::densityplot(~bias,data=myDataMyPollsters,
 
 
 
-
+#model = lm(bias~ year + pollster + type_simple + partisan + year:pollster + pollster:type_simple, data = mydata)
+#model = lm(bias~ year + pollster + type_simple + partisan , data = mydata)
