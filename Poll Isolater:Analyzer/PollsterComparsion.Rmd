@@ -120,9 +120,14 @@ knitr::kable(head(df1))
 
 Since there are concerns about the effect of herding on polling credibility, it is important to look at the correlation matrix shown below:
 
-```{r}
+```{r, warning=FALSE}
 #scatterplot matrix to show correlation
-lattice::splom(subset(df1, select=pollsters))
+#lattice::splom(subset(df1, select=pollsters))
+
+library(ggplot2)
+ggplot(df1) +
+  geom_point(aes(x = .panel_x, y = .panel_y)) +
+  ggforce::facet_matrix(vars(all_of(pollsters)))
 
 ```
 

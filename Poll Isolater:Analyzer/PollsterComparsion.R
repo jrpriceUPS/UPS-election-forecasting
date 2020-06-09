@@ -94,9 +94,10 @@ lattice::splom(subset(df1, select=pollsters))
 
 
 #alternative scatterplot
-# ggplot2::ggplot(df1) +
-#    ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
-#    ggforce::facet_matrix(vars(pollsters))
+library(ggplot2)
+ggplot(df1) +
+  ggplot2::geom_point(aes(x = .panel_x, y = .panel_y)) +
+  ggforce::facet_matrix(vars(pollsters))
 
 #density plot
 
