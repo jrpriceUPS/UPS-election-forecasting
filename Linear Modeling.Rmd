@@ -131,6 +131,8 @@ Q-Q plot seems to trail off at the tails, but it appears about 95% of the points
 
 The residual density plot seems centered on zero and mostly normal, with some outliers.
 
+The Cramer V value is only .203, indicating acceptable levels of correlation between our two explantory variables.
+
 ```{r}
 #SVAs
 car::qqp(rstandard(model2))
@@ -139,6 +141,11 @@ lattice::densityplot(rstandard(model2))
 # robust linear modeling will probably do a very good job here when we construct our Bayesian model
 
 #multicollinearity?
+#Calculate Cramer's V,  a measure of intercorrelation of two discrete variables
+tab <- xtabs(~pollster + type_simple, data = myDataMyPollsters)
+corma=vcd::assocstats(tab)
+summary(corma)
+#20.3% isn't bad between our explantory variables
 
 ```
 

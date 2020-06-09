@@ -119,3 +119,4 @@ ggplot(myDataMyPollsters, aes(x=samplesize, y=bias, color=pollster)) +
 
 modela <- lm(bias ~ year*pollster + year*type_simple, data = myDataMyPollsters)
 summary(modela)
+
