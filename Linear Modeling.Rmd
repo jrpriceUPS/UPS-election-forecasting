@@ -34,8 +34,12 @@ minPolls=100
 ```
 
 ```{r}
+#subset to just even years to avoid special elections - harder to model
+mydata = mydata[mydata$year %% 2 == 0, ]
+#subset to preferred years
 mydata=(subset(mydata, mydata$year>=earlyYear))
 mydata=(subset(mydata, mydata$year<=lateYear))
+
 
 #use lubridate to change dates from character to date data type for functionality. 
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
@@ -50,12 +54,13 @@ mydata$year = as.factor(mydata$year)
 #create empty data frame, while maintaining all columns from the mydata structure
 myDataMyPollsters=  mydata[0,]
 
+
+
 #run a loop to fill this data frame with every pollster
 for(myPollster in unique(mydata$pollster))
 {
   #subset to a dataset with just each pollster
   subpoll=subset(mydata, pollster==myPollster)
-  
   #if that subset has more than thirty entries, use it:
   if(nrow(subpoll)>minPolls){
   #Use only the most recent poll for each election:
@@ -65,6 +70,10 @@ for(myPollster in unique(mydata$pollster))
   myDataMyPollsters=rbind(myDataMyPollsters, onlyRecentData1)
   }
 }
+
+
+#myDataMyPollsters = filter(myDataMyPollsters, ((year %% 2) == 0) )
+
 ```
 
 ### Data Exploration
@@ -79,7 +88,9 @@ Before modeling our data, we have a few variables in mind. Of consideration are:
 
 * Is the poll partisan? If so, which party funded it?
 
-We can start this exploration by looking into bias modeled as response variable to year, categorized by pollster.  
+* What is the sample size of the poll?
+
+We can start this exploration by looking into bias modeled as response variable to year, categorized by pollster. It should be noted that this data excludes polls from special elections.
 
 ```{r, include=FALSE}
 #plot by year and pollster
@@ -91,7 +102,7 @@ ggplot(myDataMyPollsters, aes(x=year, y=bias, color=pollster)) +
 
 We can also take a look at the relationship between year, bias, and election type:
 
-```{r, include=FALSE}
+```{r}
 ggplot(myDataMyPollsters, aes(x=year, y=bias, color=type_simple)) +
   geom_point() +
   geom_smooth(method=lm)
@@ -99,18 +110,30 @@ ggplot(myDataMyPollsters, aes(x=year, y=bias, color=type_simple)) +
 
 Of interest is also the relationship between partisan classification and the bias of poll results. A plot is exploring this is shown below:
 
-```{r, include=FALSE}
+```{r}
 ggplot(myDataMyPollsters, aes(x=year, y=bias, color=partisan)) +
   geom_point() +
   geom_smooth(method=lm)
 ```
 
-As seen above, there is overwhelmingly little partisan polls considered in our data making it hard to make any credible statements about their apparent effect on bias. Because of this, the partisan status of polls will not be used to model polling bias.
+As seen above, there is overwhelmingly little partisan polls considered in our data, making it hard to make any credible statements about their apparent effect on bias. Because of this, the partisan status of polls will not be used to model polling bias.
+
+Another factor worth considering is the sample size of our polls. Because there are a few very large polls, we will perform a log transform on the numeric sample size variable. The bias plotted as a response variable to the log-transformed sample size variable, color coded by pollster can be seen below:
+
+```{r}
+datalog = transform(myDataMyPollsters, logsamplesize = log(samplesize))
+
+ggplot(datalog, aes(x=logsamplesize, y=bias, color=pollster)) +
+  geom_point() +
+  geom_smooth(method=lm)
+
+
+```
 
 The model considered is seen below:
 
 ```{r, include=FALSE}
-model2 = lm(bias ~ year:type_simple + year:pollster , data = myDataMyPollsters)
+logmodel = lm(bias ~ year*pollster + year*type_simple + year + type_simple + pollster + logsamplesize , data = datalog)
 
 library(gtsummary)
 library(dplyr)
@@ -120,9 +143,9 @@ A summary for this model can be seen below:
 $$ \mu  [bias \~ pollster, year, type] $$
 ```{r}
 
-tbl_regression(model2)
+tbl_regression(logmodel)
 
-squared=summary(model2)$adj.r.squared
+squared=summary(logmodel)$adj.r.squared
 ```
 
 ### Sampling Variablity Assumptions
@@ -135,8 +158,8 @@ The Cramer V value is only .203, indicating acceptable levels of correlation bet
 
 ```{r}
 #SVAs
-car::qqp(rstandard(model2))
-lattice::densityplot(rstandard(model2))
+car::qqp(rstandard(logmodel))
+lattice::densityplot(rstandard(logmodel))
 # the residual density plot looks cleary centered on zero and mostly normal with outliers
 # robust linear modeling will probably do a very good job here when we construct our Bayesian model
 
@@ -151,11 +174,14 @@ summary(corma)
 
 ### Conclusions
 
-While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data. From these findings, it is also notable that having a variable that considers years or race type or pollsters independent of their interaction with other terms is not better than the model laid out here, which is simply comprised of the following interaction terms:
+While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data. From these findings, it is also notable that having a variable that considers years or race type or pollsters independent of their interaction with other terms is not better than the model laid out here, which is simply comprised of the following  terms:
 
 * year:pollster
 * year:type_simple
-
+* year
+* pollster
+* type_simple
+* log(samplesize)
 
 \newpage
 ## Works Cited
