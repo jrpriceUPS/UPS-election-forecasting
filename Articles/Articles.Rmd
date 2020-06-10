@@ -116,6 +116,8 @@ knitr::opts_chunk$set(echo = TRUE)
 * Election forecasting: Principles and practice
     - MS Lewis-Beck
     - <https://journals.sagepub.com/doi/abs/10.1111/j.1467-856X.2005.00178.x>
+  - Read by Jake - No
+  - Read by Haley - Yes
 * Polls and Votes: The Trial-Heat Presidential Election Forecasting Model, Certainty, and Political Campaigns
     - J. E. Campbell
     - <https://journals.sagepub.com/doi/abs/10.1177/1532673x9602400402>
