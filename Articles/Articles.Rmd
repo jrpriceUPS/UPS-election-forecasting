@@ -13,6 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
     - <https://fivethirtyeight.com/features/calculating-house-effects-of-polling-firms/>
 
 ## General Election Modeling
+* The Economist
+    - Expaining how the Economist election model works
+    -<https://projects.economist.com/us-2020-forecast/president/how-this-works>
+    - Read by Jake - Yes
+    - Read by Haley - Yes    
 * Elliott Morris, The Economist
     - Hierarchical modeling, demographics, inferring state polls from national
     - <https://t.co/OTgETLG2wp>
