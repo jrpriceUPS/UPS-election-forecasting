@@ -110,13 +110,25 @@ model4 = lm(bias~ year + pollster + year:partisan + type_simple + year:type_simp
 summary(model4)
 
 #plot by sample size and pollster
+
+
 library(ggplot2)
 ggplot(myDataMyPollsters, aes(x=samplesize, y=bias, color=pollster)) +
   geom_point() +
   geom_smooth(method=lm)
 
+
+data5 = transform(myDataMyPollsters, logconc = log(samplesize))
 #sample size doesn't make it better
 
-modela <- lm(bias ~ year*pollster + year*type_simple, data = myDataMyPollsters)
+ggplot(data5, aes(x=logconc, y=bias, color=pollster)) +
+  geom_point() +
+  geom_smooth(method=lm)
+
+model5 = lm(bias ~ year*pollster + year*type_simple + year + type_simple + pollster + logconc , data = data5)
+summary(model5)
+
+
+modela <- lm(bias ~ year*pollster + year*type_simple + year + type_simple + pollster + samplesize, data = myDataMyPollsters)
 summary(modela)
 

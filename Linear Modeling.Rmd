@@ -9,8 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-
-
 To better understand polls, we can attempt to model the bias from polls with other measurable variables. 
 
 ```{r}
@@ -78,6 +76,7 @@ for(myPollster in unique(mydata$pollster))
 
 ### Data Exploration
 
+
 Before modeling our data, we have a few variables in mind. Of consideration are:
 
 * The type of race: senate, house, presidential?
@@ -90,9 +89,23 @@ Before modeling our data, we have a few variables in mind. Of consideration are:
 
 * What is the sample size of the poll?
 
-We can start this exploration by looking into bias modeled as response variable to year, categorized by pollster. It should be noted that this data excludes polls from special elections.
+It is worth separating out between pollsters. A density plot shows this:
+```{r}
+#density plot 
+lattice::densityplot(~bias,data=myDataMyPollsters,
+            groups=pollster,
+            xlab="Bias",
+            main="Pollster Bias",
+            plot.points=TRUE,
+            auto.key=TRUE)
+```
 
-```{r, include=FALSE}
+
+
+
+We can start this exploration by looking into bias modeled as response variable to year, categorized by pollster. It should be noted that this data excludes polls from special elections. A plot of bias by pollsters is plotted as dependent on time. 
+
+```{r}
 #plot by year and pollster
 library(ggplot2)
 ggplot(myDataMyPollsters, aes(x=year, y=bias, color=pollster)) +
@@ -131,7 +144,7 @@ ggplot(datalog, aes(x=logsamplesize, y=bias, color=pollster)) +
 ```
 
 The model considered is seen below:
-
+$$ \mu  [bias \~ pollster, year, type, samplesize] $$
 ```{r, include=FALSE}
 logmodel = lm(bias ~ year*pollster + year*type_simple + year + type_simple + pollster + logsamplesize , data = datalog)
 
@@ -139,8 +152,8 @@ library(gtsummary)
 library(dplyr)
 ```
 
-A summary for this model can be seen below:
-$$ \mu  [bias \~ pollster, year, type] $$
+A summary for the coefficients of this model can be seen below:
+
 ```{r}
 
 tbl_regression(logmodel)
@@ -150,11 +163,13 @@ squared=summary(logmodel)$adj.r.squared
 
 ### Sampling Variablity Assumptions
 
+To make sure that we can use model, we must check some sampling variability Assumptions.
+
 Q-Q plot seems to trail off at the tails, but it appears about 95% of the points are within the 95% bounds.
 
-The residual density plot seems centered on zero and mostly normal, with some outliers.
+The residual density plot seems centered on zero and mostly normal, with some outliers. It seems that this distrubtion matches a t-distrubtion fairly wel
 
-The Cramer V value is only .203, indicating acceptable levels of correlation between our two explantory variables.
+The Cramer V value is only .203, indicating acceptable levels of correlation between our two discrete explanatory variables of type of poll and the pollster.
 
 ```{r}
 #SVAs
@@ -174,7 +189,7 @@ summary(corma)
 
 ### Conclusions
 
-While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data. From these findings, it is also notable that having a variable that considers years or race type or pollsters independent of their interaction with other terms is not better than the model laid out here, which is simply comprised of the following  terms:
+While this model certainly isn't perfect, it has an adjusted R-squared value of only `r squared`, it can be helpful in helping us begin to understand how to model polling data. The final terms included in this model that are included as predictors are shown below:
 
 * year:pollster
 * year:type_simple
