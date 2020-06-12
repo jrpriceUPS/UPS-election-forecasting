@@ -94,7 +94,7 @@ It is worth separating out between pollsters. A density plot shows this:
 #density plot 
 lattice::densityplot(~bias,data=myDataMyPollsters,
             groups=pollster,
-            xlab="Bias",
+            xlab="Bias Towards Republicans",
             main="Pollster Bias",
             plot.points=TRUE,
             auto.key=TRUE)
@@ -173,8 +173,8 @@ The Cramer V value is only .203, indicating acceptable levels of correlation bet
 
 ```{r}
 #SVAs
-car::qqp(rstandard(logmodel))
-lattice::densityplot(rstandard(logmodel))
+car::qqp(rstandard(logmodel), main = "Q-Q Plot", xlab= "Theortical Bias Values", ylab="Actual Bias Values")
+lattice::densityplot(rstandard(logmodel), main="Density Plot of Bias", xlab="Bias Towards Repulicans")
 # the residual density plot looks cleary centered on zero and mostly normal with outliers
 # robust linear modeling will probably do a very good job here when we construct our Bayesian model
 
@@ -197,6 +197,8 @@ While this model certainly isn't perfect, it has an adjusted R-squared value of 
 * pollster
 * type_simple
 * log(samplesize)
+
+
 
 \newpage
 ## Works Cited

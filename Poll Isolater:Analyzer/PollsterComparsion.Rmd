@@ -126,7 +126,7 @@ Since there are concerns about the effect of herding on polling credibility, it 
 
 library(ggplot2)
 ggplot(df1) +
-  geom_point(aes(x = .panel_x, y = .panel_y)) +
+  geom_point(aes(x = .panel_x, y = .panel_y, color='#FFAAD4')) +
   ggforce::facet_matrix(vars(all_of(pollsters)))
 
 ```
