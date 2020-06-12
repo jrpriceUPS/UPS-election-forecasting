@@ -148,6 +148,7 @@ $$ \mu  [bias \~ pollster, year, type, samplesize] $$
 ```{r, include=FALSE}
 logmodel = lm(bias ~ year*pollster + year*type_simple + year + type_simple + pollster + logsamplesize , data = datalog)
 
+
 library(gtsummary)
 library(dplyr)
 ```
