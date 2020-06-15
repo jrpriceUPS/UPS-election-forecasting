@@ -10,7 +10,7 @@ graphics.off() # This closes all of R's graphics windows.
 #load the data
 #in this case from 538
 
-setwd("~/Desktop/research/UPS-election-forecasting")
+
 onlyRecentData <- read.csv("raw-polls_538.csv")
 #To check for partisan bias, will subset data down to just the races where candidate 1 and candidate 2 are running on two different party tickets.
 twoPartyTicket=subset(onlyRecentData,cand1_party!=cand2_party)
@@ -66,7 +66,7 @@ graphFileType = "eps"
 # graphFileType = "eps" 
 
 #------------------------------------------------------------------------------- 
-setwd("~/Downloads/DBDA2Eprograms 2")
+
 # Load the relevant model into R's working memory:
 source("Jags-Ymet-Xnom1fac-MnormalHom.R")
 #------------------------------------------------------------------------------- 

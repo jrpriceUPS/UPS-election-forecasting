@@ -39,3 +39,5 @@ vignettes/*.pdf
 .DS_Store
 
 *.log
+
+TEMPmodel.txt
