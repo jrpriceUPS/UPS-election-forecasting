@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
 
@@ -52,7 +52,7 @@ mydata=myDataMyPollsters
 
 ```
 
-```{r}
+```{r, include=FALSE}
 #set up for Bayesian analysis. 
 myDataFrame = mydata
 
@@ -75,7 +75,7 @@ contrasts = list(
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
 # out of function calls.
-fileNameRoot = "PollsterData-NormalHom-" 
+fileNameRoot = "PollsterData1-NormalHom-" 
 graphFileType = "eps" 
 
 
@@ -87,13 +87,14 @@ source("Jags-Ymet-Xnom1fac-MnormalHom.R")
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , xName=xName ,
                     numSavedSteps=11000 , thinSteps=10  )
+library(magrittr)
 ```
 
 The results of the Bayesian analysis are below:
 ```{r}
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
-show( parameterNames ) # show all parameter names, for reference
+
 for ( parName in c("ySigma","b0","b[1]","aSigma") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName  )
 }
@@ -102,11 +103,23 @@ for ( parName in c("ySigma","b0","b[1]","aSigma") ) {
 summaryInfo = smryMCMC( mcmcCoda , 
                         datFrm=myDataFrame , xName=xName ,
                         contrasts=contrasts  )
-show(summaryInfo)
+
 # Display posterior information:
 plotMCMC( mcmcCoda , 
           datFrm=myDataFrame , yName=yName , xName=xName ,
           contrasts=contrasts )
+
 #------------------------------------------------------------------------------- 
+
+
+```
+
+
+```{r}
+
+dt <- summaryInfo[, 1:7]
+dt %>%
+  knitr::kable() %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 
 ```

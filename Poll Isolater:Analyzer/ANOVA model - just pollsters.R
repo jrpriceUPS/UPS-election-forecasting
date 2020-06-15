@@ -66,7 +66,7 @@ contrasts = list(
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
 # out of function calls.
-fileNameRoot = "PollsterData-NormalHom-" 
+fileNameRoot = "PollsterData1-NormalHom-" 
 graphFileType = "eps" 
 
 
