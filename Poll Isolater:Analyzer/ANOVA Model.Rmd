@@ -1,8 +1,18 @@
-# Example for Jags-Ymet-Xnom1fac-MnormalHom.R 
-#------------------------------------------------------------------------------- 
-# Optional generic preliminaries:
-graphics.off() # This closes all of R's graphics windows.
-#------------------------------------------------------------------------------- 
+---
+title: "ANOVA Model"
+author: "Haley Reed"
+date: "6/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = dirname(getwd()))
+```
+
+To understand pollster bias, we can use Bayesian hierarchical modeling. We will do so with using pollster data compiled by FiveThirtyEight.
+
+```{r}
 # Load The data file 
 #load the data
 #in this case from 538
@@ -39,11 +49,10 @@ for(myPollster in unique(mydata$pollster))
 }
 
 mydata=myDataMyPollsters
-#provide summary statistics for the bias.
-summary(mydata$bias)
 
+```
 
-
+```{r}
 #set up for Bayesian analysis. 
 myDataFrame = mydata
 
@@ -75,28 +84,29 @@ graphFileType = "eps"
 
 # Load the relevant model into R's working memory:
 source("Jags-Ymet-Xnom1fac-MnormalHom.R")
-#------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , xName=xName ,
-                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRoot )
-#------------------------------------------------------------------------------- 
+                    numSavedSteps=11000 , thinSteps=10  )
+```
+
+The results of the Bayesian analysis are below:
+```{r}
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("ySigma","b0","b[1]","aSigma") ) {
-  diagMCMC( codaObject=mcmcCoda , parName=parName , 
-            saveName=fileNameRoot , saveType=graphFileType )
+  diagMCMC( codaObject=mcmcCoda , parName=parName  )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCoda , 
                         datFrm=myDataFrame , xName=xName ,
-                        contrasts=contrasts , 
-                        saveName=fileNameRoot )
+                        contrasts=contrasts  )
 show(summaryInfo)
 # Display posterior information:
 plotMCMC( mcmcCoda , 
           datFrm=myDataFrame , yName=yName , xName=xName ,
-          contrasts=contrasts , 
-          saveName=fileNameRoot , saveType=graphFileType )
+          contrasts=contrasts )
 #------------------------------------------------------------------------------- 
+
+```
