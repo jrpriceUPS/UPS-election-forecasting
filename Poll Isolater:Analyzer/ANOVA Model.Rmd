@@ -72,14 +72,6 @@ contrasts = list(
         compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
   list( c("TCJ Research" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) 
 )
-# Specify filename root and graphical format for saving output.
-# Otherwise specify as NULL or leave saveName and saveType arguments 
-# out of function calls.
-fileNameRoot = "PollsterData1-NormalHom-" 
-graphFileType = "eps" 
-
-
-
 #------------------------------------------------------------------------------- 
 
 # Load the relevant model into R's working memory:
@@ -88,15 +80,21 @@ source("Jags-Ymet-Xnom1fac-MnormalHom.R")
 mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , xName=xName ,
                     numSavedSteps=11000 , thinSteps=10  )
 library(magrittr)
+
+# Otherwise specify as NULL or leave saveName and saveType arguments 
+# out of function calls.
+fileNameRoot = "PollsterData1-NormalHom-" 
+graphFileType = "png" 
 ```
 
 The results of the Bayesian analysis are below:
-```{r}
+```{r, error=TRUE}
+
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 
 for ( parName in c("ySigma","b0","b[1]","aSigma") ) {
-  diagMCMC( codaObject=mcmcCoda , parName=parName  )
+  diagMCMC( codaObject=mcmcCoda , parName=parName )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
@@ -107,13 +105,15 @@ summaryInfo = smryMCMC( mcmcCoda ,
 # Display posterior information:
 plotMCMC( mcmcCoda , 
           datFrm=myDataFrame , yName=yName , xName=xName ,
-          contrasts=contrasts )
-
+          contrasts=contrasts,  
+          saveName=fileNameRoot , saveType=graphFileType   )
 #------------------------------------------------------------------------------- 
-
 
 ```
 
+```{r}
+knitr::include_graphics('PollsterData1-NormalHom-PostPred.png')
+```
 
 ```{r}
 
