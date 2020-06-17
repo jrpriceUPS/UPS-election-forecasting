@@ -3,6 +3,7 @@ title: "ANOVA Model - Source Version"
 author: "Haley Reed"
 date: "6/17/2020"
 output: html_document
+bibliography: electionworkingbib.bib
 ---
 
 
@@ -17,8 +18,14 @@ To understand pollster bias, we can use Bayesian hierarchical modeling. We will 
 source(here::here('RScripts', 'ANOVA model - just pollsters.R'))
 ```
 
-![test](Figures/PollsterData1-NormalHom-PostPred.png)
-![test](Figures/PollsterData1-NormalHom-Public Policy Polling.v.TCJ Research.png)
+A posterior predictive plot comparing the selected pollsters' bias is shown below. This motivates an analysis that separates pollsters, there seems to be actual differences between these pollsters.
+
+![A posterior predictive plot comparing the selected pollsters' bias](Figures/PollsterData1-NormalHom-PostPred.png)
+
+We can see this further with this visual comparsion between Public Policy Polling and TCJ. TCJ appears to be more democratic leaning in bias.
+
+
+![A comparsion between Public Policy Polling and TCJ Research.](Figures/PollsterData1-NormalHom-Public Policy Polling.v.TCJ Research.png)
 
 ```{r echo=FALSE, out.width="100%",  fig.align='center', error=TRUE, message=FALSE}
 library(magrittr)
@@ -28,3 +35,12 @@ dt %>%
   knitr::kable() %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
+
+\newpage
+## Works Cited
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+---
