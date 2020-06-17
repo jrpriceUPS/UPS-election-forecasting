@@ -6,7 +6,7 @@ graphics.off() # This closes all of R's graphics windows.
 # Load The data file 
 #load the data
 #in this case from 538
-mydata <- read.csv("raw-polls_538.csv")
+mydata <- read.csv("Data/raw-polls_538.csv")
 
 #use lubridate to change dates from character to date data type for functionality. 
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
@@ -56,29 +56,31 @@ xName="pollster"
 # Each main-effect contrast is a list of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL):
 contrasts = list( 
-  list( c("Rasmussen Reports/Pulse Opinion Research") , c("Grove Insight" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
+  #list( c("Rasmussen Reports/Pulse Opinion Research") , c("Grove Insight" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
   list( c("Public Policy Polling") , c("TCJ Research" ) , 
-        compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
-  list( c( "YouGov" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , 
-        compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
-  list( c("TCJ Research" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) 
+        compVal=0.0 , ROPE=c(-1.5,1.5) ) 
+  #list( c( "YouGov" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , 
+        #compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
+  #list( c("TCJ Research" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) 
 )
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
 # out of function calls.
-fileNameRoot = "PollsterData1-NormalHom-" 
-graphFileType = "eps" 
+fileNameRoot = "Figures/PollsterData1-NormalHom-" 
+fileNameRootSim= "Simulations/PollsterData1-NormalHom-"
+graphFileType = "png" 
 
 
 
 #------------------------------------------------------------------------------- 
 
 # Load the relevant model into R's working memory:
-source("Jags-Ymet-Xnom1fac-MnormalHom.R")
+source("RScripts/Jags-Ymet-Xnom1fac-MnormalHom.R")
+
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , xName=xName ,
-                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRoot )
+                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
@@ -92,7 +94,7 @@ for ( parName in c("ySigma","b0","b[1]","aSigma") ) {
 summaryInfo = smryMCMC( mcmcCoda , 
                         datFrm=myDataFrame , xName=xName ,
                         contrasts=contrasts , 
-                        saveName=fileNameRoot )
+                        saveName=fileNameRootSim )
 show(summaryInfo)
 # Display posterior information:
 plotMCMC( mcmcCoda , 
