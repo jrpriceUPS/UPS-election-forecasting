@@ -23,7 +23,8 @@ DesiredYear=2012
 mydata=subset(mydata, year==DesiredYear)
 
 #Limit to just president
-mydata=subset(mydata, type_simple=="Pres-G")
+preferredType="Pres-G"
+mydata=subset(mydata, type_simple==preferredType)
 
 #limit to just pollsters with a certain number of polls on record.
 myDataMyPollsters=  mydata[0,]
@@ -56,12 +57,10 @@ xName="pollster"
 # Each main-effect contrast is a list of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL):
 contrasts = list( 
-  #list( c("Rasmussen Reports/Pulse Opinion Research") , c("Grove Insight" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
   list( c("Public Policy Polling") , c("TCJ Research" ) , 
-        compVal=0.0 , ROPE=c(-1.5,1.5) ) 
-  #list( c( "YouGov" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , 
-        #compVal=0.0 , ROPE=c(-1.5,1.5) ) ,
-  #list( c("TCJ Research" ) , c("Rasmussen Reports/Pulse Opinion Research" ) , compVal=0.0 , ROPE=c(-1.5,1.5) ) 
+        compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c( "YouGov" ) , c("Grove Insight" ) , 
+        compVal=0.0 , ROPE=c(-1,1) ) 
 )
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
