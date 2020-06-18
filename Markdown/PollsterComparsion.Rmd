@@ -31,7 +31,7 @@ We can see the bias from the last poll for every election from each pollster. A 
 
 #load the data
 #in this case from 538
-mydata <- read.csv("raw-polls_538.csv")
+mydata <- read.csv("Data/raw-polls_538.csv")
 ```
   
 ```{r}
