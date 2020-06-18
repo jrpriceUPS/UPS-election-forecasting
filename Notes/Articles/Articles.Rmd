@@ -92,7 +92,11 @@ knitr::opts_chunk$set(echo = TRUE)
   - <https://docs.google.com/document/d/1plbd2h43c9KVyNXz1cTqLExuEtoi41Eq86f-nc2BiXU/edit>
   - Read by Jake - No
   - Read by Haley - Yes
-  
+* Nate Silver, FiveThirtyEight
+  - Polling average methodology used.
+  -<https://fivethirtyeight.com/features/swing-voters-and-elastic-states/>
+  - Read by Jake - Yes
+  - Read by Haley - Yes   
 
 ## Other Names / Sites for starting to look for articles
 * David Byler
