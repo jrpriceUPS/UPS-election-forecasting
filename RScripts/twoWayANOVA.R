@@ -6,7 +6,8 @@ rm(list=ls())  # Careful! This clears all of R's memory!
 #------------------------------------------------------------------------------- 
 #Load The data file 
 
-fileNameRoot = "YearPollsterNormalHom-" 
+fileNameRootFig="Markdown/Figures/YearPollsterNoramalHom-"
+fileNameRoot = "Simulations/YearPollsterNormalHom-" 
 graphFileType = "png" 
 
 mydata=read.csv("Data/raw-polls_538.csv")
