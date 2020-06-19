@@ -169,17 +169,17 @@ plotMCMC = function( codaSamples ,
   x = as.numeric(as.factor(datFrm[,xName]))
   xlevels = levels(as.factor(datFrm[,xName]))
   # Display data with posterior predictive distributions
-  openGraph(width=min(10,1.25*length(xlevels)),height=5)
+  openGraph(width=min(14,4.5*length(xlevels)),height=6)
   par(mar=c(3,3,2,0.5)) # number of margin lines: bottom,left,top,right
   par(mgp=c(1.75,0.5,0)) # which margin lines to use for labels
   plot(-1,0, 
        xlim=c(0.1,length(xlevels)+0.1) , 
-       xlab=xName , xaxt="n" , ylab=yName ,
+       xlab=xName , cex=.25, xaxt="n" , ylab=yName ,
        ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) , 
        main="Data with Posterior Predictive Distrib.")
   axis( 1 , at=1:length(xlevels) , tick=FALSE , lab=xlevels )
   for ( xidx in 1:length(xlevels) ) {
-    xPlotVal = xidx 
+    xPlotVal = xidx  
     yVals = y[ x==xidx ]
     points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) , 
             yVals , pch=1 , cex=1.5 , col="red" )

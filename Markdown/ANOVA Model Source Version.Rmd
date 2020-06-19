@@ -28,6 +28,8 @@ Because there are so many pollsters, for the sake of simplification, we will loo
 
 To begin our exploration of the data, we can look at the density plot for the bias of each of our isolated pollsters in the `r DesiredYear` `r preferredType` election. 
 
+Note: Positive Bias is bias towards the democratic party. 
+
 ```{r}
 #density plot 
 lattice::densityplot(~bias,data=myDataMyPollsters,
@@ -38,7 +40,7 @@ lattice::densityplot(~bias,data=myDataMyPollsters,
             auto.key=TRUE)
 ```
 
-The analysis of distinguishing between pollsters seems valid based on this visualization because of the clear differences between individual pollsters seen below. The center, as well of the spread, of pollsters seems to vary greatly. Those patterns indicate that it would be helpful to build a model that uses pollsters as a nominal variable. In traditional statistics, this would mean ANOVA modeling, but we can answer the same questions of interest with a Bayesian model that closely imitates ANOVA models. 
+The analysis of distinguishing between pollsters seems valid based on this visualization because of the clear differences between individual pollsters seen below. The center, as well of the spread, of pollsters' bias seems to vary greatly. Those patterns indicate that it would be helpful to build a model that uses pollsters as a nominal variable. In traditional statistics, this would mean ANOVA modeling, but we can answer the same questions of interest with a Bayesian model that closely imitates ANOVA models. 
 
 **The Model**
 
@@ -81,12 +83,14 @@ dt <- summaryInfo[, 1:7]
 dt %>%
   knitr::kable() %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+
+
 ```
 
 **Conclusion**
 
-Contextually, this means for a pole from Rasmussen Reports:
- * A 3.95% bias towards democrats is the most credible value, with the highest density interval being from 2.65% to 5.28% bias towards democrats. 
+Contextually, this means for polls from `r DesiredYear` `r preferredType` election, the average democratic bias between all pollsters was `r FoundMean`.
 
 Using FiveThirtyEight's data, this Bayesian model with the nominal predictor of pollsters for determining poll bias can show a clear difference between certain pollsters. Using this model, we found that pollsters have different bias and different magnitudes of that bias. However; since these samples were pulled from only the pollsters with the most polls available in the polling cycle, it may be more difficult to see similar patterns applied to all pollsters. 
 

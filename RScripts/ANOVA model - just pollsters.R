@@ -26,9 +26,10 @@ mydata=subset(mydata, year==DesiredYear)
 preferredType="Pres-G"
 mydata=subset(mydata, type_simple==preferredType)
 
+library(magrittr)
 #limit to just pollsters with a certain number of polls on record.
 myDataMyPollsters=  mydata[0,]
-minPolls=17
+minPolls=10
 for(myPollster in unique(mydata$pollster))
 {
   #subset to a dataset with just each pollster
@@ -100,4 +101,8 @@ plotMCMC( mcmcCoda ,
           datFrm=myDataFrame , yName=yName , xName=xName ,
           contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
+
+FindMean=as.data.frame(summaryInfo)
+FoundMean=FindMean[1, 1]
+
 #------------------------------------------------------------------------------- 
