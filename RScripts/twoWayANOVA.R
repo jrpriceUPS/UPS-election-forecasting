@@ -6,7 +6,7 @@ rm(list=ls())  # Careful! This clears all of R's memory!
 #------------------------------------------------------------------------------- 
 #Load The data file 
 
-fileNameRootFig="Markdown/Figures/YearPollsterNoramalHom-"
+figuresRoot="Markdown/Figures/YearPollsterNoramalHom-"
 fileNameRoot = "Simulations/YearPollsterNormalHom-" 
 graphFileType = "png" 
 
@@ -53,7 +53,7 @@ x2Name="year"
 # Each main-effect contrast is a list of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL):
 x1contrasts = list( 
-  list( c("SrvyUSA") , c("Ms-DP&S") , compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("SrvyUSA") , c("GrvsMrk") , compVal=0.0 , ROPE=c(-1,1) ) ,
   list( c("YouGov") , c("PblcPlP") , compVal=0.0 , ROPE=c(-1,1) ) 
 )
 x2contrasts = list( 
@@ -88,7 +88,7 @@ parameterNames = varnames(mcmcCoda)
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("b0","b1[1]","b2[1]","b1b2[1,1]","ySigma") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
-            saveName=fileNameRootFig , saveType=graphFileType )
+            saveName=figuresRoot , saveType=graphFileType )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
@@ -105,4 +105,16 @@ plotMCMC( mcmcCoda ,
           x1contrasts=x1contrasts , 
           x2contrasts=x2contrasts , 
           x1x2contrasts=x1x2contrasts ,
-          saveName=fileNameRootFig , saveType=graphFileType )
+          saveName=figuresRoot , saveType=graphFileType )
+
+
+#create small table to provide a pollster name key.
+PollsterNames =  myDataFrame [, c("X","pollster","pollsterFull")]
+#Get rid of repeats by choosing max X identifier within each pollster group
+keyPollsterNames=(data.table::setDT(PollsterNames)[,.SD[which.max(X)],keyby=pollster])
+#Get rid of X identifier
+keyPollsterNames$X      <- NULL
+#rename columns
+keyPollsterNames=plyr::rename(keyPollsterNames, c("pollster"="Abbrevation", "pollsterFull"="Full Pollster Name"))
+
+show(keyPollsterNames)

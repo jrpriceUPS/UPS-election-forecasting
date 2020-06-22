@@ -39,6 +39,16 @@ lattice::densityplot(~bias,data=myDataFrame,
             auto.key=TRUE)
 ```
 
+Pollster Abbreviations:
+```{r echo=FALSE, out.width="100%",  fig.align='center', error=TRUE, message=FALSE}
+library(magrittr)
+
+keyPollsterNames %>%
+  knitr::kable() %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
 The analysis of distinguishing between pollsters seems valid based on this visualization because of the clear differences between individual pollsters seen below. The center, as well of the spread, of pollsters' bias seems to vary greatly. Those patterns indicate that it would be helpful to build a model that uses pollsters as a nominal variable. In traditional statistics, this would mean ANOVA modeling, but we can answer the same questions of interest with a Bayesian model that closely imitates ANOVA models. 
 
 Similarly we will seperate by year:
@@ -51,6 +61,14 @@ lattice::densityplot(~bias,data=myDataFrame,
             plot.points=TRUE,
             auto.key=TRUE)
 ```
+
+## The Model
+
+The Bayesian hierarchical implemented here starts with generic noncommittal parameters.
+
+The model diagram can be seen below:
+
+![Kruschke's diagram explaining the two factor Bayesian ANOVA model.](Figures/Hierachical Model - Two Factor ANOVA.png)
 
 While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of $\beta_{0}$ can be seen below.
 
@@ -66,9 +84,18 @@ Posterior distributions are shown below:
 ![A posterior predictive plot comparing the selected pollsters' bias in 2016.](Figures/YearPollsterNoramalHom-PostPred-2016.png)
 
 We can further see the dramatic differences between 2012 and 2016 with comparsion plot below:
-![In this comparsion, polls seem to have had much more of a Republican bias in 2012 than in 2016.](Figures/YearPollsterNormalHom-2012-vs-2008.png)
+
+![In this comparsion, polls seem to have had much more of a Republican bias in 2012 than in 2016.](Figures/YearPollsterNormalHom-2016-vs-2012.png)
 
 Of special note, all of the credible values fall outside of the Region of Practical Equivalence. Meaning there is statistical evidence that there was a difference in bias between pollster bias in the 2012 and 2016 elections. We can reject the hypothesis that there is no difference in bias between these years.
+
+Between individual pollsters, the differences are less definite. 
+
+![In this comparison, the difference between Survey USA and Gravis Marketing isn't enough to conclude they have different bias, although the most credible value suggests that Gravis is 1% more bias towards the Republican party than SurveyUSA.](Figures/YearPollsterNormalHom-SrvyUSA-vs-GrvsMrk.png)
+
+Between interaction terms the differences get even smaller...
+
+![Comparsion between Public Policy Polling and Rasmussen Reports-Pulse Opinion Research and between years 2008 and 2012.](Figures/YearPollsterNormalHom-PblcPlP.v.RRp-POR(x)2012.v.2008.png)
 
 The most credible values and the highest density intervals for each parameter value can be seen below:
 
@@ -80,6 +107,7 @@ dt %>%
   knitr::kable() %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
+
 
 ## Conclusion
 
