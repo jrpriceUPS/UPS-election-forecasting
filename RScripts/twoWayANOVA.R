@@ -13,6 +13,11 @@ graphFileType = "png"
 mydata=read.csv("Data/raw-polls_538.csv")
 #Limit to just president
 preferredType="Pres-G"
+
+mydata$pollster = as.factor(mydata$pollster)
+#rename pollsters with special characters
+levels(mydata$pollster) = stringr::str_replace_all(levels(mydata$pollster),"/","-")
+
 mydata=subset(mydata, type_simple==preferredType)
 #use lubridate to change dates from character to date data type for functionality. 
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
@@ -37,6 +42,8 @@ minPolls=30
 myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(mydata$pollster))
 {
+  #rename cells that include special characters
+  #stringr::str_replace_all (myPollster, "[[:punct:]]", " ")
   #subset to a dataset with just each pollster
   subpoll=subset(mydata, pollster==myPollster)
   
@@ -74,7 +81,7 @@ x2contrasts = list(
 # Each interaction contrast is a list of 2 lists of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL)::
 x1x2contrasts = list( 
-  list( list( c("Public Policy Polling") , c("Rasmussen Reports/Pulse Opinion Research") ) ,
+  list( list( c("Public Policy Polling") , c("Rasmussen Reports-Pulse Opinion Research") ) ,
         list( c("2012") , c("2008") ) ,
         compVal=0.0 , ROPE=c(-1,1) ) ,
   list( list( c("YouGov") , c("SurveyUSA") ) ,
