@@ -67,7 +67,7 @@ Posterior distributions are shown below:
 
 ![A posterior predictive plot comparing the selected pollsters' bias. This motivates all future analysis to be separated by pollster, there seems to be actual differences between these pollsters for their levels of bias.](Figures/PollsterData1-NormalHom-PostPred.png)
 
-We can see this further with this visual comparsion between Public Policy Polling and TCJ. TCJ appears to be more democratic leaning in bias.
+We can see this further with this visual comparison between Public Policy Polling and TCJ. TCJ appears to be more democratic leaning in bias.
 
 
 ![In this comparsion, TCJ appears to be more democratic leaning in bias than Public Policy Polling.](Figures/PollsterData1-NormalHom-Public Policy Polling.v.TCJ Research.png)
@@ -83,9 +83,6 @@ dt <- summaryInfo[, 1:7]
 dt %>%
   knitr::kable() %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-
-
-
 ```
 
 **Conclusion**
