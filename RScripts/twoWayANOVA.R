@@ -18,8 +18,8 @@ mydata=subset(mydata, type_simple==preferredType)
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
 mydata$polldate = lubridate::mdy(mydata$polldate)
 
-earlyYear=2010
-lateYear=2020
+earlyYear=2008
+lateYear=2016
 #Subset for year constraints given above.
 mydata=(subset(mydata, mydata$year>=earlyYear))
 mydata=(subset(mydata, mydata$year<=lateYear))
@@ -63,22 +63,22 @@ x2Name="year"
 # Each main-effect contrast is a list of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL):
 x1contrasts = list( 
-  list( c("SurveyUSA") , c("Marist College") , compVal=0.0 , ROPE=c(-1,1) ) ,
-  list( c("YouGov") , c("Grove Insight") , compVal=0.0 , ROPE=c(-1,1) ) 
+  list( c("SurveyUSA") , c("Mason-Dixon Polling & Strategy") , compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("YouGov") , c("Public Policy Polling") , compVal=0.0 , ROPE=c(-1,1) ) 
 )
 x2contrasts = list( 
-  list( c("2012") , c("2020") , compVal=0.0 , ROPE=c(-1,1) ) ,
-  list( c("2016") , c("2020") , compVal=0.0 , ROPE=c(-1,1) ) 
+  list( c("2012") , c("2008") , compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("2016") , c("2012") , compVal=0.0 , ROPE=c(-1,1) ) 
  
 )
 # Each interaction contrast is a list of 2 lists of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL)::
 x1x2contrasts = list( 
-  list( list( c("Zogby Interactive/JZ Analytics") , c("Quinnipiac University") ) ,
-        list( c("2012") , c("2020") ) ,
+  list( list( c("Public Policy Polling") , c("Rasmussen Reports/Pulse Opinion Research") ) ,
+        list( c("2012") , c("2008") ) ,
         compVal=0.0 , ROPE=c(-1,1) ) ,
-  list( list( c("YouGov") , c("Grove Insight") ) ,
-        list( c("2016") , c("2020") ) ,
+  list( list( c("YouGov") , c("SurveyUSA") ) ,
+        list( c("2016") , c("2012") ) ,
         compVal=0.0 , ROPE=c(-1,1) ) 
 ) 
 
@@ -91,13 +91,14 @@ mcmcCoda = genMCMC( datFrm=myDataFrame ,
                     yName=yName , x1Name=x1Name , x2Name=x2Name ,
                     numSavedSteps=15000 , thinSteps=5 , 
                     saveName=fileNameRoot )
+#x = na.omit(x)
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("b0","b1[1]","b2[1]","b1b2[1,1]","ySigma") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
-            saveName=fileNameRoot , saveType=graphFileType )
+            saveName=fileNameRootFig , saveType=graphFileType )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
@@ -114,59 +115,4 @@ plotMCMC( mcmcCoda ,
           x1contrasts=x1contrasts , 
           x2contrasts=x2contrasts , 
           x1x2contrasts=x1x2contrasts ,
-          saveName=fileNameRoot , saveType=graphFileType )
-#------------------------------------------------------------------------------- 
-# Other specific comparisons of cells:
-if ( fileNameRoot == "YearPollsterNormalHom-" ) {
-  # THIS x1level minus THAT x1level at AT x2level:
-  THISx1 = "Full"
-  THATx1 = "Assis"
-  ATx2 = "CHEM"
-  THISidx = which(levels(myDataFrame[,x1Name])==THISx1)
-  THATidx = which(levels(myDataFrame[,x1Name])==THATx1)
-  ATidx   = which(levels(myDataFrame[,x2Name])==ATx2)
-  openGraph(height=4,width=4)
-  compInfo = plotPost( 
-    as.matrix(mcmcCoda)[,paste("m[",THISidx,",",ATidx,"]",sep="")] -
-      as.matrix(mcmcCoda)[,paste("m[",THATidx,",",ATidx,"]",sep="")] , 
-    main=paste(THISx1,"-",THATx1,"@",ATx2) , 
-    xlab=paste("Difference in",yName) , 
-    compVal=0 ,ROPE=c(-1000,1000) )
-  show(compInfo)
-  saveGraph(file=paste(fileNameRoot,THISx1,"-",THATx1,"At",ATx2,sep=""),
-            type=graphFileType)
-  # THIS x1level minus THAT x1level at AT x2level:
-  THISx1 = "Full"
-  THATx1 = "Assis"
-  ATx2 = "PSY"
-  THISidx = which(levels(myDataFrame[,x1Name])==THISx1)
-  THATidx = which(levels(myDataFrame[,x1Name])==THATx1)
-  ATidx   = which(levels(myDataFrame[,x2Name])==ATx2)
-  openGraph(height=4,width=4)
-  compInfo = plotPost( 
-    as.matrix(mcmcCoda)[,paste("m[",THISidx,",",ATidx,"]",sep="")] -
-      as.matrix(mcmcCoda)[,paste("m[",THATidx,",",ATidx,"]",sep="")] , 
-    main=paste(THISx1,"-",THATx1,"@",ATx2) , 
-    xlab=paste("Difference in",yName) , 
-    compVal=0 ,ROPE=c(-1000,1000) )
-  show(compInfo)
-  saveGraph(file=paste(fileNameRoot,THISx1,"-",THATx1,"At",ATx2,sep=""),
-            type=graphFileType)
-  # THIS x2level minus THAT x2level at AT x1level:
-  THISx2 = "PSY"
-  THATx2 = "ENG"
-  ATx1 = "Full"
-  THISidx = which(levels(myDataFrame[,x2Name])==THISx2)
-  THATidx = which(levels(myDataFrame[,x2Name])==THATx2)
-  ATidx   = which(levels(myDataFrame[,x1Name])==ATx1)
-  openGraph(height=4,width=4)
-  compInfo = plotPost( 
-    as.matrix(mcmcCoda)[,paste("m[",ATidx,",",THISidx,"]",sep="")] -
-      as.matrix(mcmcCoda)[,paste("m[",ATidx,",",THATidx,"]",sep="")] , 
-    main=paste(THISx2,"-",THATx2,"@",ATx1) , 
-    xlab=paste("Difference in",yName) , 
-    compVal=0 ,ROPE=c(-1000,1000) )
-  show(compInfo)
-  saveGraph(file=paste(fileNameRoot,THISx2,"-",THATx2,"At",ATx1,sep=""),
-            type=graphFileType)
-}
+          saveName=fileNameRootFig , saveType=graphFileType )

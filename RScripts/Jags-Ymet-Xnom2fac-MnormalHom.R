@@ -289,7 +289,7 @@ plotMCMC = function( codaSamples ,
   x2levels = levels(as.factor(datFrm[,x2Name]))
   # Display data with posterior predictive distributions
   for ( x2idx in 1:length(x2levels) ) {
-    openGraph(width=1.2*length(x1levels),height=5)
+    openGraph(width=2*length(x1levels),height=5)
     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
     plot(-10,-10, 
          xlim=c(0.2,length(x1levels)+0.1) , 
