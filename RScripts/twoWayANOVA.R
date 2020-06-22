@@ -10,18 +10,7 @@ fileNameRootFig="Markdown/Figures/YearPollsterNoramalHom-"
 fileNameRoot = "Simulations/YearPollsterNormalHom-" 
 graphFileType = "png" 
 
-mydata=read.csv("Data/raw-polls_538.csv")
-#Limit to just president
-preferredType="Pres-G"
-
-mydata$pollster = as.factor(mydata$pollster)
-#rename pollsters with special characters
-levels(mydata$pollster) = stringr::str_replace_all(levels(mydata$pollster),"/","-")
-
-mydata=subset(mydata, type_simple==preferredType)
-#use lubridate to change dates from character to date data type for functionality. 
-mydata$electiondate = lubridate::mdy(mydata$electiondate)
-mydata$polldate = lubridate::mdy(mydata$polldate)
+mydata=read.csv("Data/raw-polls_538_cleaned.csv")
 
 earlyYear=2008
 lateYear=2016
@@ -29,12 +18,7 @@ lateYear=2016
 mydata=(subset(mydata, mydata$year>=earlyYear))
 mydata=(subset(mydata, mydata$year<=lateYear))
 
-#subset to make sure it is a democratic v. republican race
-mydata=subset(mydata,cand1_party=="DEM")
-mydata=subset(mydata,cand2_party=="REP")
 
-
-mydata$year = as.factor(mydata$year)
 
 #create empty data frame, while maintaining all columns from the mydata structure
 #Pick min. number of acceptable polls
@@ -42,8 +26,7 @@ minPolls=30
 myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(mydata$pollster))
 {
-  #rename cells that include special characters
-  #stringr::str_replace_all (myPollster, "[[:punct:]]", " ")
+
   #subset to a dataset with just each pollster
   subpoll=subset(mydata, pollster==myPollster)
   
@@ -70,8 +53,8 @@ x2Name="year"
 # Each main-effect contrast is a list of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL):
 x1contrasts = list( 
-  list( c("SurveyUSA") , c("Mason-Dixon Polling & Strategy") , compVal=0.0 , ROPE=c(-1,1) ) ,
-  list( c("YouGov") , c("Public Policy Polling") , compVal=0.0 , ROPE=c(-1,1) ) 
+  list( c("SrvyUSA") , c("Ms-DP&S") , compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("YouGov") , c("PblcPlP") , compVal=0.0 , ROPE=c(-1,1) ) 
 )
 x2contrasts = list( 
   list( c("2012") , c("2008") , compVal=0.0 , ROPE=c(-1,1) ) ,
@@ -81,10 +64,10 @@ x2contrasts = list(
 # Each interaction contrast is a list of 2 lists of 2 vectors of level names, 
 # a comparison value (typically 0.0), and a ROPE (which could be NULL)::
 x1x2contrasts = list( 
-  list( list( c("Public Policy Polling") , c("Rasmussen Reports-Pulse Opinion Research") ) ,
+  list( list( c("PblcPlP") , c("RRp-POR") ) ,
         list( c("2012") , c("2008") ) ,
         compVal=0.0 , ROPE=c(-1,1) ) ,
-  list( list( c("YouGov") , c("SurveyUSA") ) ,
+  list( list( c("YouGov") , c("SrvyUSA") ) ,
         list( c("2016") , c("2012") ) ,
         compVal=0.0 , ROPE=c(-1,1) ) 
 ) 
