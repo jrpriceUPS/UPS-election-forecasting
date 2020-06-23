@@ -451,7 +451,7 @@ plotMCMC = function( codaSamples ,
             paste0(paste(thisContrast[[2]][[1]],collapse="."), 
                    ".v.",
                    paste(thisContrast[[2]][[2]],collapse=".")))
-          saveGraph(file=paste0(fileNameRoot,fileNameSuffix),
+          saveGraph(file=paste0(saveName,fileNameSuffix),
                     type=graphFileType)
         }
       } # end of interaction contrasts
