@@ -47,11 +47,10 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
     # Bottom level of the hierarchy (individual poll bias)
     for ( i in 1:Ntotal ) {
       y[i] ~ dt(mu[i], 1/ySigma^2, nuY )
-      mu[i] <- a0 + a1[x1[i]] + a2[x2[i]]
+      mu[i] <- a1[x1[i]] + a2[x2[i]]
     }
     nuY ~  dexp(1/30.0) 
     ySigma ~ dunif( ySD/100 , ySD*10 )
-    a0 ~ dnorm( 0 , 1/(ySD*5)^2 )
     
     # Middle level of the hierarchy (pollster bias)
      for ( j1 in 1:Nx1Lvl ) { a1[j1] ~ dnorm( 0.0 , 1/a1Sigma^2) }
@@ -59,7 +58,7 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
   
   
      # Middle level of the hierarchy (year lean)
-    for ( j2 in 1:Nx2Lvl ) { a2[j2] ~ dnorm( a0 , 1/a2Sigma^2) }
+    for ( j2 in 1:Nx2Lvl ) { a2[j2] ~ dnorm( 0.0 , 1/a2Sigma^2) }
     a2Sigma ~ dunif( ySD/100 , ySD*10 )
   }
   
@@ -77,7 +76,7 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
   # RUN THE CHAINS
   
   require(runjags)
-  parameters = c( "a1" , "a2",  "ySigma" , "nuY" , "a0", "a1Sigma", "a2Sigma" )
+  parameters = c( "a1" , "a2",  "ySigma" , "nuY" , "a1Sigma", "a2Sigma" )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -103,7 +102,7 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
 
 #===============================================================================
 
-smryMCMC = function(  codaSamples , datFrm=NULL , xName=NULL ,
+smryMCMC = function(  codaSamples , datFrm=NULL , x1Name=NULL , x2Name = NULL,
                       contrasts=NULL , saveName=NULL ) {
   # All single parameters:
   parameterNames = varnames(codaSamples) 
@@ -187,7 +186,8 @@ plotMCMC = function( codaSamples ,
                      x1contrasts=NULL , 
                      x2contrasts=NULL , 
                      x1x2contrasts=NULL ,
-                     saveName=NULL , saveType="jpg" ) {
+                     saveName=NULL , saveType="jpg",
+                     showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   y = datFrm[,yName]
@@ -196,157 +196,76 @@ plotMCMC = function( codaSamples ,
   x2 = as.numeric(as.factor(datFrm[,x2Name]))
   x2levels = levels(as.factor(datFrm[,x2Name]))
   # Display data with posterior predictive distributions
-  for ( x2idx in 1:length(x2levels) ) {
-    openGraph(width=2*length(x1levels),height=5)
-    par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
-    plot(-10,-10, 
-         xlim=c(0.2,length(x1levels)+0.1) , 
-         xlab=paste(x1Name,x2Name,sep="\n") , 
-         xaxt="n" , ylab=yName ,
-         ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
-         main="Data with Post. Pred.")
-    axis( 1 , at=1:length(x1levels) , tick=FALSE ,
-          lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
-    for ( x1idx in 1:length(x1levels) ) {
-      xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
-      yVals = y[ x1==x1idx & x2==x2idx ]
-      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) , 
-              yVals , pch=1 , cex=1.5 , col="red" )
-      chainSub = round(seq(1,chainLength,length=20))
-      for ( chnIdx in chainSub ) {
-        m = mcmcMat[chnIdx,paste("m[",x1idx,",",x2idx,"]",sep="")]
-        s = mcmcMat[chnIdx,"ySigma"]
-        normlim = qnorm( c(0.025,0.975) )
-        yl = m+normlim[1]*s
-        yh = m+normlim[2]*s
-        ycomb=seq(yl,yh,length=201)
-        ynorm = dnorm(ycomb,mean=m,sd=s)
-        ynorm = 0.67*ynorm/max(ynorm)
-        lines( xPlotVal-ynorm , ycomb , col="skyblue" ) 
-      }
-    }
-    if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
-    }
-  }
-}
+  # for ( x2idx in 1:length(x2levels) ) {
+  #   openGraph(width=2*length(x1levels),height=5)
+  #   par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+  #   plot(-10,-10,
+  #        xlim=c(0.2,length(x1levels)+0.1) ,
+  #        xlab=paste(x1Name,x2Name,sep="\n") ,
+  #        xaxt="n" , ylab=yName ,
+  #        ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
+  #        main="Data with Post. Pred.")
+  #   axis( 1 , at=1:length(x1levels) , tick=FALSE ,
+  #         lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
+  #   for ( x1idx in 1:length(x1levels) ) {
+  #     xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
+  #     yVals = y[ x1==x1idx & x2==x2idx ]
+  #     points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+  #             yVals , pch=1 , cex=1.5 , col="red" )
+  #     chainSub = round(seq(1,chainLength,length=20))
+  #     for ( chnIdx in chainSub ) {
+  #       m = mcmcMat[chnIdx,paste("a1[",x1idx,"]",sep="")]  # pollster bias
+  #              + mcmcMat[chnIdx,paste("a2[",x2idx,"]",sep="")] # year lean
+  #       s = mcmcMat[chnIdx,"ySigma"] # spread
+  #       nu = mcmcMat[chnIdx,"nuY"]# normality
+  # 
+  # 
+  #       tlim = qt( c(0.025,0.975) , df=nu )
+  #       yl = m+tlim[1]*s
+  #       yh = m+tlim[2]*s
+  #       ycomb=seq(yl,yh,length=201)
+  #       #ynorm = dnorm(ycomb,mean=m,sd=s)
+  #       #ynorm = 0.67*ynorm/max(ynorm)
+  #       yt = dt( (ycomb-m)/s , df=nu )
+  #       yt = 0.67*yt/max(yt)
+  #       lines( xPlotVal-yt , ycomb , col="skyblue" )
+  # 
+  # 
+  # 
+  #     }
+  #   }
+  #   if ( !is.null(saveName) ) {
+  #     saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
+  #   }
+  # }# end for x2idx
 
-   # end for x2idx
+  openGraph(width=8,height=8)
+  layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
+  for ( x2idx in 1:length(x2levels) ) {
+
   
-  # plot posteriors for each pollster
-#   for ( xidx in 1:length(xlevels) ) {
-#     openGraph(width=3,height=8)
-#     layout(matrix(1:2,ncol=1))
-#     
-#     
-#     # Compute limits for plots of data with posterior pred. distributions
-#     y = datFrm[,yName]
-#     y = y[x==xidx]
-#     xLim = c( min(y)-0.1*(max(y)-min(y)) , max(y)+0.1*(max(y)-min(y)) )
-#     xBreaks = seq( xLim[1] , xLim[2] , 
-#                    length=ceiling((xLim[2]-xLim[1])/(sd(y)/4)) )
-#     histInfo = hist(y,breaks=xBreaks,plot=FALSE)
-#     yMax = 1.2 * max( histInfo$density )
-#     xVec = seq( xLim[1] , xLim[2] , length=501 )
-#     #-----------------------------------------------------------------------------
-#     # Plot data y and smattering of posterior predictive curves:
-#     histInfo = hist( y , prob=TRUE , xlim=xLim , ylim=c(0,yMax) , breaks=xBreaks,
-#                      col="red2" , border="white" , xlab="y" , ylab="" , 
-#                      yaxt="n" , cex.lab=1.5 , main="Data w. Post. Pred." )
-#     chainSub = round(seq(1,chainLength,length=20))
-#     for ( chnIdx in chainSub ) {
-#       m = mcmcMat[chnIdx,paste("a[",xidx,"]",sep="")] # grab the center for the current pollster at that step in chain
-#       s = mcmcMat[chnIdx,paste("ySigma",sep="")] # grab the standard deviation for the current pollster at that step in chain
-#       nu = mcmcMat[chnIdx,"nuY"] # grab the normality parameter at that step
-#       
-#       lines(xVec, dt( (xVec-m)/s, 
-#                       df=nu)/s, 
-#             type="l" , col="skyblue" , lwd=1 )
-#     }
-#     text( max(xVec) , yMax , bquote(N==.(length(y))) , adj=c(1.1,1.1) )
-#     
-#     # posterior of the mean for that pollster
-#     histInfo = plotPost( mcmcMat[,paste("a[",xidx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
-#                          #compVal=compValMu , ROPE=ropeMu ,
-#                          xlab=xlevels[xidx] , main=paste("Mean") , 
-#                          col="skyblue" )
-#     
-#     
-#     
-#     
-#   }
-#   
-#   openGraph(width=10,height=3)
-#   layout(matrix(1:2,ncol=2))
-#   histInfo = plotPost( mcmcMat[,"ySigma"] , cex.lab = 1.75 , showCurve=showCurve ,
-#                        #compVal=compValMu , ROPE=ropeMu ,
-#                        xlab="Pollster Standard Deviation" , main=paste("Standard Deviation") , 
-#                        col="skyblue" )
-#   
-#   histInfo = plotPost( mcmcMat[,"nuY"] , cex.lab = 1.75 , showCurve=showCurve ,
-#                        #compVal=compValMu , ROPE=ropeMu ,
-#                        xlab="Pollster Normality" , main=paste("Normality") , 
-#                        col="skyblue" )
-#   
-#   if ( !is.null(saveName) ) {
-#     saveGraph( file=paste(saveName,"Normality&SD",sep=""), type=saveType)
-#   }
-#   
-#   
-#   openGraph(width=10,height=3)
-#   layout(matrix(1:2,ncol=2))
-#   histInfo = plotPost( mcmcMat[,"a0"] , cex.lab = 1.75 , showCurve=showCurve ,
-#                        #compVal=compValMu , ROPE=ropeMu ,
-#                        xlab="Average Pollster Bias" , main=paste("Average Bias") , 
-#                        col="skyblue" )
-#   
-#   histInfo = plotPost( mcmcMat[,"aSigma"] , cex.lab = 1.75 , showCurve=showCurve ,
-#                        #compVal=compValMu , ROPE=ropeMu ,
-#                        xlab="Spread of Pollster Bias" , main=paste("Spread") , 
-#                        col="skyblue" )
-#   
-#   
-#   # if ( !is.null(contrasts) ) {
-#   #   if ( is.null(datFrm) | is.null(xName) ) {
-#   #     show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
-#   #   } else {
-#   #     for ( cIdx in 1:length(contrasts) ) {
-#   #       thisContrast = contrasts[[cIdx]]
-#   #       left = right = rep(FALSE,length(xlevels))
-#   #       for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
-#   #         left = left | xlevels==thisContrast[[1]][nIdx]
-#   #       }
-#   #       left = normalize(left)
-#   #       for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
-#   #         right = right | xlevels==thisContrast[[2]][nIdx]
-#   #       }
-#   #       right = normalize(right)
-#   #       contrastCoef = matrix( left-right , ncol=1 )
-#   #       postContrast = ( mcmcMat[,paste("b[",1:length(xlevels),"]",sep="")] 
-#   #                        %*% contrastCoef )
-#   #       openGraph(height=8,width=4)
-#   #       layout(matrix(1:2,ncol=1))
-#   #       plotPost( postContrast , xlab="Difference" ,
-#   #                 main=paste0( 
-#   #                   paste(thisContrast[[1]],collapse="."), 
-#   #                   "\nvs\n",
-#   #                   paste(thisContrast[[2]],collapse=".") ) ,
-#   #                 compVal=thisContrast$compVal , ROPE=thisContrast$ROPE )
-#   #       plotPost( postContrast/mcmcMat[,"ySigma"] , xlab="Effect Size" ,
-#   #                 main=paste0( 
-#   #                   paste(thisContrast[[1]],collapse="."), 
-#   #                   "\nvs\n",
-#   #                   paste(thisContrast[[2]],collapse=".") ) ,
-#   #                 compVal=0.0 , 
-#   #                 ROPE=c(-0.1,0.1) )
-#   #     if ( !is.null(saveName) ) {
-#   #         saveGraph( file=paste0(saveName, paste0( 
-#   #           paste(thisContrast[[1]],collapse=""), 
-#   #           ".v.",
-#   #           paste(thisContrast[[2]],collapse="") ) ), 
-#   #           type=saveType )
-#   #       }
-#   #     }
-#   #   }
-#   # } # end if ( !is.null(contrasts) )
-# }
+
+
+    # posterior of the mean for that pollster
+    histInfo = plotPost( mcmcMat[,paste("a2[",x2idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+                         #compVal=compValMu , ROPE=ropeMu ,
+                         xlab=x2levels[x2idx] , main=paste("Mean") ,
+                         col="skyblue" )
+
+  }
+  
+  openGraph(width=8,height=8)
+  layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
+  for ( x1idx in 1:length(x1levels) ) {
+    
+    
+    # posterior of the mean for that pollster
+    histInfo = plotPost( mcmcMat[,paste("a1[",x1idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+                         #compVal=compValMu , ROPE=ropeMu ,
+                         xlab=x1levels[x1idx] , main=paste("Mean") ,
+                         col="skyblue" )
+    
+  }
+  
+  }
+  
