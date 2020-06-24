@@ -11,6 +11,10 @@ knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
 
+```{r Bayes_Setup, include=FALSE, fig.show='hide'}
+source(here::here('RScripts', 'JAGS-practice-example.R'))
+```
+
 ## Introduction
 
 This document is meant to show the capabilities of the JAGS-practice.R script. 
@@ -19,37 +23,7 @@ To understand pollster bias, we can use a Bayesian modeling to describe metric d
 
 It is of interest to include this nominal predictor of pollster because there is a historical precedent for bias due to systematic polling error and housing effects [@ReadPollsBetter]. 
 
-```{r Data_Loading}
-graphics.off() # This closes all of R's graphics windows.
-rm(list=ls())  # Clear all of R's memory!
 
-#load the cleaned data
-mydata=read.csv("Data/raw-polls_538_cleaned.csv")
-
-#Just do one year
-prefferedYear=2008
-#Subset for year constraints given above.
-mydata=(subset(mydata, mydata$year==prefferedYear))
-
-
-#create empty data frame, while maintaining all columns from the mydata structure
-#Pick min. number of acceptable polls
-minPolls=30
-myDataMyPollsters=  mydata[0,]
-for(myPollster in unique(mydata$pollster))
-{
-
-  #subset to a dataset with just each pollster
-  subpoll=subset(mydata, pollster==myPollster)
-  
-  #if that subset has more than thirty entries, use it:
-  if(nrow(subpoll)>minPolls){
-    #combine each of these subsets together
-    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
-  }
-}
-myDataFrame = myDataMyPollsters
-```
 
 Because there are so many pollsters, for the sake of simplification, we will look at just the few pollsters with at least `r minPolls` in the `r prefferedYear` for the General Presidential election. 
 
@@ -73,68 +47,13 @@ The analysis of distinguishing between pollsters seems valid based on this visua
 
 The Bayesian hierarchical implemented here starts with generic noncommittal parameters. Specifically:
 
-![Model Diagram for this model.](Figures/JAGS-practice-Libre-Diagram)
-
-While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of $\beta_{0}$ can be seen below.
-
-```{r Bayes_Setup}
-# Specify the column names in the data file relevant to the analysis:
-yName="bias" 
-xName="pollster" 
+![Model Diagram for this model.](Figures/JAGS-practice-Libre-Diagram.png)
 
 
-# Specify desired contrasts.
-# Each main-effect contrast is a list of 2 vectors of level names, 
-# a comparison value (typically 0.0), and a ROPE (which could be NULL):
-contrasts = list( 
-  list( c("Public Policy Polling") , c("TCJ Research" ) , 
-        compVal=0.0 , ROPE=c(-1,1) ) ,
-  list( c( "YouGov" ) , c("Grove Insight" ) , 
-        compVal=0.0 , ROPE=c(-1,1) ) 
-)
-# Specify filename root and graphical format for saving output.
-# Otherwise specify as NULL or leave saveName and saveType arguments 
-# out of function calls.
-fileNameRoot = "Markdown/Figures/Jags-practice-Pollster-" 
-fileNameRootSim= "Simulations/Jags-practice-Pollster-"
-graphFileType = "png" 
-#------------------------------------------------------------------------------- 
 
-# Load the relevant model into R's working memory:
-source("RScripts/Jags-practice.R")
-```
+While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of $\beta_{1}$ can be seen below.
 
-```{r runningBayes, include=FALSE, fig.show='hide'}
-
-
-# Generate the MCMC chain:
-mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , xName=xName ,
-                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
-#------------------------------------------------------------------------------- 
-# Display diagnostics of chain, for specified parameters:
-parameterNames = varnames(mcmcCoda) 
-show( parameterNames ) # show all parameter names, for reference
-#for ( parName in c("a" ,  "ySigma" , "nuY" , "a0", "aSigma") ) {
- # diagMCMC( codaObject=mcmcCoda , parName=parName , 
-          #  saveName=fileNameRoot , saveType=graphFileType )
-#}
-#------------------------------------------------------------------------------- 
-# Get summary statistics of chain:
-summaryInfo = smryMCMC( mcmcCoda , 
-                        datFrm=myDataFrame , xName=xName ,
-                        contrasts=contrasts , 
-                        saveName=fileNameRootSim )
-show(summaryInfo)
-# Display posterior information:
-plotMCMC( mcmcCoda , 
-          datFrm=myDataFrame , yName=yName , xName=xName ,
-          contrasts=contrasts , 
-          saveName=fileNameRoot , saveType=graphFileType )
-```
-
-While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of $\beta_{0}$ can be seen below.
-
-![](Figures/Jags-practice-Pollster-Diagb0.png)
+![](Figures/Jags-practice-Pollster-Diaga[1].png)
 
 The density plots are sufficiently converged after the burn-in period, the autocorrelation appears small enough, and there is nothing in these plots that suggest it would not be safe to continue with the Bayesian analysis.
 
@@ -142,7 +61,7 @@ In this analysis, one of the main objectives is to find whether or not there is 
 
 Posterior distributions are shown below:
 
-![A posterior predictive plot comparing the selected pollsters' bias. This motivates all future analysis to be separated by pollster, there seems to be actual differences between these pollsters for their levels of bias.](Figures/Jags-practice-Pollster-PostPred.png)
+![A posterior predictive plot comparing the selected pollsters' bias. This motivates all future analysis to be separated by pollster, there seems to be actual differences between these pollsters for their levels of bias.](Figures/Jags-practice-Pollster-5Posterior.png)
 The most credible values and the highest density intervals for each parameter value can be seen below:
 
 ```{r echo=FALSE, out.width="100%",  fig.align='center', error=TRUE, message=FALSE}

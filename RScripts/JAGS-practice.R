@@ -120,37 +120,38 @@ smryMCMC = function(  codaSamples , datFrm=NULL , xName=NULL ,
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
   # All contrasts:
-  if ( !is.null(contrasts) ) {
-    if ( is.null(datFrm) | is.null(xName) ) {
-      show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
-    } else {
+  # if ( !is.null(contrasts) ) {
+  #   if ( is.null(datFrm) | is.null(xName) ) {
+  #     show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
+  #   } else {
       # contrasts:
-      if ( !is.null(contrasts) ) {
-        for ( cIdx in 1:length(contrasts) ) {
-          thisContrast = contrasts[[cIdx]]
-          left = right = rep(FALSE,length(xlevels))
-          for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
-            left = left | xlevels==thisContrast[[1]][nIdx]
-          }
-          left = normalize(left)
-          for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
-            right = right | xlevels==thisContrast[[2]][nIdx]
-          }
-          right = normalize(right)
-          contrastCoef = matrix( left-right , ncol=1 )
-          postContrast = ( mcmcMat[,paste("b[",1:length(xlevels),"]",sep="")] 
-                           %*% contrastCoef )
-          summaryInfo = rbind( summaryInfo , 
-                               summarizePost( postContrast ,
-                                              compVal=thisContrast$compVal ,
-                                              ROPE=thisContrast$ROPE ) )
-          rownames(summaryInfo)[NROW(summaryInfo)] = (
-            paste( paste(thisContrast[[1]],collapse=""), ".v.",
-                   paste(thisContrast[[2]],collapse=""),sep="") )
-        }
-      }
-    }
-  }
+  #     if ( !is.null(contrasts) ) {
+  #       for ( cIdx in 1:length(contrasts) ) {
+  #         thisContrast = contrasts[[cIdx]]
+  #         left = right = rep(FALSE,length(xlevels))
+  #         for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
+  #           left = left | xlevels==thisContrast[[1]][nIdx]
+  #         }
+  #         left = normalize(left)
+  #         for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
+  #           right = right | xlevels==thisContrast[[2]][nIdx]
+  #         }
+  #         right = normalize(right)
+  #         contrastCoef = matrix( left-right , ncol=1 )
+  #         postContrast = ( mcmcMat[,paste("b[",1:length(xlevels),"]",sep="")] 
+  #                          %*% contrastCoef )
+  #         summaryInfo = rbind( summaryInfo , 
+  #                              summarizePost( postContrast ,
+  #                                             compVal=thisContrast$compVal ,
+  #                                             ROPE=thisContrast$ROPE ) )
+  #         rownames(summaryInfo)[NROW(summaryInfo)] = (
+  #           paste( paste(thisContrast[[1]],collapse=""), ".v.",
+  #                  paste(thisContrast[[2]],collapse=""),sep="") )
+  #       }
+  #     }
+  #   }
+  # }
+    
   # Save results:
   if ( !is.null(saveName) ) {
     write.csv( summaryInfo , file=paste(saveName,"SummaryInfo.csv",sep="") )
@@ -162,7 +163,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , xName=NULL ,
 
 plotMCMC = function( codaSamples , 
                      datFrm , yName="y" , xName="x" , contrasts=NULL ,
-                     saveName=NULL , saveType="jpg", showCurve = FALSE  ) {
+                     saveName=NULL , saveType="png", showCurve = FALSE  ) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   y = datFrm[,yName]
@@ -199,9 +200,9 @@ plotMCMC = function( codaSamples ,
   #     lines( xPlotVal-yt , ycomb , col="skyblue" ) 
   #   }
   # }
-  # if ( !is.null(saveName) ) {
-  #   saveGraph( file=paste(saveName,"PostPred",sep=""), type=saveType)
-  # }
+   if ( !is.null(saveName) ) {
+     saveGraph( file=paste(saveName,"PostPred",sep=""), type=saveType)
+  }
   
   # plot posteriors for each pollster
   for ( xidx in 1:length(xlevels) ) {
@@ -242,7 +243,7 @@ plotMCMC = function( codaSamples ,
                          col="skyblue" )
     
     
-    
+
     
   }
   
@@ -258,7 +259,9 @@ plotMCMC = function( codaSamples ,
                        xlab="Pollster Normality" , main=paste("Normality") , 
                        col="skyblue" )
   
-  
+  if ( !is.null(saveName) ) {
+    saveGraph( file=paste(saveName,"Normality&SD",sep=""), type=saveType)
+  }
   
   
   openGraph(width=10,height=3)
@@ -272,7 +275,7 @@ plotMCMC = function( codaSamples ,
                        #compVal=compValMu , ROPE=ropeMu ,
                        xlab="Spread of Pollster Bias" , main=paste("Spread") , 
                        col="skyblue" )
-  
+
   
   # if ( !is.null(contrasts) ) {
   #   if ( is.null(datFrm) | is.null(xName) ) {
@@ -307,7 +310,7 @@ plotMCMC = function( codaSamples ,
   #                   paste(thisContrast[[2]],collapse=".") ) ,
   #                 compVal=0.0 , 
   #                 ROPE=c(-0.1,0.1) )
-  #       if ( !is.null(saveName) ) {
+  #     if ( !is.null(saveName) ) {
   #         saveGraph( file=paste0(saveName, paste0( 
   #           paste(thisContrast[[1]],collapse=""), 
   #           ".v.",

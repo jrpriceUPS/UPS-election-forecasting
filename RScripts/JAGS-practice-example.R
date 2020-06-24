@@ -63,7 +63,7 @@ mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , xName=xName ,
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
-for ( parName in c("a" ,  "ySigma" , "nuY" , "a0", "aSigma") ) {
+for ( parName in c("aSigma", "a[1]",   "a[2]",   "a[3]",   "a[4]",   "a[5]",  "ySigma" , "nuY" , "a0") ) {
  diagMCMC( codaObject=mcmcCoda , parName=parName , 
   saveName=fileNameRoot , saveType=graphFileType )
 }
@@ -77,5 +77,5 @@ show(summaryInfo)
 # Display posterior information:
 plotMCMC( mcmcCoda , 
           datFrm=myDataFrame , yName=yName , xName=xName ,
-          contrasts=contrasts , 
+          #contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
