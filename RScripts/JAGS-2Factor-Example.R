@@ -59,11 +59,9 @@ mcmcCoda = genMCMC( datFrm=myDataFrame , yName=yName , x1Name=x1Name , x2Name=x2
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
-for ( parName in c("a1[1]" ,  "a1[2]" ,  "a1[3]",   "a1[4]" ,  "a1[5]" ,  "a1[6]" ,
-                   "a1[7]" ,  "a1[8]" ,  "a1[9]"  , "a1[10]" , "a1[11]" , "a1[12]",
-                   "a1[13]",  "a1[14]" , "a1[15]",  "a1[16]" , "a1[17]",  "a2[1]",
-                   "a2[2]",   "a2[3]",   "a2[4]",   "a2[5]",   "ySigma",  "nuY" ,
-                   "a0"   ,   "a1Sigma" ,"a2Sigma" ) ) {
+for ( parName in c("a1[1]" ,    "a2[1]",
+                    "ySigma",  "nuY" ,
+                   "a1Sigma" ,"a2Sigma" ) ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
@@ -79,3 +77,15 @@ plotMCMC( mcmcCoda ,
           datFrm=myDataFrame , yName=yName , x1Name=x1Name , x2Name=x2Name,
           #contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
+
+
+# Load the relevant model into R's working memory:
+source("RScripts/Jags-2Factor-V02.R")
+
+fileNameRoot = "Markdown/Figures/Jags-2FactorPractice-PollsterV02-" 
+fileNameRootSim= "Simulations/Jags-2FactorPractice-PollsterV02-"
+graphFileType = "png"
+# Generate the MCMC chain:
+mcmcCodaV02 = genMCMC( datFrm=myDataFrame , yName=yName , x1Name=x1Name , x2Name=x2Name,
+                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
+
