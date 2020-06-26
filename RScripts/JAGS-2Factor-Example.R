@@ -89,3 +89,23 @@ graphFileType = "png"
 mcmcCodaV02 = genMCMC( datFrm=myDataFrame , yName=yName , x1Name=x1Name , x2Name=x2Name,
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 
+parameterNames = varnames(mcmcCodaV02) 
+show( parameterNames ) # show all parameter names, for reference
+
+for ( parName in c("a1[1,1]" , "a1[13,3]" ,   "a2[1]",
+                   "ySigma",  "nuY" , 
+                    "a2Sigma" ) ) {
+  diagMCMC( codaObject=mcmcCodaV02 , parName=parName , 
+            saveName=fileNameRoot , saveType=graphFileType )
+}
+#------------------------------------------------------------------------------- 
+# Get summary statistics of chain:
+summaryInfo = smryMCMC( mcmcCodaV02 , 
+                        datFrm=myDataFrame , x1Name=x1Name , x2Name=x2Name,
+                        contrasts=contrasts , 
+                        saveName=fileNameRootSim )
+show(summaryInfo)
+plotMCMC( mcmcCodaV02, 
+          datFrm=myDataFrame , yName=yName , x1Name=x1Name , x2Name=x2Name,
+          #contrasts=contrasts , 
+          saveName=fileNameRoot , saveType=graphFileType )
