@@ -129,10 +129,8 @@ mcmcCodaV03 = genMCMC( datFrm=myDataFrame , biasName = "bias" , pollsterName = "
 parameterNames = varnames(mcmcCodaV03) 
 show( parameterNames ) # show all parameter names, for reference
 
-for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[16,3]"  ) ) {
-  diagMCMC( codaObject=mcmcCodaV03 , parName=parName , 
-            saveName=fileNameRoot , saveType=graphFileType )
-}
+plotDiagnostics()
+
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCodaV03 , 
@@ -140,7 +138,21 @@ summaryInfo = smryMCMC( mcmcCodaV03 ,
                         #contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
+plotDiagnostics()
+plotPosteriorPredictive( mcmcCodaV03, 
+          datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
+          #contrasts=contrasts , 
+          saveName=fileNameRoot , saveType=graphFileType )
+plotPollsterPosterior( mcmcCodaV03, 
+                         datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
+                         #contrasts=contrasts , 
+                         saveName=fileNameRoot , saveType=graphFileType )
+plotYearPosterior( mcmcCodaV03, 
+                   datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
+                   #contrasts=contrasts , 
+                   saveName=fileNameRoot , saveType=graphFileType )
 plotMCMC( mcmcCodaV03, 
           datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
           #contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
+
