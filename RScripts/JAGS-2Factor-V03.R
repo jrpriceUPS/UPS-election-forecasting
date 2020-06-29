@@ -46,7 +46,7 @@ genMCMC = function( datFrm , biasName = "bias" , pollsterName = "pollster" , yea
   
     # Bottom level of the hierarchy (individual poll bias)
     for ( poll in 1:PollsTotal) {
-      y[poll] ~ dt(mu[poll], 1/biasSpread^2, nuY )
+      bias[poll] ~ dt(mu[poll], 1/biasSpread^2, nuY )
       mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
     }
     nuY ~  dexp(1/30.0) 
@@ -76,7 +76,7 @@ genMCMC = function( datFrm , biasName = "bias" , pollsterName = "pollster" , yea
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   require(rjags)
-  parameters = c( "biasSD" , "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
+  parameters = c( "biasSpread" , "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
