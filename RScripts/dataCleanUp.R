@@ -36,6 +36,13 @@ mydata=subset(mydata,cand2_party=="REP")
 #Treat year as a factor
 mydata$year = as.factor(mydata$year)
 
+#Change so that bias is candiate specific, rather than in terms of margins.
+demBias = mydata[,15] - mydata[,22]
+mydata$demBias=demBias
+
+repBias = mydata[,18] - mydata [,23]
+mydata$repBias=repBias
+
 #Save the csv file.
 write.csv(mydata,'Data/raw-polls_538_cleaned.csv')
 

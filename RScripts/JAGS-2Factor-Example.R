@@ -122,7 +122,7 @@ fileNameRoot = "Markdown/Figures/Jags-2FactorPractice-PollsterV03-"
 fileNameRootSim= "Simulations/Jags-2FactorPractice-PollsterV03-"
 graphFileType = "png"
 # Generate the MCMC chain:
-mcmcCodaV03 = genMCMC( datFrm=myDataFrame , biasName = "bias" , pollsterName = "pollster" , yearName = "year",
+mcmcCodaV03 = genMCMC( datFrm=myDataFrame , biasName = "demBias" , pollsterName = "pollster" , yearName = "year",
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 
 
@@ -138,21 +138,19 @@ summaryInfo = smryMCMC( mcmcCodaV03 ,
                         #contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
+#------------------------------------------------------------------------------- 
 plotDiagnostics()
 plotPosteriorPredictive( mcmcCodaV03, 
-          datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
+          datFrm=myDataFrame , biasName="demBias" , pollsterName="pollster" , yearName="year",
           #contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
 plotPollsterPosterior( mcmcCodaV03, 
-                         datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
+                         datFrm=myDataFrame , biasName="demBias" , pollsterName="pollster" , yearName="year",
                          #contrasts=contrasts , 
                          saveName=fileNameRoot , saveType=graphFileType )
 plotYearPosterior( mcmcCodaV03, 
-                   datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
+                   datFrm=myDataFrame , biasName="demBias" , pollsterName="pollster" , yearName="year",
                    #contrasts=contrasts , 
                    saveName=fileNameRoot , saveType=graphFileType )
-plotMCMC( mcmcCodaV03, 
-          datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
-          #contrasts=contrasts , 
-          saveName=fileNameRoot , saveType=graphFileType )
+
 
