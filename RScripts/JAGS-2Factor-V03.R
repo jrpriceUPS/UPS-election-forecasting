@@ -102,20 +102,20 @@ genMCMC = function( datFrm , biasName = "bias" , pollsterName = "pollster" , yea
 
 #===============================================================================
 
-smryMCMC = function(  codaSamples , datFrm=NULL , x1Name=NULL , x2Name = NULL,
+smryMCMC = function(  codaSamples , datFrm=NULL , pollsterName=NULL , yearName = NULL,
                       contrasts=NULL , saveName=NULL ) {
   # All single parameters:
   parameterNames = varnames(codaSamples) 
-  if ( !is.null(datFrm) & !is.null(x1Name) & !is.null(x2Name) ) {
-    x1levels = levels(as.factor(datFrm[,x1Name]))
-    x2levels = levels(as.factor(datFrm[,x2Name]))
+  if ( !is.null(datFrm) & !is.null(pollsterName) & !is.null(yearName) ) {
+    PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
+    YearLevels = levels(as.factor(datFrm[,yearName]))
   }
   summaryInfo = NULL
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   for ( parName in parameterNames ) {
     summaryInfo = rbind( summaryInfo , summarizePost( mcmcMat[,parName] ) )
     thisRowName = parName
-    if ( !is.null(datFrm) & !is.null(x1Name) & !is.null(x2Name) ) {
+    if ( !is.null(datFrm) & !is.null(pollsterName) & !is.null(yearName) ) {
       # For row name, extract numeric digits from parameter name. E.g., if
       # parameter name is "b1b2[12,34]" then pull out b1b2, 12 and 34:
       strparts = unlist( strsplit( parName , "\\[|,|\\]"  ) )
@@ -123,17 +123,17 @@ smryMCMC = function(  codaSamples , datFrm=NULL , x1Name=NULL , x2Name = NULL,
       if ( length(strparts)==2 ) { 
         # if param name refers to factor 1:
         if ( substr(strparts[1],nchar(strparts[1]),nchar(strparts[1]))=="1" ) { 
-          thisRowName = paste( thisRowName , x1levels[as.numeric(strparts[2])] )
+          thisRowName = paste( thisRowName , PollsterLevels[as.numeric(strparts[2])] )
         }
         # if param name refers to factor 2:
         if ( substr(strparts[1],nchar(strparts[1]),nchar(strparts[1]))=="2" ) { 
-          thisRowName = paste( thisRowName , x2levels[as.numeric(strparts[2])] )
+          thisRowName = paste( thisRowName , YearLevels[as.numeric(strparts[2])] )
         }
       }
       # if there are the param name and two indices:
       if ( length(strparts)==3 ) { 
-        thisRowName = paste( thisRowName , x1levels[as.numeric(strparts[2])], 
-                             x2levels[as.numeric(strparts[3])] )
+        thisRowName = paste( thisRowName , PollsterLevels[as.numeric(strparts[2])], 
+                             YearLevels[as.numeric(strparts[3])] )
       }
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
@@ -141,7 +141,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , x1Name=NULL , x2Name = NULL,
   
   # All contrasts:
   # if ( !is.null(contrasts) ) {
-  #   if ( is.null(datFrm) | is.null(xName) ) {
+  #   if ( is.null(datFrm) | is.null(pollsterName) ) {
   #     show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
   #   } else {
   # contrasts:
@@ -182,7 +182,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , x1Name=NULL , x2Name = NULL,
 #===============================================================================
 
 plotMCMC = function( codaSamples , 
-                     datFrm , yName="y" , x1Name="x1" , x2Name="x2" ,
+                     datFrm , biasName=NULL , pollsterName=NULL , yearName=NULL ,
                      x1contrasts=NULL , 
                      x2contrasts=NULL , 
                      x1x2contrasts=NULL ,
@@ -190,87 +190,83 @@ plotMCMC = function( codaSamples ,
                      showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  y = datFrm[,yName]
-  x1 = as.numeric(as.factor(datFrm[,x1Name]))
-  x1levels = levels(as.factor(datFrm[,x1Name]))
-  x2 = as.numeric(as.factor(datFrm[,x2Name]))
-  x2levels = levels(as.factor(datFrm[,x2Name]))
-  # #Display data with posterior predictive distributions
-  #   for ( x2idx in 1:length(x2levels) ) {
-  #     openGraph(width=2*length(x1levels),height=5)
-  #     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
-  #     plot(-10,-10,
-  #          xlim=c(0.2,length(x1levels)+0.1) ,
-  #          xlab=paste(x1Name,x2Name,sep="\n") ,
-  #          xaxt="n" , ylab=yName ,
-  #          ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
-  #          main="Data with Post. Pred.")
-  #     axis( 1 , at=1:length(x1levels) , tick=FALSE ,
-  #           lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
-  #     for ( x1idx in 1:length(x1levels) ) {
-  #       xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
-  #       yVals = y[ x1==x1idx & x2==x2idx ]
-  #       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
-  #               yVals , pch=1 , cex=1.5 , col="red" )
-  #       chainSub = round(seq(1,chainLength,length=20))
-  #       for ( chnIdx in chainSub ) {
-  #         m = mcmcMat[chnIdx,paste("a1[",x1idx,",", x2idx,"]",sep="")]   # pollster bias
-  # +         mcmcMat[chnIdx,paste("a2[",x2idx,"]",sep="")]  # year lean
-  #         s = mcmcMat[chnIdx,"ySigma"] # spread
-  #         nu = mcmcMat[chnIdx,"nuY"]# normality
-  # 
-  # 
-  #         tlim = qt( c(0.025,0.975) , df=nu )
-  #         yl = m+tlim[1]*s
-  #         yh = m+tlim[2]*s
-  #         ycomb=seq(yl,yh,length=201)
-  #         #ynorm = dnorm(ycomb,mean=m,sd=s)
-  #         #ynorm = 0.67*ynorm/max(ynorm)
-  #         yt = dt( (ycomb-m)/s , df=nu )
-  #         yt = 0.67*yt/max(yt)
-  #         lines( xPlotVal-yt , ycomb , col="skyblue" )
-  # 
-  # 
-  # 
-  #       }
-  #     }
-  #     if ( !is.null(saveName) ) {
-  #       saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
-  #     }
-  #   }# end for x2idx
-  
-  #openGraph(width=8,height=8)
-  #layout(matrix(1:4,nrow=2))
-  #layout(matrix(4:4))
-  #layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
-  for ( x2idx in 1:length(x2levels) ) {
+  bias = datFrm[,biasName]
+  pollster = as.numeric(as.factor(datFrm[,pollsterName]))
+  PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
+  year = as.numeric(as.factor(datFrm[,yearName]))
+  YearLevels = levels(as.factor(datFrm[,yearName]))
+  #Display data with posterior predictive distributions
+    for ( Yearidx in 1:length(YearLevels) ) {
+      openGraph(width=2*length(PollsterLevels),height=5)
+      par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+      plot(-10,-10,
+           xlim=c(0.2,length(PollsterLevels)+0.1) ,
+           xlab=paste(pollsterName,yearName,sep="\n") ,
+           xaxt="n" , ylab=biasName ,
+           ylim=c(min(bias)-0.2*(max(bias)-min(bias)),max(bias)+0.2*(max(bias)-min(bias))) ,
+           main="Data with Post. Pred.")
+      axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
+            lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
+      for ( Pollsteridx in 1:length(PollsterLevels) ) {
+        xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
+        yVals = bias[ pollster==Pollsteridx & year==Yearidx ]
+        points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+                yVals , pch=1 , cex=1.5 , col="red" )
+        chainSub = round(seq(1,chainLength,length=20))
+        for ( chnIdx in chainSub ) {
+          m = mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+  +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
+          s = mcmcMat[chnIdx,"biasSpread"] # spread
+          nu = mcmcMat[chnIdx,"nuY"]# normality
+
+
+          tlim = qt( c(0.025,0.975) , df=nu )
+          yl = m+tlim[1]*s
+          yh = m+tlim[2]*s
+          ycomb=seq(yl,yh,length=201)
+          #ynorm = dnorm(ycomb,mean=m,sd=s)
+          #ynorm = 0.67*ynorm/max(ynorm)
+          yt = dt( (ycomb-m)/s , df=nu )
+          yt = 0.67*yt/max(yt)
+          lines( xPlotVal-yt , ycomb , col="skyblue" )
+
+
+
+        }
+      }
+      if ( !is.null(saveName) ) {
+        saveGraph( file=paste0(saveName,"PostPred-",YearLevels[Yearidx]), type=saveType)
+      }
+    }# end for Yearidx
+
+  #plot each year
+  for ( Yearidx in 1:length(YearLevels) ) {
     openGraph(width=8,height=8)
     
     # posterior of the mean for that pollster
-    histInfo = plotPost( mcmcMat[,paste("a2[",x2idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+    histInfo = plotPost( mcmcMat[,paste("yearLean[",Yearidx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
                          #compVal=compValMu , ROPE=ropeMu ,
-                         xlab=x2levels[x2idx] , main=paste("Mean") ,
+                         xlab=YearLevels[Yearidx] , main=paste("Mean") ,
                          col="skyblue" )
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"YearLean-",x2levels[x2idx]), type=saveType)
+      saveGraph( file=paste0(saveName,"YearLean-",YearLevels[Yearidx]), type=saveType)
     }
   }
   
-  #openGraph(width=8,height=8)
-  #layout(matrix(1:4,nrow=2))
+
+  #layout(matrix(1:ceiling(length(YearLevels)/4)*4,nrow=4))
   
-  #layout(matrix(4:4))
-  #layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
-  for ( x1idx in 1:length(x1levels) ) {
+  #plot each pollster
+  for ( Pollsteridx in 1:length(PollsterLevels) ) {
     openGraph(width=8,height=8)
     
     # posterior of the mean for that pollster
-    histInfo = plotPost(mcmcMat[,paste("a1[",x1idx,",", x2idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+    histInfo = plotPost(mcmcMat[,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
                         #compVal=compValMu , ROPE=ropeMu ,
-                        xlab=x1levels[x1idx] , main=paste("Mean") ,
+                        xlab=PollsterLevels[Pollsteridx] , main=paste("Mean") ,
                         col="skyblue" )
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"PollsterBias-",x1levels[x1idx]), type=saveType)
+      saveGraph( file=paste0(saveName,"PollsterBias-",PollsterLevels[Pollsteridx]), type=saveType)
     }
   }
   

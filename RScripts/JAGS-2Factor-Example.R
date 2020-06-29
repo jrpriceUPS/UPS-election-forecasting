@@ -112,13 +112,7 @@ for(myPollster in unique(mydata$pollster))
 }
 myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
-# Specify the column names in the data file relevant to the analysis:
-yName="bias" 
-x1Name="pollster" 
-x2Name= "year"
-bias = "bias"
-pollster="pollster"
-year="year"
+
 
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
@@ -135,18 +129,18 @@ mcmcCodaV03 = genMCMC( datFrm=myDataFrame , biasName = "bias" , pollsterName = "
 parameterNames = varnames(mcmcCodaV03) 
 show( parameterNames ) # show all parameter names, for reference
 
-for ( parName in c("nuY" , "biasSD" ) ) {
+for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[16,3]"  ) ) {
   diagMCMC( codaObject=mcmcCodaV03 , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( mcmcCodaV02 , 
-                        datFrm=myDataFrame , x1Name=x1Name , x2Name=x2Name,
-                        contrasts=contrasts , 
+summaryInfo = smryMCMC( mcmcCodaV03 , 
+                        datFrm=myDataFrame ,  pollsterName = "pollster", yearName="year",
+                        #contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
-plotMCMC( mcmcCodaV02, 
-          datFrm=myDataFrame , yName=yName , x1Name=x1Name , x2Name=x2Name,
+plotMCMC( mcmcCodaV03, 
+          datFrm=myDataFrame , biasName="bias" , pollsterName="pollster" , yearName="year",
           #contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
