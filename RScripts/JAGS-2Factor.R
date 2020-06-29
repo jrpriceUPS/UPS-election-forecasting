@@ -196,51 +196,51 @@ plotMCMC = function( codaSamples ,
   x2 = as.numeric(as.factor(datFrm[,x2Name]))
   x2levels = levels(as.factor(datFrm[,x2Name]))
   # Display data with posterior predictive distributions
-  # for ( x2idx in 1:length(x2levels) ) {
-  #   openGraph(width=2*length(x1levels),height=5)
-  #   par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
-  #   plot(-10,-10,
-  #        xlim=c(0.2,length(x1levels)+0.1) ,
-  #        xlab=paste(x1Name,x2Name,sep="\n") ,
-  #        xaxt="n" , ylab=yName ,
-  #        ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
-  #        main="Data with Post. Pred.")
-  #   axis( 1 , at=1:length(x1levels) , tick=FALSE ,
-  #         lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
-  #   for ( x1idx in 1:length(x1levels) ) {
-  #     xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
-  #     yVals = y[ x1==x1idx & x2==x2idx ]
-  #     points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
-  #             yVals , pch=1 , cex=1.5 , col="red" )
-  #     chainSub = round(seq(1,chainLength,length=20))
-  #     for ( chnIdx in chainSub ) {
-  #       m = mcmcMat[chnIdx,paste("a1[",x1idx,"]",sep="")]  # pollster bias
-  #              + mcmcMat[chnIdx,paste("a2[",x2idx,"]",sep="")] # year lean
-  #       s = mcmcMat[chnIdx,"ySigma"] # spread
-  #       nu = mcmcMat[chnIdx,"nuY"]# normality
-  # 
-  # 
-  #       tlim = qt( c(0.025,0.975) , df=nu )
-  #       yl = m+tlim[1]*s
-  #       yh = m+tlim[2]*s
-  #       ycomb=seq(yl,yh,length=201)
-  #       #ynorm = dnorm(ycomb,mean=m,sd=s)
-  #       #ynorm = 0.67*ynorm/max(ynorm)
-  #       yt = dt( (ycomb-m)/s , df=nu )
-  #       yt = 0.67*yt/max(yt)
-  #       lines( xPlotVal-yt , ycomb , col="skyblue" )
-  # 
-  # 
-  # 
-  #     }
-  #   }
-  #   if ( !is.null(saveName) ) {
-  #     saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
-  #   }
-  # }# end for x2idx
+  for ( x2idx in 1:length(x2levels) ) {
+    openGraph(width=2*length(x1levels),height=5)
+    par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+    plot(-10,-10,
+         xlim=c(0.2,length(x1levels)+0.1) ,
+         xlab=paste(x1Name,x2Name,sep="\n") ,
+         xaxt="n" , ylab=yName ,
+         ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
+         main="Data with Post. Pred.")
+    axis( 1 , at=1:length(x1levels) , tick=FALSE ,
+          lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
+    for ( x1idx in 1:length(x1levels) ) {
+      xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
+      yVals = y[ x1==x1idx & x2==x2idx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="red" )
+      chainSub = round(seq(1,chainLength,length=20))
+      for ( chnIdx in chainSub ) {
+        m = mcmcMat[chnIdx,paste("a1[",x1idx,"]",sep="")]  # pollster bias
+               + mcmcMat[chnIdx,paste("a2[",x2idx,"]",sep="")] # year lean
+        s = mcmcMat[chnIdx,"ySigma"] # spread
+        nu = mcmcMat[chnIdx,"nuY"]# normality
+
+
+        tlim = qt( c(0.025,0.975) , df=nu )
+        yl = m+tlim[1]*s
+        yh = m+tlim[2]*s
+        ycomb=seq(yl,yh,length=201)
+        #ynorm = dnorm(ycomb,mean=m,sd=s)
+        #ynorm = 0.67*ynorm/max(ynorm)
+        yt = dt( (ycomb-m)/s , df=nu )
+        yt = 0.67*yt/max(yt)
+        lines( xPlotVal-yt , ycomb , col="skyblue" )
+
+
+
+      }
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
+    }
+  }# end for x2idx
 
   openGraph(width=8,height=8)
-  layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
+  layout(matrix(1:((ceiling(length(x2levels)/4)) * 4), nrow = 4))
   for ( x2idx in 1:length(x2levels) ) {
 
   
@@ -255,7 +255,7 @@ plotMCMC = function( codaSamples ,
   }
   
   openGraph(width=8,height=8)
-  layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
+  layout(matrix(1:((ceiling(length(x1levels)/4)) * 4), nrow = 4))
   for ( x1idx in 1:length(x1levels) ) {
     
     

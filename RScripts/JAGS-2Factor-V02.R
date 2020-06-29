@@ -58,10 +58,11 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
     
     # Middle level of the hierarchy (pollster bias with year)
      for ( j1 in 1:Nx1Lvl ) { for ( j2 in 1:Nx2Lvl ) { 
-     a1[j1,j2] ~ dnorm(0.0 , 1/a2Sigma^2) }
+     a1[j1,j2] ~ dnorm(0.0 , 1/a1Sigma^2) }
      
     
      }
+     a1Sigma ~ dunif( ySD/100 , ySD*10 )
   }
   
   " # close quote for modelstring
@@ -74,7 +75,7 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   require(rjags)
-  parameters = c( "ySigma" , "nuY" , "a2Sigma", "a1", "a2" )
+  parameters = c( "ySigma" , "nuY" , "a2Sigma", "a1Sigma", "a1", "a2" )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
