@@ -29,6 +29,12 @@ levels(mydata$pollster)=abbreviate(levels(mydata$pollster), minlength = 7, use.c
 mydata$electiondate = lubridate::mdy(mydata$electiondate)
 mydata$polldate = lubridate::mdy(mydata$polldate)
 
+library(magrittr)
+#create daysuntil column to keep track of the number of days between a poll and the actual election.
+daysuntil=lubridate::interval(mydata$polldate,mydata$electiondate)
+daysuntil=lubridate::as.period(daysuntil) %>% lubridate::day()
+mydata$daysuntil=daysuntil                   
+
 #subset to make sure it is a democratic v. republican race
 mydata=subset(mydata,cand1_party=="DEM")
 mydata=subset(mydata,cand2_party=="REP")
