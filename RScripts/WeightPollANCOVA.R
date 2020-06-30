@@ -34,7 +34,7 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
   scoreTotal = length(score)
   NdelModeLvl = length(unique(delMode))
   NLVLvl = length(unique(LV))
-  Ntransparency = length(unique(transparency))
+  NtransparencyLvl = length(unique(transparency))
   
   # Compute scale properties of data, for passing into prior to make the prior
   # vague on the scale of the data. 
@@ -54,7 +54,7 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
     scoreTotal = scoreTotal ,
     NdelModeLvl = NdelModeLvl ,
     NLVLvl = NLVLvl,
-    Ntransparency = Ntransparency ,
+    NtransparencyLvl = NtransparencyLvl ,
     # data properties for scaling the prior:
     samplesizeSD = sd(samplesize) ,
     scoreSD = sd(score) ,
@@ -83,11 +83,11 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
    
     delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    for ( LV in 1:LVLvl ) { LVImpact[LV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
+    for ( LV in 1:NLVLvl ) { LVImpact[LV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
                               samplesize[LV] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
     LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    for ( transparency in 1:transparencyLvl ) { transparencyImpact[transparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
+    for ( transparency in 1:NtransparencyLvl ) { transparencyImpact[transparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
                               samplesize[transparency] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     

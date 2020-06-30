@@ -41,7 +41,7 @@ graphFileType = "png"
 source("RScripts/WeightPollANCOVA.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
-mcmcCoda = genMCMC( datFrm , scoreName="score" , daysuntilName="daysuntil", 
+mcmcCoda = genMCMC( datFrm = myDataFrame , scoreName="score" , daysuntilName="daysuntil", 
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize",
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRoot )
