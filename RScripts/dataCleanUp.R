@@ -49,6 +49,101 @@ mydata$demBias=demBias
 repBias = mydata[,18] - mydata [,23]
 mydata$repBias=repBias
 
+
+
+
+
+
+
+
+
+#Add pollster credibility stuff!!
+
+pollsterCred=read.csv("Data/pollster-ratings.csv")
+
+  #start with transparency!
+myDataMyPollsters=  mydata[0,]
+for(myID in unique(mydata$pollster_rating_id))
+{
+  #find the transparency of that pollster
+  subcred = subset(pollsterCred, Pollster.Rating.ID==myID)
+  transparency = subcred$NCPP...AAPOR...Roper
+  
+  #subset to a dataset with just each pollster
+  subpoll=subset(mydata, pollster_rating_id==myID)
+  transparencyList = subpoll [ ,0 ]
+  transparencyList=rep(transparency,nrow(subpoll))
+  subpoll$transparency = transparencyList
+
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  
+}
+myDataFrame = myDataMyPollsters
+myDataFrame$pollster = factor( myDataFrame$pollster)
+mydata = myDataFrame
+
+
+
+
+    #next to delMode 
+myDataMyPollsters=  mydata[0,]
+for(myID in unique(mydata$pollster_rating_id))
+{
+  #find the mode of that pollster
+  submethod = subset(pollsterCred, Pollster.Rating.ID==myID)
+  method = submethod$Methodology
+  
+  #subset to a dataset with just each pollster
+  subpoll=subset(mydata, pollster_rating_id==myID)
+  methodList = subpoll [ ,0 ]
+  methodList=rep(method,nrow(subpoll))
+  subpoll$delMode = methodList
+  
+  myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  
+}
+myDataFrame = myDataMyPollsters
+myDataFrame$pollster = factor( myDataFrame$pollster)
+mydata = myDataFrame
+
+
+
+
+  #next is LV
+myDataMyPollsters=  mydata[0,]
+for(myPoll in unique(mydata$poll_id))
+{
+  #subset to a dataset with just each pollster
+  subpoll=subset(mydata, poll_id==myPoll)
+  comment1=subpoll[1,28]
+  
+  #if that subset has more than thirty entries, use it:
+  if(grepl("register", comment1, ignore.case = TRUE)){
+  LV=FALSE
+  LVList = subpoll [ ,0 ]
+  LVList=rep(LV,nrow(subpoll))
+  subpoll$LV = LVList
+  
+  myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  
+  }
+  else{
+    LV=TRUE
+    LVList = subpoll [ ,0 ]
+    LVList=rep(LV,nrow(subpoll))
+    subpoll$LV = LVList
+    
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
+}
+myDataFrame = myDataMyPollsters
+myDataFrame$pollster = factor( myDataFrame$pollster)
+mydata = myDataFrame
+
+
+
+
+
 #Save the csv file.
 write.csv(mydata,'Data/raw-polls_538_cleaned.csv')
 
