@@ -38,7 +38,7 @@ graphFileType = "png"
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA.R")
+source("RScripts/WeightPollANCOVA-V03.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( datFrm = myDataFrame , scoreName="score" , daysuntilName="daysuntil", 
@@ -49,14 +49,15 @@ mcmcCoda = genMCMC( datFrm = myDataFrame , scoreName="score" , daysuntilName="da
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
-for ( parName in parameterNames ) {
+for ( parName in c("scoreSpread",  "nu" , 
+                   "delMode[1]", "delMode[717]" ) ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , xNomName=xNomName , 
-                        xMetName=xMetName , contrasts=contrasts , 
+summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+                        samplesizeName ="samplesize", 
                         saveName=fileNameRoot )
 show(summaryInfo)
 # Display posterior information:

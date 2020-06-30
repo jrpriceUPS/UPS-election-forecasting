@@ -1,5 +1,5 @@
-#ANCOVA for Weight of Poll
-#06/30/2020
+# Weight of Poll V02
+# 06/30/2020
 
 
 # Accompanies the book:
@@ -60,8 +60,8 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
     scoreSD = sd(score) ,
     residSD = residSD ,
     agammaShRa = agammaShRa,
-      #Give R Euler's Number  
-         e = exp(1)
+    #Give R Euler's Number  
+    e = exp(1)
   )
   #------------------------------------------------------------------------------
   # THE MODEL.
@@ -70,25 +70,25 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
     for ( outcome in 1:scoreTotal ) {
       score[outcome] ~ dt( mu[outcome] , 1/scoreSpread^2, nu )
       mu[outcome] <-   (e^(-k*daysuntil[outcome]))*
-              (modeImpact[delMode[outcome]] + modeImpact[delMode[outcome]]*samplesize[outcome]
-              + LVImpact[LV[outcome]] + LVImpact[LV[outcome]]*samplesize[outcome] 
-              + transparencyImpact[transparency[outcome]] + transparencyImpact[transparency[outcome]]*samplesize[outcome]
+              (modeImpact[delMode[outcome]] + LVImpact[LV[outcome]] + transparencyImpact[transparency[outcome]] + 
+              samplesizeImpact[samplesize[outcome]]
               )
     }
     scoreSpread ~ dunif( residSD/100 , scoreSD*10 ) 
+    samplesize ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 )
     nu ~  dexp(1/30.0) 
     for ( delMode in 1:NdelModeLvl ) { modeImpact[delMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) 
-                              samplesize[delMode] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
+                             }
    
    
     delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
     for ( LV in 1:NLVLvl ) { LVImpact[LV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
-                              samplesize[LV] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
+                              }
     LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
     for ( transparency in 1:NtransparencyLvl ) { transparencyImpact[transparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
-                              samplesize[transparency] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
+                               }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
     
@@ -330,6 +330,3 @@ plotMCMC = function( codaSamples , datFrm , yName , xNomName , xMetName ,
     }
   } # end if ( !is.null(contrasts) )
 }
-
-
-

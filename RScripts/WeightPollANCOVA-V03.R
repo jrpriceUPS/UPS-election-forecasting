@@ -1,4 +1,4 @@
-#ANCOVA for Weight of Poll
+#ANCOVA for Weight of Poll V03
 #06/30/2020
 
 
@@ -60,8 +60,8 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
     scoreSD = sd(score) ,
     residSD = residSD ,
     agammaShRa = agammaShRa,
-      #Give R Euler's Number  
-         e = exp(1)
+    #Give R Euler's Number  
+    e = exp(1)
   )
   #------------------------------------------------------------------------------
   # THE MODEL.
@@ -69,10 +69,10 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
   model {
     for ( outcome in 1:scoreTotal ) {
       score[outcome] ~ dt( mu[outcome] , 1/scoreSpread^2, nu )
-      mu[outcome] <-   (e^(-k*daysuntil[outcome]))*
+      mu[outcome] <-   
               (modeImpact[delMode[outcome]] + modeImpact[delMode[outcome]]*samplesize[outcome]
-              + LVImpact[LV[outcome]] + LVImpact[LV[outcome]]*samplesize[outcome] 
-              + transparencyImpact[transparency[outcome]] + transparencyImpact[transparency[outcome]]*samplesize[outcome]
+              + LVImpact[LV[outcome]] + 
+               transparencyImpact[transparency[outcome]] 
               )
     }
     scoreSpread ~ dunif( residSD/100 , scoreSD*10 ) 
@@ -84,11 +84,11 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
     delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
     for ( LV in 1:NLVLvl ) { LVImpact[LV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
-                              samplesize[LV] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
+                               }
     LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
     for ( transparency in 1:NtransparencyLvl ) { transparencyImpact[transparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
-                              samplesize[transparency] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
+                              }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
     
@@ -158,19 +158,22 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
 
 #===============================================================================
 
-smryMCMC = function(  codaSamples , datFrm=NULL , xNomName=NULL , xMetName=NULL ,
-                      contrasts=NULL , saveName=NULL ) {
+smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName="LV" , 
+                      transparencyName="transparency", 
+                      samplesizeName ="samplesize",
+                      #contrasts=NULL ,
+                      saveName=NULL ) {
   # All single parameters:
   parameterNames = varnames(codaSamples) 
-  if ( !is.null(datFrm) & !is.null(xNomName) ) {
-    xNomlevels = levels(as.factor(datFrm[,xNomName]))
+  if ( !is.null(datFrm) & !is.null(delModeName) ) {
+    delModelevels = levels(as.factor(datFrm[,delModeName]))
   }
   summaryInfo = NULL
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   for ( parName in parameterNames ) {
     summaryInfo = rbind( summaryInfo , summarizePost( mcmcMat[,parName] ) )
     thisRowName = parName
-    if ( !is.null(datFrm) & !is.null(xNomName) ) {
+    if ( !is.null(datFrm) & !is.null(delModeName) ) {
       # For row name, extract numeric digits from parameter name. E.g., if
       # parameter name is "beta[12,34]" then pull out 12 and 34:
       levelVal = as.numeric( 
@@ -180,43 +183,43 @@ smryMCMC = function(  codaSamples , datFrm=NULL , xNomName=NULL , xMetName=NULL 
               value=TRUE ) )
       if ( length(levelVal) > 0 ) { 
         # Assumes there is only a single factor, i.e., levelVal has only entry: 
-        thisRowName = paste(thisRowName,xNomlevels[levelVal]) 
+        thisRowName = paste(thisRowName,delModelevels[levelVal]) 
       }
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
-  # All contrasts:
-  if ( !is.null(contrasts) ) {
-    if ( is.null(datFrm) | is.null(xNomName) ) {
-      show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
-    } else {
-      # contrasts:
-      if ( !is.null(contrasts) ) {
-        for ( cIdx in 1:length(contrasts) ) {
-          thisContrast = contrasts[[cIdx]]
-          left = right = rep(FALSE,length(xNomlevels))
-          for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
-            left = left | xNomlevels==thisContrast[[1]][nIdx]
-          }
-          left = normalize(left)
-          for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
-            right = right | xNomlevels==thisContrast[[2]][nIdx]
-          }
-          right = normalize(right)
-          contrastCoef = matrix( left-right , ncol=1 )
-          postContrast = ( mcmcMat[,paste("aMet[",1:length(xNomlevels),"]",sep="")] 
-                           %*% contrastCoef )
-          summaryInfo = rbind( summaryInfo , 
-                               summarizePost( postContrast ,
-                                              compVal=thisContrast$compVal ,
-                                              ROPE=thisContrast$ROPE ) )
-          rownames(summaryInfo)[NROW(summaryInfo)] = (
-            paste( paste(thisContrast[[1]],collapse=""), ".v.",
-                   paste(thisContrast[[2]],collapse=""),sep="") )
-        }
-      }
-    }
-  }
+  # # All contrasts:
+  # if ( !is.null(contrasts) ) {
+  #   if ( is.null(datFrm) | is.null(xNomName) ) {
+  #     show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
+  #   } else {
+  #     # contrasts:
+  #     if ( !is.null(contrasts) ) {
+  #       for ( cIdx in 1:length(contrasts) ) {
+  #         thisContrast = contrasts[[cIdx]]
+  #         left = right = rep(FALSE,length(xNomlevels))
+  #         for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
+  #           left = left | xNomlevels==thisContrast[[1]][nIdx]
+  #         }
+  #         left = normalize(left)
+  #         for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
+  #           right = right | xNomlevels==thisContrast[[2]][nIdx]
+  #         }
+  #         right = normalize(right)
+  #         contrastCoef = matrix( left-right , ncol=1 )
+  #         postContrast = ( mcmcMat[,paste("aMet[",1:length(xNomlevels),"]",sep="")] 
+  #                          %*% contrastCoef )
+  #         summaryInfo = rbind( summaryInfo , 
+  #                              summarizePost( postContrast ,
+  #                                             compVal=thisContrast$compVal ,
+  #                                             ROPE=thisContrast$ROPE ) )
+  #         rownames(summaryInfo)[NROW(summaryInfo)] = (
+  #           paste( paste(thisContrast[[1]],collapse=""), ".v.",
+  #                  paste(thisContrast[[2]],collapse=""),sep="") )
+  #       }
+  #     }
+  #   }
+  # }
   # Save results:
   if ( !is.null(saveName) ) {
     write.csv( summaryInfo , file=paste(saveName,"SummaryInfo.csv",sep="") )
@@ -330,6 +333,3 @@ plotMCMC = function( codaSamples , datFrm , yName , xNomName , xMetName ,
     }
   } # end if ( !is.null(contrasts) )
 }
-
-
-
