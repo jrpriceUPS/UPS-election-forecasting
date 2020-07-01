@@ -3,28 +3,81 @@ title: "Democratic Error in Polling"
 author: "Haley Reed"
 date: "7/1/2020"
 output: html_document
+bibliography: electionworkingbib.bib
 ---
 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
+knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
 
-## R Markdown
+**Introduction**
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+To understand pollster bias, we can use a Bayesian modeling to describe metric data as function of nominal predictors, similar to traditional ANOVA modeling. We will do so with using pollster data compiled by FiveThirtyEight. Here, we will explore how the specific pollster, in conjuction with the year, can act as an explanatory variable to predict bias present in individual polls. 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+It is of interest to include these nominal predictor of pollster because there is a historical precedent for bias due to systematic polling error and housing effects, as well as growing evidence that these biases change year by year [@ReadPollsBetter]. 
 
-```{r cars}
-summary(cars)
+```{r, include=FALSE, fig.show='hide'}
+source(here::here('RScripts', 'JAGS-2Factor-Example.R'))
 ```
 
-## Including Plots
+Because there are so many pollsters, for the sake of simplification, we will look at just the few pollsters with at least `r minPolls`.
 
-You can also embed plots, for example:
+In this analysis, we will be focusing on specifically on democratic bias. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+**The Model**
+While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of the intercept for the 2000 election year can be seen below.
+
+![](Figures/Jags-2FactorPractice-PollsterV03-DiagyearLean[1].png)
+
+The density plots are sufficiently converged after the burn-in period, the autocorrelation appears small enough, and there is nothing in these plots that suggest it would not be safe to continue with the Bayesian analysis.
+
+Posterior distributions are shown below:
+
+![A posterior predictive plot comparing the selected pollsters' bias in 2000.](Figures/Jags-2FactorPractice-PollsterV03-PostPred-2000.png)
+
+![A posterior predictive plot comparing the selected pollsters' bias in 2004.](Figures/Jags-2FactorPractice-PollsterV03-PostPred-2004.png)
+
+![A posterior predictive plot comparing the selected pollsters' bias in 2008.](Figures/Jags-2FactorPractice-PollsterV03-PostPred-2008.png)
+
+![A posterior predictive plot comparing the selected pollsters' bias in 2012.](Figures/Jags-2FactorPractice-PollsterV03-PostPred-2012.png)
+
+![A posterior predictive plot comparing the selected pollsters' bias in 2016.](Figures/Jags-2FactorPractice-PollsterV03-PostPred-2016.png)
+
+
+
+In addition to these posterior predictive plots, we can take at the year posterior plots and see the Highest Density intervals for each year. 
+
+![A posterior plot looking at the most credible values for democratic bias in the 2000 presidential election.](Figures/Jags-2FactorPractice-PollsterV03-YearLean-2000.png)
+
+![A posterior plot looking at the most credible values for democratic bias in the 2004 presidential election.](Figures/Jags-2FactorPractice-PollsterV03-YearLean-2004.png)
+
+![A posterior plot looking at the most credible values for democratic bias in the 2008 presidential election.](Figures/Jags-2FactorPractice-PollsterV03-YearLean-2008.png)
+
+![A posterior plot looking at the most credible values for democratic bias in the 2012 presidential election.](Figures/Jags-2FactorPractice-PollsterV03-YearLean-2012.png)
+
+![A posterior plot looking at the most credible values for democratic bias in the 2016 presidential election.](Figures/Jags-2FactorPractice-PollsterV03-YearLean-2016.png)
+
+Now we can look at the posterior distributions, for individual pollsters in specific years (as well as their overall mean). There are a lot of these posterior plots and its not necessary to see every single one, but the pollster "Research 2000" is shown below as an example. It is also worthy to not how democratic bias swings within a given pollster from year to year (take a look at the differences between 2000 and 2008).
+
+![A posterior plot looking at the most credible values for democratic bias for Research 2000, across years.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR.png)
+
+![A posterior plot looking at the most credible values for democratic bias for Research 2000 in the year 2000.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR2000.png)
+
+![A posterior plot looking at the most credible values for democratic bias for Research 2000 in the year 2004.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR2004.png)
+
+![A posterior plot looking at the most credible values for democratic bias for Research 2000 in the year 2008.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR2008.png)
+
+![A posterior plot looking at the most credible values for democratic bias for Research 2000 in the year 2012.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR2012.png)
+
+![A posterior plot looking at the most credible values for democratic bias for Research 2000 in the year 2016.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR2016.png)
+
+
+
+
+
+
+

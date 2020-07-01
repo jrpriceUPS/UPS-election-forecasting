@@ -12,7 +12,7 @@ source("DBDA2E-utilities.R")
 genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil", 
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize",
-                    
+                   
                     numSavedSteps=50000 , thinSteps=1 , saveName=NULL ,
                     runjagsMethod=runjagsMethodDefault , 
                     nChains=nChainsDefault ) { 

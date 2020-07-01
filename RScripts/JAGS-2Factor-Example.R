@@ -1,5 +1,5 @@
 # #Script to test JAGS-2Factor.R
-# 
+# JAGS-2Factor-Example.R
 # 
 # graphics.off() # This closes all of R's graphics windows.
 # rm(list=ls())  # Clear all of R's memory!
@@ -135,22 +135,18 @@ plotDiagnostics()
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCodaV03 , 
                         datFrm=myDataFrame ,  pollsterName = "pollster", yearName="year",
-                        #contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
 #------------------------------------------------------------------------------- 
 plotDiagnostics()
 plotPosteriorPredictive( mcmcCodaV03, 
-          datFrm=myDataFrame , biasName="demBias" , pollsterName="pollster" , yearName="year",
-          #contrasts=contrasts , 
+          datFrm=myDataFrame , biasName="demBias" ,
           saveName=fileNameRoot , saveType=graphFileType )
 plotPollsterPosterior( mcmcCodaV03, 
-                         datFrm=myDataFrame , biasName="demBias" , pollsterName="pollster" , yearName="year",
-                         #contrasts=contrasts , 
+                         datFrm=myDataFrame , biasName="demBias",
                          saveName=fileNameRoot , saveType=graphFileType )
 plotYearPosterior( mcmcCodaV03, 
-                   datFrm=myDataFrame , biasName="demBias" , pollsterName="pollster" , yearName="year",
-                   #contrasts=contrasts , 
+                   datFrm=myDataFrame , biasName="demBias" ,
                    saveName=fileNameRoot , saveType=graphFileType )
 
 
