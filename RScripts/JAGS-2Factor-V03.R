@@ -182,7 +182,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , pollsterName=NULL , yearName =
 #===============================================================================
 
 plotDiagnostics= function( ){
-for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[16,3]"  ) ) {
+for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[1,1]"  ) ) {
   diagMCMC( codaObject=mcmcCodaV03 , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
@@ -190,14 +190,13 @@ for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yea
 #===============================================================================
 
 plotPosteriorPredictive = function( codaSamples , 
-                     datFrm , biasName=NULL , pollsterName=NULL , yearName=NULL ,
-                     x1contrasts=NULL , 
-                     x2contrasts=NULL , 
-                     x1x2contrasts=NULL ,
+                     datFrm , biasName=NULL , 
                      saveName=NULL , saveType="jpg",
                      showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
+  pollsterName="pollster"
+  yearName="year"
   bias = datFrm[,biasName]
   pollster = as.numeric(as.factor(datFrm[,pollsterName]))
   PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
@@ -254,14 +253,13 @@ plotPosteriorPredictive = function( codaSamples ,
   #===============================================================================  
   
 plotYearPosterior = function( codaSamples , 
-                                    datFrm , biasName=NULL , pollsterName=NULL , yearName=NULL ,
-                                    x1contrasts=NULL , 
-                                    x2contrasts=NULL , 
-                                    x1x2contrasts=NULL ,
+                                    datFrm , biasName=NULL , 
                                     saveName=NULL , saveType="jpg",
                                     showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
+  pollsterName="pollster"
+  yearName="year"
   bias = datFrm[,biasName]
   pollster = as.numeric(as.factor(datFrm[,pollsterName]))
   PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
@@ -284,14 +282,13 @@ plotYearPosterior = function( codaSamples ,
 }
 #===============================================================================
 plotPollsterPosterior = function( codaSamples , 
-                                    datFrm , biasName=NULL , pollsterName=NULL , yearName=NULL ,
-                                    x1contrasts=NULL , 
-                                    x2contrasts=NULL , 
-                                    x1x2contrasts=NULL ,
+                                    datFrm , biasName=NULL ,
                                     saveName=NULL , saveType="jpg",
                                     showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
+  pollsterName="pollster"
+  yearName="year"
   bias = datFrm[,biasName]
   pollster = as.numeric(as.factor(datFrm[,pollsterName]))
   PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
