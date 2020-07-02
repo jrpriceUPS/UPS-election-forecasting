@@ -30,6 +30,13 @@ We often think of bias in terms of the margin between democrats and republicans,
 $$DemocraticBias = DemocraticCanditatePollingPercent-DemocraticActualPercentage$$
 
 **The Model**
+The Bayesian hierarchical implemented here starts with generic noncommittal parameters.
+We use all vague priors as to not greatly influence the posterior distribution. 
+ 
+The model diagram can be seen below:
+
+![](Figures/Diagram 2 Way ANOVA.png) 
+
 While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of the intercept for the 2000 election year can be seen below.
 
 ![](Figures/Jags-2FactorPractice-PollsterV03-DiagyearLean[1].png)
@@ -93,8 +100,10 @@ dt %>%
 Contextually, this means for polls analyzed in this model, the polls undercut democrats `r FoundMean` percentage points on average.
 
 Using FiveThirtyEight's data, this Bayesian model with the nominal predictors of pollster and year can determine poll bias for any given poll. Using this model, we found that pollsters have different bias and different magnitudes of that bias. Similarly, bias changes with the year.
+
+
 \newpage
-## Works Cited
+**Works Cited**
 
 ---
 #.bib for bib refrence
