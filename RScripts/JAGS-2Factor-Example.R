@@ -150,3 +150,6 @@ plotYearPosterior( mcmcCodaV03,
                    saveName=fileNameRoot , saveType=graphFileType )
 
 
+FoundMean = mean(mydata$demBias)
+FoundMean=-FoundMean
+show(FoundMean)

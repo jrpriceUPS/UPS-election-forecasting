@@ -24,9 +24,10 @@ source(here::here('RScripts', 'JAGS-2Factor-Example.R'))
 
 Because there are so many pollsters, for the sake of simplification, we will look at just the few pollsters with at least `r minPolls`.
 
-In this analysis, we will be focusing on specifically on democratic bias. 
+In this analysis, we will be focusing on specifically on democratic bias. Let's take a moment to define what that is.
+We often think of bias in terms of the margin between democrats and republicans, however it is worth (for the purposes of this analysis) defining in it more in terms of democratic error. 
 
-
+$$DemocraticBias = DemocraticCanditatePollingPercent-DemocraticActualPercentage$$
 
 **The Model**
 While we can avoid sampling variability assumptions with Bayesian Analysis, it is necessary to check for proper convergence of the MCMC chains. In running this analysis, all parameters should be checked for convergence. A test for convergence of the intercept for the 2000 election year can be seen below.
@@ -35,7 +36,7 @@ While we can avoid sampling variability assumptions with Bayesian Analysis, it i
 
 The density plots are sufficiently converged after the burn-in period, the autocorrelation appears small enough, and there is nothing in these plots that suggest it would not be safe to continue with the Bayesian analysis.
 
-Posterior distributions are shown below:
+In the posterior distributions below you can see the effects of shrinkage:
 
 ![A posterior predictive plot comparing the selected pollsters' bias in 2000.](Figures/Jags-2FactorPractice-PollsterV03-PostPred-2000.png)
 
@@ -49,7 +50,7 @@ Posterior distributions are shown below:
 
 
 
-In addition to these posterior predictive plots, we can take at the year posterior plots and see the Highest Density intervals for each year. 
+In addition to these posterior predictive plots, we can take at the year posterior plots and see the Highest Density intervals for each year. Here, you can see the variation between years. 2016 had the greatest amount of democratic bias (although still negative because of the amount of undecided voters), while 2000 was notably less bias towards democrats. 
 
 ![A posterior plot looking at the most credible values for democratic bias in the 2000 presidential election.](Figures/Jags-2FactorPractice-PollsterV03-YearLean-2000.png)
 
@@ -75,6 +76,32 @@ Now we can look at the posterior distributions, for individual pollsters in spec
 
 ![A posterior plot looking at the most credible values for democratic bias for Research 2000 in the year 2016.](Figures/Jags-2FactorPractice-PollsterV03-PollsterBias-RRp-POR2016.png)
 
+
+The most credible values and the highest density intervals for each parameter value can be seen below:
+
+```{r echo=FALSE, out.width="100%",  fig.align='center', error=TRUE, message=FALSE}
+library(magrittr)
+
+dt <- summaryInfo[, 1:7]
+dt %>%
+  knitr::kable() %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+**Conclusion**
+
+Contextually, this means for polls analyzed in this model, the polls undercut democrats `r FoundMean` percentage points on average.
+
+Using FiveThirtyEight's data, this Bayesian model with the nominal predictors of pollster and year can determine poll bias for any given poll. Using this model, we found that pollsters have different bias and different magnitudes of that bias. Similarly, bias changes with the year.
+\newpage
+## Works Cited
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+  @KrusckeTextbook
+---
 
 
 
