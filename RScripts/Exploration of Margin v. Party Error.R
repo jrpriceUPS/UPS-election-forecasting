@@ -3,7 +3,8 @@
 #July 2nd 2020
 
 
-
+#load the cleaned data
+mydata=read.csv("Data/raw-polls_538_cleaned.csv")
 #is year rep. lean = -(dem. year lean) ?
 minPolls=30
 myDataMyPollsters=  mydata[0,]
@@ -33,10 +34,10 @@ fileNameRoot = "Markdown/Figures/Jags-2FactorPractice-PollsterV03-"
 fileNameRootSim= "Simulations/Jags-2FactorPractice-PollsterV03-"
 graphFileType = "png"
 # Generate the MCMC chain:
-mcmcCodaV03 = genMCMC( datFrm=myDataFrame , biasName = "demBias" , pollsterName = "pollster" , yearName = "year",
+mcmcCodaVD = genMCMC( datFrm=myDataFrame , biasName = "demBias" , pollsterName = "pollster" , yearName = "year",
                        numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 
-mcmcCodaVD=mcmcCodaV03
+
 parameterNames = varnames(mcmcCodaVD) 
 summaryInfoD = smryMCMC( mcmcCodaVD , 
                         datFrm=myDataFrame ,  pollsterName = "pollster", yearName="year",
@@ -78,7 +79,8 @@ abline(RelationshipBetween)
 #25.87% R-squared Value
 
 
-
+png(file="Markdown/Figures/YearLeansPartyErrors.png",
+    width=600, height=350)
 plot(dtD$yearLabels,dtD$Mode, col="blue", main="Year Leans", xlab="Election Year", 
      ylab="Most Credible Error Value", ylim=c(-5, 1) , xlim=c(1996, 2020), xaxt = "n"
      )
@@ -87,11 +89,11 @@ axis(side = 1,
      at = yearLabels, 
      labels = yearLabels,
      tck=-.05)
-
 points(dtR$yearLabels, dtR$Mode, col="red")
 # Add a legend
 legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
        col=c("blue", "red"), lty=1:2, cex=0.8)
+dev.off()
 
 
 #Add lines of best fit?
@@ -115,7 +117,7 @@ show(D.Rsquared)
 #such weak r-squared value for republicans though that the linear model isn't quite representative
 
 #---------------------------------------------------------------------------------------
-#Is democratic polling bias= - Rebuplican polling bias?
+#Is democratic polling bias= - Republican polling bias?
 
 mydata=read.csv("Data/raw-polls_538_cleaned.csv")
 head(mydata[,33:34])
@@ -134,35 +136,19 @@ dtRpollster <- as.data.frame(summaryInfoR[10:94, 1:7])
 dtDpollster <- as.data.frame(summaryInfoD[10:94, 1:7])
 
 #points are matched by year
+png(file="Markdown/Figures/PollsterBiasPartyErrors.png",
+    width=600, height=350)
 plot(dtDpollster$Mode,dtRpollster$Mode, main="Democratic Versus Rebulican Pollster Biases, 2000-2016", xlab="Democratic Pollster Bias", 
      ylab="Republican Pollster Bias")
+dev.off
+
 RelationshipBetween1 = lm(dtRpollster$Mode~dtDpollster$Mode)
 summary(RelationshipBetween1)
 abline(RelationshipBetween1)
 #adjusted r-squared is -.0046, not good...
-#little realtionship
+#little relationship
 
 
 
-
-plot(dtDpollster$yearLabels,dtDpollster$Mode, col="blue", main="Pollster Biases", xlab="Election Year", 
-     ylab="Most Credible Error Value", ylim=c(-5, 1) , xlim=c(1996, 2020), xaxt = "n"
-)
-# Define the position of tick marks
-axis(side = 1, 
-     at = yearLabels, 
-     labels = yearLabels,
-     tck=-.05)
-
-points(dtR$yearLabels, dtR$Mode, col="red")
-# Add a legend
-legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
-       col=c("blue", "red"), lty=1:2, cex=0.8)
-
-
-#Add lines of best fit?
-dtR$yearLabels = as.numeric(yearLabels)
-lR=lm(Mode ~ yearLabels, data=dtR)
-abline(lR, col="red")
 
 

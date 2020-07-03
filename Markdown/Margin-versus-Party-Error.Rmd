@@ -1,0 +1,63 @@
+---
+title: "MarginVersusPartyError"
+author: "Haley Reed"
+date: "7/3/2020"
+output: html_document
+bibliography: electionworkingbib.bib
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
+knitr::opts_knit$set(root.dir = dirname(getwd()))
+```
+
+**Introduction**
+
+In looking at past polls and elections, the "bias" of a poll is defined around the margin of difference between the two primary candidates of a race. 
+
+What is the relationship between that "bias" and the actual number of percentage points a particular poll is off in judging candidates in a vacuum? 
+
+What is the relationship between Republican Error, Democratic error, and traditional bias with the following definitions?
+
+$$DemocraticError = DemocraticCanditatePollingPercent-DemocraticActualPercentage$$
+
+$$RepublicanError = RepublicanCanditatePollingPercent-RepublicanActualPercentage$$
+
+$$Bias = MarginPoll - MarginActual$$
+
+$$MarginPoll = DemocraticCanditatePollingPercent-RepublicanCanditatePollingPercent$$
+$$MarginActual = DemocraticActualPercentage-RepublicanActualPercentage$$
+
+
+```{r, include=FALSE, fig.show='hide'}
+source(here::here('RScripts', 'Exploration of Margin v. Party Error.r'))
+```
+
+Democratic and Republican year leans are shown below for comparsion.
+```{r}
+knitr::kable(dtD)
+knitr::kable(dtR)
+```
+
+
+![Democratic and Rebulican year leans plotted together.](Figures/YearLeansPartyErrors.png)
+
+For matching points by year and pollster, the relationship between Democratic error and republican error does not look very strong....
+
+![In fact the R squared values is less than 0.](Figures/PollsterBiasPartyErrors.png)
+
+**Conclusion**
+
+The relationships between Republican Error, Democratic error, and traditional bias are not as strong as we might initally think. 
+
+\newpage
+
+**Works Cited**
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+  @KrusckeTextbook
+---

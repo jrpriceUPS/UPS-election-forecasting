@@ -97,12 +97,13 @@ dt %>%
 
 **Conclusion**
 
-Contextually, this means for polls analyzed in this model, the polls undercut democrats `r FoundMean` percentage points on average.
+Contextually, this means for polls analyzed in this model, the polls undercut democrats `r FoundMean` percentage points on average. Again this with the $$DemocraticBias = DemocraticCanditatePollingPercent-DemocraticActualPercentage$$ definition. 
 
 Using FiveThirtyEight's data, this Bayesian model with the nominal predictors of pollster and year can determine poll bias for any given poll. Using this model, we found that pollsters have different bias and different magnitudes of that bias. Similarly, bias changes with the year.
 
 
 \newpage
+
 **Works Cited**
 
 ---
