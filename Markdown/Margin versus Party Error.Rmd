@@ -1,5 +1,5 @@
 ---
-title: "MarginVersusPartyError"
+title: "Margin Versus Party Error"
 author: "Haley Reed"
 date: "7/3/2020"
 output: html_document
@@ -11,6 +11,7 @@ bibliography: electionworkingbib.bib
 knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
+
 
 **Introduction**
 
@@ -28,7 +29,39 @@ $$Bias = MarginPoll - MarginActual$$
 
 $$MarginPoll = DemocraticCanditatePollingPercent-RepublicanCanditatePollingPercent$$
 $$MarginActual = DemocraticActualPercentage-RepublicanActualPercentage$$
+Before we get into Bayesian modeling it worth doing some inital exploration with Fisherian statistics...
 
+```{r}
+mydata=read.csv("Data/raw-polls_538_cleaned.csv")
+#is year rep. lean = -(dem. year lean) ?
+minPolls=30
+myDataMyPollsters=  mydata[0,]
+for(myPollster in unique(mydata$pollster))
+{
+  
+  #subset to a dataset with just each pollster
+  subpoll=subset(mydata, pollster==myPollster)
+  
+  #if that subset has more than thirty entries, use it:
+  if(nrow(subpoll)>minPolls){
+    #combine each of these subsets together
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
+}
+myDataFrame = myDataMyPollsters
+myDataFrame$pollster = factor( myDataFrame$pollster)
+lm(formula = myDataFrame$repBias ~ myDataFrame$demBias)
+lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
+plot(myDataFrame$repBias, myDataFrame$demBias, xlab="Republican Error", ylab="Democratic Error", Main="Errors Dependent on each other, Matched By Poll")
+corrval=cor(myDataFrame$repBias, myDataFrame$demBias)
+corrval1=cor(myDataFrame$demBias, myDataFrame$bias)
+corrval2=cor(myDataFrame$repBias, myDataFrame$bias)
+lm(myDataFrame$bias~myDataFrame$demBias)
+```
+
+With a correlation value of `r corrval` between Democratic error and Republican error, we can see that the two are moderately correlated.
+
+However, there is a higher correlation between party errors and bias measured in the traditional marginal sense is stronger. The correlation between democratic error and bias is `r corrval1`. And the correlation between republican error and bias is `r corrval2`. 
 
 ```{r, include=FALSE, fig.show='hide'}
 source(here::here('RScripts', 'Exploration of Margin v. Party Error.r'))
