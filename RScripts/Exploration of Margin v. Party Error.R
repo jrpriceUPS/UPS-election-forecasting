@@ -22,7 +22,7 @@ for(myPollster in unique(mydata$pollster))
 }
 myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
-
+lm(formula = myDataFrame$repBias ~ myDataFrame$demBias)
 
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
@@ -79,8 +79,7 @@ abline(RelationshipBetween)
 #25.87% R-squared Value
 
 
-png(file="Markdown/Figures/YearLeansPartyErrors.png",
-    width=600, height=350)
+
 plot(dtD$yearLabels,dtD$Mode, col="blue", main="Year Leans", xlab="Election Year", 
      ylab="Most Credible Error Value", ylim=c(-5, 1) , xlim=c(1996, 2020), xaxt = "n"
      )
@@ -93,7 +92,7 @@ points(dtR$yearLabels, dtR$Mode, col="red")
 # Add a legend
 legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
        col=c("blue", "red"), lty=1:2, cex=0.8)
-dev.off()
+
 
 
 #Add lines of best fit?
@@ -136,11 +135,9 @@ dtRpollster <- as.data.frame(summaryInfoR[10:94, 1:7])
 dtDpollster <- as.data.frame(summaryInfoD[10:94, 1:7])
 
 #points are matched by year
-png(file="Markdown/Figures/PollsterBiasPartyErrors.png",
-    width=600, height=350)
+
 plot(dtDpollster$Mode,dtRpollster$Mode, main="Democratic Versus Rebulican Pollster Biases, 2000-2016", xlab="Democratic Pollster Bias", 
      ylab="Republican Pollster Bias")
-dev.off
 
 RelationshipBetween1 = lm(dtRpollster$Mode~dtDpollster$Mode)
 summary(RelationshipBetween1)
