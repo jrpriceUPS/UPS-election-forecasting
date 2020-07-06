@@ -24,6 +24,29 @@ myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
 lm(formula = myDataFrame$repBias ~ myDataFrame$demBias)
 
+# Find out how many undecided voters there are in each poll
+Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
+myDataFrame$Undecided = Undecided
+# What is the relationship between demBias and undecided Voters?
+demUndecidedRelationship = lm( demBias ~ Undecided, data=myDataFrame)
+summary(demUndecidedRelationship)
+# What is the relationship between repBias and undecided voters?
+repUndecidedRelationship = lm( repBias ~ Undecided, data=myDataFrame)
+summary(repUndecidedRelationship)
+
+plot(myDataFrame$Undecided,myDataFrame$demBias)
+abline(demUndecidedRelationship)
+plot(myDataFrame$Undecided,myDataFrame$repBias)
+abline(repUndecidedRelationship)
+#stronger relationship between Republican bias and Undecided voters
+plot(myDataFrame$Undecided,myDataFrame$bias)
+marginUndecidedRelationship = lm( bias ~ Undecided, data=myDataFrame)
+summary(marginUndecidedRelationship)
+abline(marginUndecidedRelationship)
+#In general, the more undecided voters, the more polls underestimate the power of republicans.
+
+
+
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 source("RScripts/Jags-2Factor-V03.R")

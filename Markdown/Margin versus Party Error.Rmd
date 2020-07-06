@@ -10,6 +10,9 @@ bibliography: electionworkingbib.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
 ```
 
 
@@ -53,7 +56,6 @@ for(myPollster in unique(mydata$pollster))
 }
 myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
-lm(formula = myDataFrame$repBias ~ myDataFrame$demBias)
 bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
 plot(myDataFrame$repBias, myDataFrame$demBias, xlab="Republican Error", ylab="Democratic Error", main="Errors Dependent on each other, Matched By Poll")
 abline(bestfit)
@@ -63,6 +65,9 @@ corrval2=cor(myDataFrame$repBias, myDataFrame$bias)
 
 plot(myDataFrame$demBias, myDataFrame$bias, xlab="Democratic Error", ylab="Marginal Bias",main="Maginal Bias Plotted Dependent on Party Error")
 bestfit2=lm(myDataFrame$bias~myDataFrame$demBias)
+
+tab_model(bestfit2)
+
 abline(bestfit2)
 
 
@@ -71,6 +76,46 @@ abline(bestfit2)
 With a correlation value of `r corrval` between Democratic error and Republican error, we can see that the two are moderately correlated.
 
 However, there is a higher correlation between party errors and bias measured in the traditional marginal sense is stronger. The correlation between democratic error and bias is `r corrval1`. And the correlation between republican error and bias is `r corrval2`. 
+
+A great deal of the values for party error are negative because of the number of undecided voters polled. What is the impact of undecided voters of party error and marginal bias? We can explore these relationships with the plots below. 
+
+```{r, Undecided Voter Relationships}
+# Find out how many undecided voters there are in each poll
+Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
+myDataFrame$Undecided = Undecided
+# What is the relationship between demBias and undecided Voters?
+demUndecidedRelationship = lm( demBias ~ Undecided, data=myDataFrame)
+
+# What is the relationship between repBias and undecided voters?
+repUndecidedRelationship = lm( repBias ~ Undecided, data=myDataFrame)
+
+
+plot(myDataFrame$Undecided,myDataFrame$demBias, xlab="Percent of Undecided Voters", ylab="Democratic Error")
+abline(demUndecidedRelationship)
+plot(myDataFrame$Undecided,myDataFrame$repBias,xlab="Percent of Undecided Voters", ylab="Republican Error")
+abline(repUndecidedRelationship)
+#stronger relationship between Republican bias and Undecided voters
+plot(myDataFrame$Undecided,myDataFrame$bias,xlab="Percent of Undecided Voters", ylab="Marginal Bias")
+marginUndecidedRelationship = lm( bias ~ Undecided, data=myDataFrame)
+
+abline(marginUndecidedRelationship)
+#In general, the more undecided voters, the more polls underestimate the power of republicans.
+```
+
+
+The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Marginal Bias as the response variables for the percent of undecided voters in any poll. The coefficents and R squared values for each  model can be seen in the table below:
+
+```{r}
+tab_model(repUndecidedRelationship,demUndecidedRelationship,marginUndecidedRelationship)
+
+```
+
+From this table, we can see that in general, there is a stronger relationship between republican error and undecided voters than democratic error and undecided voters. And it appears that the more undecided voters, the more polls underestimate the power of the republican candidate. This can be seen clearly with the confidence intervals of the above table:
+
+* The entire republican error confidence interval for the slope coefficient (-.40 to -.34) is less than the entire democratic error confidence interval for the slope coefficient (-19 to. -.12). Meaning that as the percent of undecided voters increases, the polls will underestimate the Republican candidate's vote share more dramatically than they will underestimate the Democratic candidate's vote share. 
+
+* The entire confidence interval for marginal bias is above 0 (.16 to .27), meaning as the percent of undecided voters increase, the marginal bias will becomes more and more democratic. 
+
 
 **Bayesian Modeling**
 
@@ -92,6 +137,8 @@ knitr::kable(dtR)
 
 It is worth noting how most of the values in this table are negative. Why? Undecided voters  or those who identify with neither of the primary candidates when polled often end up voting for one of the two major candidates. So adding the two party errors together may help understand these undecided voters and their swing in the election.
 
+
+
 This denies the intuitive expectation that $DemocraticError = -RebuplicanError$. So what is the relationship between party errors during the years? The graphs below help us begin to understand.
 
 ```{r}
@@ -112,7 +159,7 @@ legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
 plot(dtD$Mode,dtR$Mode, main="Democratic Versus Rebulican Year Leans, 2000-2016", xlab="Democratic Year Lean", 
      ylab="Republican Year Lean")
 RelationshipBetween = lm(dtR$Mode~dtD$Mode)
-summary(RelationshipBetween)
+tab_model(RelationshipBetween)
 abline(RelationshipBetween)
 bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
 abline(bestfit, col="red")
@@ -133,7 +180,7 @@ repBiasPollsterSummary=read.csv("Simulations/repBiasPollsterSummary.csv")
 plot(demBiasPollsterSummary$x,repBiasPollsterSummary$x, main="Democratic Versus Rebulican Pollster Errors, 2000-2016", xlab="Democratic Pollster Error", 
      ylab="Republican Pollster Error")
 bestfitPollster=lm(repBiasPollsterSummary$x~demBiasPollsterSummary$x)
-summary(bestfitPollster)
+tab_model(bestfitPollster)
 abline(bestfitPollster)
 abline(bestfit, col="red")
 legend(-8, 2, legend=c("Best Fit for Bayesian Pollster Errors", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
