@@ -67,13 +67,29 @@ corrval2=cor(myDataFrame$repBias, myDataFrame$bias)
 
 plot(myDataFrame$demBias, myDataFrame$bias, xlab="Democratic Error", ylab="Marginal Bias",main="Maginal Bias Plotted Dependent on Party Error")
 bestfit2=lm(myDataFrame$bias~myDataFrame$demBias)
-
-tab_model(bestfit2)
-
 abline(bestfit2)
 
+```
+
+
+The summaries of these best fit lines of regression are shown below:
+
+
+```{r, include=FALSE}
+tab_model(bestfit,bestfit2, file="Simulations/output.html")
 
 ```
+
+
+
+
+```{r}
+htmltools::includeHTML("Simulations/output.html")
+
+```
+*
+*
+*
 
 With a correlation value of `r corrval` between Democratic error and Republican error, we can see that the two are moderately correlated.
 
@@ -111,6 +127,8 @@ The lines of best fit plotted above are given by simple linear models with Repub
 tab_model(repUndecidedRelationship,demUndecidedRelationship,marginUndecidedRelationship)
 
 ```
+
+
 
 From this table, we can see that in general, there is a stronger relationship between republican error and undecided voters than democratic error and undecided voters. And it appears that the more undecided voters, the more polls underestimate the power of the republican candidate. This can be seen clearly with the confidence intervals of the above table:
 
@@ -159,12 +177,23 @@ legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
 plot(dtD$Mode,dtR$Mode, main="Democratic Versus Rebulican Year Leans, 2000-2016", xlab="Democratic Year Lean", 
      ylab="Republican Year Lean")
 RelationshipBetween = lm(dtR$Mode~dtD$Mode)
-tab_model(RelationshipBetween)
+
 abline(RelationshipBetween)
 bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
 abline(bestfit, col="red")
 legend(-2.3, 0, legend=c("Best Fit for Bayesian Year Leans", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
 ```
+
+```{r, include=FALSE}
+tab_model(RelationshipBetween, file="Simulations/output1.html")
+```
+
+
+```{r}
+htmltools::includeHTML("Simulations/output1.html")
+
+```
+
 
 The last graph show that year leans overall do match similar expectations as described by the traditional linear model output. 
 
@@ -180,11 +209,22 @@ repBiasPollsterSummary=read.csv("Simulations/repBiasPollsterSummary.csv")
 plot(demBiasPollsterSummary$x,repBiasPollsterSummary$x, main="Democratic Versus Rebulican Pollster Errors, 2000-2016", xlab="Democratic Pollster Error", 
      ylab="Republican Pollster Error")
 bestfitPollster=lm(repBiasPollsterSummary$x~demBiasPollsterSummary$x)
-tab_model(bestfitPollster)
+#tab_model(bestfitPollster)
 abline(bestfitPollster)
 abline(bestfit, col="red")
 legend(-8, 2, legend=c("Best Fit for Bayesian Pollster Errors", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
 ```
+
+```{r, include=FALSE}
+tab_model(bestfitPollster, file="Simulations/output2.html")
+```
+
+
+```{r}
+htmltools::includeHTML("Simulations/output2.html")
+
+```
+
 
 As demonstrated by the plot, there is an evident relationship, but the relationship seems to differ from the negative best fit slope established earlier. 
 
