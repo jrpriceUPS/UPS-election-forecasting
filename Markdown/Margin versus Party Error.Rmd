@@ -13,6 +13,8 @@ knitr::opts_knit$set(root.dir = dirname(getwd()))
 library(sjPlot)
 library(sjmisc)
 library(sjlabelled)
+
+#This Markdown Script calls "Exploration of Margin v. Party Error.r" and "ANOVA model just pollsters indirectly by calling their saved csv files. 
 ```
 
 
@@ -56,8 +58,8 @@ for(myPollster in unique(mydata$pollster))
 }
 myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
-bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
-plot(myDataFrame$repBias, myDataFrame$demBias, xlab="Republican Error", ylab="Democratic Error", main="Errors Dependent on each other, Matched By Poll")
+bestfit=lm(formula =  myDataFrame$repBias ~ myDataFrame$demBias)
+plot(myDataFrame$demBias, myDataFrame$repBias, ylab="Republican Error", xlab="Democratic Error", main="Errors Dependent on each other, Matched By Poll")
 abline(bestfit)
 corrval=cor(myDataFrame$repBias, myDataFrame$demBias)
 corrval1=cor(myDataFrame$demBias, myDataFrame$bias)
@@ -103,7 +105,7 @@ abline(marginUndecidedRelationship)
 ```
 
 
-The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Marginal Bias as the response variables for the percent of undecided voters in any poll. The coefficents and R squared values for each  model can be seen in the table below:
+The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Marginal Bias as the response variables for the percent of undecided voters in any poll. The coefficients and R squared values for each  model can be seen in the table below:
 
 ```{r}
 tab_model(repUndecidedRelationship,demUndecidedRelationship,marginUndecidedRelationship)
@@ -135,9 +137,7 @@ dtR=read.csv("Simulations/dtR.csv")
 knitr::kable(dtR)
 ```
 
-It is worth noting how most of the values in this table are negative. Why? Undecided voters  or those who identify with neither of the primary candidates when polled often end up voting for one of the two major candidates. So adding the two party errors together may help understand these undecided voters and their swing in the election.
-
-
+It is worth noting how most of the values in this table are negative. Why? Undecided voters  or those who identify with neither of the primary candidates when polled often end up voting for one of the two major candidates. 
 
 This denies the intuitive expectation that $DemocraticError = -RebuplicanError$. So what is the relationship between party errors during the years? The graphs below help us begin to understand.
 
@@ -187,6 +187,45 @@ legend(-8, 2, legend=c("Best Fit for Bayesian Pollster Errors", "Best Fit for Fi
 ```
 
 As demonstrated by the plot, there is an evident relationship, but the relationship seems to differ from the negative best fit slope established earlier. 
+
+
+We can also do direct Bayesian analysis between Democratic and Republican pollster error. 
+
+The diagnostic plots all look good, take a look at the slope diagnostic visuals for example:
+
+![](Figures/DoubleOneMetric-ErrorandBias-Jags-Diagbeta1.png)
+
+The post predictive plot for such analysis is shown below:
+
+![](Figures/DoubleOneMetric-ErrorandBias-Jags-PostPred.png)
+
+And the posterior distributions of the parameters (as modeled with a t-distrubtion) can be seen below:
+
+![](Figures/DoubleOneMetric-ErrorandBias-Jags-PostMarg.png)
+
+There are a couple key takeaways here:
+
+* The entire highest density interval for the slope parameter is entirely below zero. We can say with confidence that when democratic error increases, republican error decreases (and vice-versa). 
+
+* The entire highest density interval for the y-intercept is below zero. Contextually, meaning that when there is no democratic bias, we would expect polls to underestimate pollsters between 2.94% and 3.28%. 
+
+
+We can do similar exploration between democratic error and marginal bias. 
+
+The diagnostic plots also look good here, take a look at the slope diagnostic visuals for example:
+
+![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginDiagbeta1.png)
+
+The post predictive plot for such analysis is shown below:
+
+![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginPostPred.png)
+
+And the posterior distributions of the parameters (as modeled with a t-distrubtion) can be seen below:
+
+![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginPostMarg.png)
+
+As we would expect, as the democratic error increases, so does the measure of the marginal democratic bias in polling. However, the marginal bias grows quicker than democratic error. The highest density interval estimates that for every 1% increase in democratic error, an increase in 1.5% to 1.59% in marginal bias should be expected. 
+
 
 **Conclusion**
 
