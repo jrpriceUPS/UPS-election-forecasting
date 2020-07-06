@@ -4,27 +4,10 @@
 graphics.off() # This closes all of R's graphics windows.
 #------------------------------------------------------------------------------- 
 # Load The data file 
-#load the data
-#in this case from 538
-mydata <- read.csv("Data/raw-polls_538.csv")
+#load the data in this case from 538
+#load the cleaned data
+mydata=read.csv("Data/raw-polls_538_cleaned.csv")
 
-#use lubridate to change dates from character to date data type for functionality. 
-mydata$electiondate = lubridate::mdy(mydata$electiondate)
-mydata$polldate = lubridate::mdy(mydata$polldate)
-
-#subset to make sure it is a democratic v. republican race
-mydata=subset(mydata,cand1_party=="DEM")
-mydata=subset(mydata,cand2_party=="REP")
-
-#set year as a factor.
-mydata$year = as.factor(mydata$year)
-#limit to one year.
-DesiredYear=2012
-mydata=subset(mydata, year==DesiredYear)
-
-#Limit to just president
-preferredType="Pres-G"
-mydata=subset(mydata, type_simple==preferredType)
 
 library(magrittr)
 #limit to just pollsters with a certain number of polls on record.
@@ -50,7 +33,7 @@ summary(mydata$bias)
 myDataFrame = mydata
 
 # Specify the column names in the data file relevant to the analysis:
-yName="bias" 
+yName="repBias" 
 xName="pollster" 
 
 
@@ -93,7 +76,7 @@ for ( parName in c("ySigma","b0","b[1]","aSigma") ) {
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCoda , 
                         datFrm=myDataFrame , xName=xName ,
-                        contrasts=contrasts , 
+                        #contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
 # Display posterior information:
@@ -106,3 +89,17 @@ FindMean=as.data.frame(summaryInfo)
 FoundMean=FindMean[1, 1]
 
 #------------------------------------------------------------------------------- 
+
+
+#Helper for "Margin versus Party Error.Rmd"
+
+demBiasPollsterSummary=as.data.frame(demBiasPollsterSummary)
+demBiasPollsterSummary=demBiasPollsterSummary[2:83,3]
+demBiasPollsterSummary=demBiasPollsterSummary-2.387878233
+write.csv(demBiasPollsterSummary, "Simulations/demBiasPollsterSummary.csv")
+
+
+repBiasPollsterSummary=as.data.frame(repBiasPollsterSummary)
+repBiasPollsterSummary=repBiasPollsterSummary[2:83,3]
+repBiasPollsterSummary=repBiasPollsterSummary-2.6987124
+write.csv(repBiasPollsterSummary, "Simulations/repBiasPollsterSummary.csv")

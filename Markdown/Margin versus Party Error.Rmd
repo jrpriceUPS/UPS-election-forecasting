@@ -29,6 +29,9 @@ $$Bias = MarginPoll - MarginActual$$
 
 $$MarginPoll = DemocraticCanditatePollingPercent-RepublicanCanditatePollingPercent$$
 $$MarginActual = DemocraticActualPercentage-RepublicanActualPercentage$$
+
+**Fisherian Exploration**
+
 Before we get into Bayesian modeling it worth doing some inital exploration with Fisherian statistics...
 
 ```{r}
@@ -51,27 +54,48 @@ for(myPollster in unique(mydata$pollster))
 myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
 lm(formula = myDataFrame$repBias ~ myDataFrame$demBias)
-lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
-plot(myDataFrame$repBias, myDataFrame$demBias, xlab="Republican Error", ylab="Democratic Error", Main="Errors Dependent on each other, Matched By Poll")
+bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
+plot(myDataFrame$repBias, myDataFrame$demBias, xlab="Republican Error", ylab="Democratic Error", main="Errors Dependent on each other, Matched By Poll")
+abline(bestfit)
 corrval=cor(myDataFrame$repBias, myDataFrame$demBias)
 corrval1=cor(myDataFrame$demBias, myDataFrame$bias)
 corrval2=cor(myDataFrame$repBias, myDataFrame$bias)
-lm(myDataFrame$bias~myDataFrame$demBias)
+
+plot(myDataFrame$demBias, myDataFrame$bias, xlab="Democratic Error", ylab="Marginal Bias",main="Maginal Bias Plotted Dependent on Party Error")
+bestfit2=lm(myDataFrame$bias~myDataFrame$demBias)
+abline(bestfit2)
+
+
 ```
 
 With a correlation value of `r corrval` between Democratic error and Republican error, we can see that the two are moderately correlated.
 
 However, there is a higher correlation between party errors and bias measured in the traditional marginal sense is stronger. The correlation between democratic error and bias is `r corrval1`. And the correlation between republican error and bias is `r corrval2`. 
 
+**Bayesian Modeling**
+
+Now that we have done some brief exploration using Fisherian statistics, we can take a look at the data with Bayesian techniques. 
+
 ```{r, include=FALSE, fig.show='hide'}
-source(here::here('RScripts', 'Exploration of Margin v. Party Error.r'))
+#source(here::here('RScripts', 'Exploration of Margin v. Party Error.r'))
 ```
 
-Democratic and Republican year leans are shown below for comparison. As well as these year leans plotted together...
-```{r}
-knitr::kable(dtD)
-knitr::kable(dtR)
+Summary info from Bayesian analysis for Democratic and Republican year leans are shown below for comparison. As well as these summary points for year leans plotted together...
 
+```{r}
+dtD=read.csv("Simulations/dtD.csv")
+knitr::kable(dtD)
+
+dtR=read.csv("Simulations/dtR.csv")
+knitr::kable(dtR)
+```
+
+It is worth noting how most of the values in this table are negative. Why? Undecided voters  or those who identify with neither of the primary candidates when polled often end up voting for one of the two major candidates. So adding the two party errors together may help understand these undecided voters and their swing in the election.
+
+This denies the intuitive expectation that $DemocraticError = -RebuplicanError$. So what is the relationship between party errors during the years? The graphs below help us begin to understand.
+
+```{r}
+yearLabels=c("2000","2004","2008","2012","2016")
 plot(dtD$yearLabels,dtD$Mode, col="blue", main="Year Leans", xlab="Election Year", 
      ylab="Most Credible Error Value", ylim=c(-5, 1) , xlim=c(1996, 2020), xaxt = "n"
      )
@@ -84,24 +108,49 @@ points(dtR$yearLabels, dtR$Mode, col="red")
 # Add a legend
 legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
        col=c("blue", "red"), lty=1:2, cex=0.8)
+
+plot(dtD$Mode,dtR$Mode, main="Democratic Versus Rebulican Year Leans, 2000-2016", xlab="Democratic Year Lean", 
+     ylab="Republican Year Lean")
+RelationshipBetween = lm(dtR$Mode~dtD$Mode)
+summary(RelationshipBetween)
+abline(RelationshipBetween)
+bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
+abline(bestfit, col="red")
+legend(-2.3, 0, legend=c("Best Fit for Bayesian Year Leans", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
 ```
 
+The last graph show that year leans overall do match similar expectations as described by the traditional linear model output. 
 
-
-
-For matching points by year and pollster, the relationship between Democratic error and republican error does not look very strong....
-
-In fact the R squared values is less than 0.
+To answer the question if democratic pollster error is equal to republican pollster error, we can plot the most credible values for party error for each pollster against each other.
 
 
 ```{r}
-plot(dtDpollster$Mode,dtRpollster$Mode, main="Democratic Versus Rebulican Pollster Biases, 2000-2016", xlab="Democratic Pollster Bias", 
-     ylab="Republican Pollster Bias")
+#uses data from "ANOVA model -just pollsters.R"
+demBiasPollsterSummary=read.csv("Simulations/demBiasPollsterSummary.csv")
+repBiasPollsterSummary=read.csv("Simulations/repBiasPollsterSummary.csv")
+
+
+plot(demBiasPollsterSummary$x,repBiasPollsterSummary$x, main="Democratic Versus Rebulican Pollster Errors, 2000-2016", xlab="Democratic Pollster Error", 
+     ylab="Republican Pollster Error")
+bestfitPollster=lm(repBiasPollsterSummary$x~demBiasPollsterSummary$x)
+summary(bestfitPollster)
+abline(bestfitPollster)
+abline(bestfit, col="red")
+legend(-8, 2, legend=c("Best Fit for Bayesian Pollster Errors", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
 ```
+
+As demonstrated by the plot, there is an evident relationship, but the relationship seems to differ from the negative best fit slope established earlier. 
 
 **Conclusion**
 
-The relationships between Republican Error, Democratic error, and traditional bias are not as strong as we might initally think. 
+The relationships between Republican Error, Democratic error, and traditional bias are not as simple as we might initially think. 
+
+The relationship between the two party errors appears to be moderate, while the relationship between either party error and marginal bias is stronger.
+
+What are some reasons for this?
+
+* Undecided Voters
+
 
 \newpage
 

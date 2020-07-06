@@ -76,6 +76,9 @@ plot(dtD$Mode,dtR$Mode, main="Democratic Versus Rebulican Year Leans, 2000-2016"
 RelationshipBetween = lm(dtR$Mode~dtD$Mode)
 summary(RelationshipBetween)
 abline(RelationshipBetween)
+bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
+abline(bestfit, col="red")
+legend(-2.3, 0, legend=c("Best Fit for Bayesian Year Leans", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
 #25.87% R-squared Value
 
 
@@ -106,6 +109,8 @@ dtD$yearLabels = as.numeric(yearLabels)
 lD=lm(Mode ~ yearLabels, data=dtD)
 abline(lD, col="blue")
 
+write.csv(dtD,"Simulations/dtD.csv")
+write.csv(dtR,"Simulations/dtR.csv")
 
 summary(lR)
 R.Rsquared=summary(lR)$r.squared
