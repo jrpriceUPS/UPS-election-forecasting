@@ -190,7 +190,12 @@ fileNameRootSim = "Simulations/DoubleOneMetric-ErrorandBias-Jags-"
 
 xName = "demBias" ; yName = "bias"
 fileNameRoot = "Markdown/Figures/DoubleOneMetric-ErrorandBias-Jags-Margin" 
-fileNameRootSim = "Simulations/DoubleOneMetric-ErrorandBias-Jags-Margin" 
+fileNameRootSim = "Simulations/DoubleOneMetric-ErrorandBias-Jags-Margin"
+
+xName = "Undecided" ; yName = "repBias"
+fileNameRoot = "Markdown/Figures/DoubleOneMetric-ErrorandBias-Jags-Undecided" 
+fileNameRootSim = "Simulations/DoubleOneMetric-ErrorandBias-Jags-Undecided" 
+myData=myDataFrame
 #............................................................................
 
 #............................................................................
@@ -226,4 +231,49 @@ plotMCMC( mcmcCoda , data=myData , xName=xName , yName=yName ,
           saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
 
+
+
+graphics.off() # This closes all of R's graphics windows.
+myDataFrame= myData
+# Specify the column names in the data file relevant to the analysis:
+yName="repBias" 
+xNomName="year" 
+xMetName="demBias"             # the covariate
+# Specify desired contrasts of slopes.
+
+# Specify filename root and graphical format for saving output.
+# Otherwise specify as NULL or leave saveName and saveType arguments 
+# out of function calls.
+fileNameRoot = "Markdown/Figures/yearLean-partyBias-ANCOVA-" 
+fileNameRootSim = "Simulations/yearLean-partyBias-ANCOVA-" 
+graphFileType = "png" 
+
+#------------------------------------------------------------------------------- 
+# Load the relevant model into R's working memory:
+#source("Jags-Ymet-Xnom1met1-MnormalHom.R")
+source("RScripts/ANCOVA covariate.R")
+#------------------------------------------------------------------------------- 
+# Generate the MCMC chain:
+mcmcCoda = genMCMC( datFrm=myDataFrame , 
+                    yName=yName , xNomName=xNomName , xMetName=xMetName ,
+                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
+#------------------------------------------------------------------------------- 
+# Display diagnostics of chain, for specified parameters:
+parameterNames = varnames(mcmcCoda) 
+show( parameterNames ) # show all parameter names, for reference
+for ( parName in parameterNames ) {
+  diagMCMC( codaObject=mcmcCoda , parName=parName , 
+            saveName=fileNameRoot , saveType=graphFileType )
+}
+#------------------------------------------------------------------------------- 
+# Get summary statistics of chain:
+summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , xNomName=xNomName , 
+                        xMetName=xMetName , #contrasts=contrasts , 
+                        saveName=fileNameRootSim )
+show(summaryInfo)
+# Display posterior information:
+plotMCMC( mcmcCoda , datFrm=myDataFrame , yName=yName , xNomName=xNomName , 
+          xMetName=xMetName , #contrasts=contrasts , 
+          saveName=fileNameRoot , saveType=graphFileType )
+#------------------------------------------------------------------------------- 
 
