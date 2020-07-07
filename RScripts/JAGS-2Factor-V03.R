@@ -1,4 +1,4 @@
-#JAGS-2Factor-V02
+#JAGS-2Factor-V03
 #06-29-2020
 #Modification of JAGS-2Factor-V02.R 
   #Change Parameter names to be non-generic
