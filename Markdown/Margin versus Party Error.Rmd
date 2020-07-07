@@ -137,42 +137,6 @@ From this table, we can see that in general, there is a stronger relationship be
 
 <br>
 
-**Bayesian Modeling - Pollster Error**
-
-To answer the question if democratic pollster error is equal to republican pollster error, we can plot the most credible values for party error for each pollster against each other.
-
-
-```{r}
-#uses data from "ANOVA model -just pollsters.R"
-demBiasPollsterSummary=read.csv("Simulations/demBiasPollsterSummary.csv")
-repBiasPollsterSummary=read.csv("Simulations/repBiasPollsterSummary.csv")
-
-
-plot(demBiasPollsterSummary$x,repBiasPollsterSummary$x, main="Democratic Versus Rebulican Pollster Errors, 2000-2016", xlab="Democratic Pollster Error", 
-     ylab="Republican Pollster Error")
-bestfitPollster=lm(repBiasPollsterSummary$x~demBiasPollsterSummary$x)
-#tab_model(bestfitPollster)
-bestfit=lm(formula =  myDataFrame$repBias ~ myDataFrame$demBias)
-abline(bestfitPollster)
-abline(bestfit, col="red")
-legend(-8, 2, legend=c("Best Fit for Bayesian Pollster Errors", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
-```
-
-```{r, include=FALSE}
-tab_model(bestfitPollster, file="Simulations/output2.html")
-```
-
-
-```{r}
- 
-htmltools::includeHTML("Simulations/output2.html")
-
-```
-
-<br>
-
-As demonstrated by the plot, there is an evident relationship, but the relationship seems to differ from the negative best fit slope established earlier. 
-
 **Bayesian Modeling - Democratic and Republican Error Dependent on Each Other**
 
 Now that we have done some brief exploration using Fisherian statistics, we can take a look at the data with Bayesian techniques. 
@@ -232,6 +196,7 @@ We can use the percent of undecided voters as the metric x-variable and the perc
 This satisfies the condition for a converging MCMC. The diagnostic plot for the slope coefficient is included below for reference:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-UndecidedDiagbeta1.png)
+
 The post predictive plot for the analysis looks like:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-UndecidedPostPredYint.png)
@@ -239,6 +204,7 @@ The post predictive plot for the analysis looks like:
 And the distributions, along with their modes, and HDIs for each of the parameters of interest are included below:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-UndecidedPostMarg.png)
+
 If you remember the traditional analysis that we began with, the modes for the intercepts are very similar to the estimates produced by the simple linear model. This consistency increases our confidence that the more undecided voters, the more polls underestimate the power of the republican candidate. 
 
 **Bayesian Modeling - Year Leans**
@@ -253,10 +219,8 @@ Results from that Bayesian model can be summarized below, but first we must chec
 
 Now we can look at posterior distributions:
 
-![](Figures/yearLean-partyBias-ANCOVA-PostPred-2000.png)
-![](Figures/yearLean-partyBias-ANCOVA-PostPred-2004.png)
-![](Figures/yearLean-partyBias-ANCOVA-PostPred-2008.png)
-![](Figures/yearLean-partyBias-ANCOVA-PostPred-2012.png)
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2000.png) ![](Figures/yearLean-partyBias-ANCOVA-PostPred-2004.png) 
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2008.png) ![](Figures/yearLean-partyBias-ANCOVA-PostPred-2012.png) 
 ![](Figures/yearLean-partyBias-ANCOVA-PostPred-2016.png)
 
 While it is hard to see because of scaling, there are some differences between the years. To get a better idea, a table of the summary info is shown below:
@@ -273,7 +237,29 @@ Interestingly enough, none of the coefficient modes (y-intercept or slope) fall 
  
 This suggests that the relationship between republican error and democratic error varies from year to year. 
 
+**Bayesian Modeling - Pollster Error**
 
+To answer the question if democratic pollster error is equal to republican pollster error, we can plot the most credible values for party error for each pollster against each other.
+
+An example of diagnostic visuals (for the y-intercept for the ABC News-The Washington Post pollster) are shown below:
+
+![](Figures/pollsterError-ANCOVA-Diaga[1].png)
+
+A few of the post predictive plots are also included below:
+
+![](Figures/pollsterError-ANCOVA-PostPred-YouGov.png) ![](Figures/pollsterError-ANCOVA-PostPred-SrvyUSA.png)
+![](Figures/pollsterError-ANCOVA-PostPred-Gallup.png) ![](Figures/pollsterError-ANCOVA-PostPred-QnnpcUn.png)
+
+<br>
+
+A full list of coefficients for all sampled pollsters is given below:
+
+```{r}
+PollsterSumm=read.csv("Simulations/PollsterSumm.csv")
+knitr::kable(PollsterSumm)
+```
+
+Similar to year leans, while generally similar, the models for republican bias based on democratic bias vary by pollster.
 
 **Conclusion**
 

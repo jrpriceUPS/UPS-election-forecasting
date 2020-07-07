@@ -238,14 +238,15 @@ myDataFrame= myData
 # Specify the column names in the data file relevant to the analysis:
 yName="repBias" 
 xNomName="year" 
+xNomName="pollster"
 xMetName="demBias"             # the covariate
 # Specify desired contrasts of slopes.
 
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
 # out of function calls.
-fileNameRoot = "Markdown/Figures/yearLean-partyBias-ANCOVA-" 
-fileNameRootSim = "Simulations/yearLean-partyBias-ANCOVA-" 
+fileNameRoot = "Markdown/Figures/pollsterError-ANCOVA-" 
+fileNameRootSim = "Simulations/pollsterError-ANCOVA-" 
 graphFileType = "png" 
 
 #------------------------------------------------------------------------------- 
@@ -272,10 +273,13 @@ summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , xNomName=xNomName ,
                         saveName=fileNameRootSim )
 show(summaryInfo)
 
+PollsterSumm=summaryInfo[1:34,1:7]
 
-YearLeanSumm=summaryInfo[1:10,1:7]
+write.csv(PollsterSumm,"Simulations/PollsterSumm.csv")
 
-write.csv(YearLeanSumm,"Simulations/YearLeanSumm.csv")
+# YearLeanSumm=summaryInfo[1:10,1:7]
+# 
+# write.csv(YearLeanSumm,"Simulations/YearLeanSumm.csv")
 
 # Display posterior information:
 plotMCMC( mcmcCoda , datFrm=myDataFrame , yName=yName , xNomName=xNomName , 
