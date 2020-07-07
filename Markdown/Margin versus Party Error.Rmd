@@ -87,15 +87,14 @@ tab_model(bestfit,bestfit2, file="Simulations/output.html")
 htmltools::includeHTML("Simulations/output.html")
 
 ```
-*
-*
-*
+
+<br>
 
 With a correlation value of `r corrval` between Democratic error and Republican error, we can see that the two are moderately correlated.
 
 However, there is a higher correlation between party errors and bias measured in the traditional marginal sense is stronger. The correlation between democratic error and bias is `r corrval1`. And the correlation between republican error and bias is `r corrval2`. 
 
-A great deal of the values for party error are negative because of the number of undecided voters polled. What is the impact of undecided voters of party error and marginal bias? We can explore these relationships with the plots below. 
+A great deal of the values for party error are negative because of the number of undecided voters polled. What is the impact of undecided voters for party error and marginal bias? We can explore these relationships with the plots below. 
 
 ```{r, Undecided Voter Relationships}
 # Find out how many undecided voters there are in each poll
@@ -121,23 +120,23 @@ abline(marginUndecidedRelationship)
 ```
 
 
-The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Marginal Bias as the response variables for the percent of undecided voters in any poll. The coefficients and R squared values for each  model can be seen in the table below:
+The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Marginal Bias as the response variables with percent of undecided voters in any poll acting as the explanatory variable. The coefficients and R squared values for each  model can be seen in the table below:
 
 ```{r}
 tab_model(repUndecidedRelationship,demUndecidedRelationship,marginUndecidedRelationship)
 
 ```
 
+<br>
 
-
-From this table, we can see that in general, there is a stronger relationship between republican error and undecided voters than democratic error and undecided voters. And it appears that the more undecided voters, the more polls underestimate the power of the republican candidate. This can be seen clearly with the confidence intervals of the above table:
+From this table, we can see that in general, there is a stronger relationship between republican error and undecided voters than democratic error and undecided voters. And it appears that the more undecided voters, the more polls underestimate the power of the republican candidate. This can be seen clearly with the confidence intervals from the above table:
 
 * The entire republican error confidence interval for the slope coefficient (-.40 to -.34) is less than the entire democratic error confidence interval for the slope coefficient (-19 to. -.12). Meaning that as the percent of undecided voters increases, the polls will underestimate the Republican candidate's vote share more dramatically than they will underestimate the Democratic candidate's vote share. 
 
-* The entire confidence interval for marginal bias is above 0 (.16 to .27), meaning as the percent of undecided voters increase, the marginal bias will becomes more and more democratic. 
+* The entire confidence interval for marginal bias is above 0 (.16 to .27), meaning as the percent of undecided voters increase, the marginal bias will increase its tendency to overestimate the Democratic party's candidate. 
 
 
-**Bayesian Modeling**
+**Bayesian Modeling - Year Leans**
 
 Now that we have done some brief exploration using Fisherian statistics, we can take a look at the data with Bayesian techniques. 
 
@@ -155,7 +154,7 @@ dtR=read.csv("Simulations/dtR.csv")
 knitr::kable(dtR)
 ```
 
-It is worth noting how most of the values in this table are negative. Why? Undecided voters  or those who identify with neither of the primary candidates when polled often end up voting for one of the two major candidates. 
+As discussed earlier, most of the party error values will be negative because of the effect of undecided voters. 
 
 This denies the intuitive expectation that $DemocraticError = -RebuplicanError$. So what is the relationship between party errors during the years? The graphs below help us begin to understand.
 
@@ -188,14 +187,18 @@ legend(-2.3, 0, legend=c("Best Fit for Bayesian Year Leans", "Best Fit for Fishe
 tab_model(RelationshipBetween, file="Simulations/output1.html")
 ```
 
+As demonstrated with the graph above, the Bayesian model modes of year leans overall do match similar expectations as described by the traditional linear model output. 
+
+
+The simple linear model line of best fit for the Bayesian modes can be described by the coefficents below:
 
 ```{r}
 htmltools::includeHTML("Simulations/output1.html")
-
 ```
 
+<br>
 
-The last graph show that year leans overall do match similar expectations as described by the traditional linear model output. 
+**Bayesian Modeling - Pollster Error**
 
 To answer the question if democratic pollster error is equal to republican pollster error, we can plot the most credible values for party error for each pollster against each other.
 
@@ -210,6 +213,7 @@ plot(demBiasPollsterSummary$x,repBiasPollsterSummary$x, main="Democratic Versus 
      ylab="Republican Pollster Error")
 bestfitPollster=lm(repBiasPollsterSummary$x~demBiasPollsterSummary$x)
 #tab_model(bestfitPollster)
+bestfit=lm(formula =  myDataFrame$repBias ~ myDataFrame$demBias)
 abline(bestfitPollster)
 abline(bestfit, col="red")
 legend(-8, 2, legend=c("Best Fit for Bayesian Pollster Errors", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
@@ -221,19 +225,24 @@ tab_model(bestfitPollster, file="Simulations/output2.html")
 
 
 ```{r}
+ 
 htmltools::includeHTML("Simulations/output2.html")
 
 ```
 
+<br>
 
 As demonstrated by the plot, there is an evident relationship, but the relationship seems to differ from the negative best fit slope established earlier. 
 
+**Bayesian Modeling - Democratic and Republican Error Dependent on Each Other**
 
 We can also do direct Bayesian analysis between Democratic and Republican pollster error. 
 
 The diagnostic plots all look good, take a look at the slope diagnostic visuals for example:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-Diagbeta1.png)
+
+<br>
 
 The post predictive plot for such analysis is shown below:
 
@@ -250,17 +259,22 @@ There are a couple key takeaways here:
 * The entire highest density interval for the y-intercept is below zero. Contextually, meaning that when there is no democratic bias, we would expect polls to underestimate pollsters between 2.94% and 3.28%. 
 
 
+**Bayesian Modeling - Democratic Error and Marginal Bias*
+
 We can do similar exploration between democratic error and marginal bias. 
 
 The diagnostic plots also look good here, take a look at the slope diagnostic visuals for example:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginDiagbeta1.png)
+<br>
 
 The post predictive plot for such analysis is shown below:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginPostPred.png)
 
 And the posterior distributions of the parameters (as modeled with a t-distrubtion) can be seen below:
+
+<br>
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginPostMarg.png)
 
@@ -275,8 +289,13 @@ The relationship between the two party errors appears to be moderate, while the 
 
 What are some reasons for this?
 
-* Undecided Voters
+* Undecided Voters 
+* Non Response Bias
+* Lack of Elastic Voters 
 
+So how can we seek to understand bias better?
+
+These relationships are not perfect, so it takes more work to properly interpret bias. It is important to have clear definitions, as established at the beginning of this exploration. Additionally, understanding undecided vote share may be necessary to understanding discrepancies between polled party vote share and actual party vote share. 
 
 \newpage
 
