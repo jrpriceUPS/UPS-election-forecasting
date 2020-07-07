@@ -135,67 +135,6 @@ From this table, we can see that in general, there is a stronger relationship be
 
 * The entire confidence interval for marginal bias is above 0 (.16 to .27), meaning as the percent of undecided voters increase, the marginal bias will increase its tendency to overestimate the Democratic party's candidate. 
 
-
-**Bayesian Modeling - Year Leans**
-
-Now that we have done some brief exploration using Fisherian statistics, we can take a look at the data with Bayesian techniques. 
-
-```{r, include=FALSE, fig.show='hide'}
-#source(here::here('RScripts', 'Exploration of Margin v. Party Error.r'))
-```
-
-Summary info from Bayesian analysis for Democratic and Republican year leans are shown below for comparison. As well as these summary points for year leans plotted together...
-
-```{r}
-dtD=read.csv("Simulations/dtD.csv")
-knitr::kable(dtD)
-
-dtR=read.csv("Simulations/dtR.csv")
-knitr::kable(dtR)
-```
-
-As discussed earlier, most of the party error values will be negative because of the effect of undecided voters. 
-
-This denies the intuitive expectation that $DemocraticError = -RebuplicanError$. So what is the relationship between party errors during the years? The graphs below help us begin to understand.
-
-```{r}
-yearLabels=c("2000","2004","2008","2012","2016")
-plot(dtD$yearLabels,dtD$Mode, col="blue", main="Year Leans", xlab="Election Year", 
-     ylab="Most Credible Error Value", ylim=c(-5, 1) , xlim=c(1996, 2020), xaxt = "n"
-     )
-# Define the position of tick marks
-axis(side = 1, 
-     at = yearLabels, 
-     labels = yearLabels,
-     tck=-.05)
-points(dtR$yearLabels, dtR$Mode, col="red")
-# Add a legend
-legend(1996, 1, legend=c("Democratic Error", "Republican Error"),
-       col=c("blue", "red"), lty=1:2, cex=0.8)
-
-plot(dtD$Mode,dtR$Mode, main="Democratic Versus Rebulican Year Leans, 2000-2016", xlab="Democratic Year Lean", 
-     ylab="Republican Year Lean")
-RelationshipBetween = lm(dtR$Mode~dtD$Mode)
-
-abline(RelationshipBetween)
-bestfit=lm(formula =  myDataFrame$demBias ~ myDataFrame$repBias)
-abline(bestfit, col="red")
-legend(-2.3, 0, legend=c("Best Fit for Bayesian Year Leans", "Best Fit for Fisherian Polls"), col=c("black", "red"), lty=1:2, cex=0.8)
-```
-
-```{r, include=FALSE}
-tab_model(RelationshipBetween, file="Simulations/output1.html")
-```
-
-As demonstrated with the graph above, the Bayesian model modes of year leans overall do match similar expectations as described by the traditional linear model output. 
-
-
-The simple linear model line of best fit for the Bayesian modes can be described by the coefficents below:
-
-```{r}
-htmltools::includeHTML("Simulations/output1.html")
-```
-
 <br>
 
 **Bayesian Modeling - Pollster Error**
@@ -236,13 +175,16 @@ As demonstrated by the plot, there is an evident relationship, but the relations
 
 **Bayesian Modeling - Democratic and Republican Error Dependent on Each Other**
 
-We can also do direct Bayesian analysis between Democratic and Republican pollster error. 
+Now that we have done some brief exploration using Fisherian statistics, we can take a look at the data with Bayesian techniques. 
+
+We can do direct Bayesian analysis between Democratic and Republican pollster error. 
 
 The diagnostic plots all look good, take a look at the slope diagnostic visuals for example:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-Diagbeta1.png)
 
 <br>
+
 
 The post predictive plot for such analysis is shown below:
 
@@ -272,7 +214,7 @@ The post predictive plot for such analysis is shown below:
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginPostPred.png)
 
-And the posterior distributions of the parameters (as modeled with a t-distrubtion) can be seen below:
+And the posterior distributions of the parameters (as modeled with a t-distribution) can be seen below:
 
 <br>
 
@@ -298,6 +240,40 @@ And the distributions, along with their modes, and HDIs for each of the paramete
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-UndecidedPostMarg.png)
 If you remember the traditional analysis that we began with, the modes for the intercepts are very similar to the estimates produced by the simple linear model. This consistency increases our confidence that the more undecided voters, the more polls underestimate the power of the republican candidate. 
+
+**Bayesian Modeling - Year Leans**
+
+Is the relationship between democratic error and republican error the same every year? How do the year leans vary year to year? Do they vary in a way that is predictable?
+
+We can explore these questions with an ANCOVA-adjacent Bayesian model with a metric predictor of democratic error percentage, a nominal predictor of year, and metric response variable of republican error percentage.
+
+Results from that Bayesian model can be summarized below, but first we must check for MCMC convergence!
+
+![All conditions for converge are sufficiently meet as represented by the slope coefficent for 2000.](Figures/yearLean-partyBias-ANCOVA-DiagaMet[1].png)
+
+Now we can look at posterior distributions:
+
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2000.png)
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2004.png)
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2008.png)
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2012.png)
+![](Figures/yearLean-partyBias-ANCOVA-PostPred-2016.png)
+
+While it is hard to see because of scaling, there are some differences between the years. To get a better idea, a table of the summary info is shown below:
+
+```{r}
+YearLeanSumm=read.csv("Simulations/YearLeanSumm.csv")
+knitr::kable(YearLeanSumm)
+```
+
+Interestingly enough, none of the coefficient modes (y-intercept or slope) fall within the HDIs for slope and y-intercept established in the first Bayesian analysis that has no metric predictor.
+ 
+ *(y-intercept HDI: -3.28 to -2.94)
+ *(slope HDI: -.595 to .495)
+ 
+This suggests that the relationship between republican error and democratic error varies from year to year. 
+
+
 
 **Conclusion**
 

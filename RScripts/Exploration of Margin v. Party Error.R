@@ -188,7 +188,7 @@ xName = "demBias" ; yName = "repBias"
 fileNameRoot = "Markdown/Figures/DoubleOneMetric-ErrorandBias-Jags-" 
 fileNameRootSim = "Simulations/DoubleOneMetric-ErrorandBias-Jags-" 
 
-xName = "demBias" ; yName = "bias"
+xName = "demBias" ; yName = "repbias"
 fileNameRoot = "Markdown/Figures/DoubleOneMetric-ErrorandBias-Jags-Margin" 
 fileNameRootSim = "Simulations/DoubleOneMetric-ErrorandBias-Jags-Margin"
 
@@ -271,6 +271,12 @@ summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , xNomName=xNomName ,
                         xMetName=xMetName , #contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
+
+
+YearLeanSumm=summaryInfo[1:10,1:7]
+
+write.csv(YearLeanSumm,"Simulations/YearLeanSumm.csv")
+
 # Display posterior information:
 plotMCMC( mcmcCoda , datFrm=myDataFrame , yName=yName , xNomName=xNomName , 
           xMetName=xMetName , #contrasts=contrasts , 
