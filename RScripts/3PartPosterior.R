@@ -114,6 +114,8 @@ plotPosteriorPredictive = function( codaSamplesbias , codaSamplesrepBias, codaSa
   chainLength = NROW( mcmcMat )
   pollsterName="pollster"
   yearName="year"
+  demBias = datFrm[,"repBias"]
+  repBias = datFrm[,"demBias"]
   bias = datFrm[,biasName]
   pollster = as.numeric(as.factor(datFrm[,pollsterName]))
   PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
@@ -133,13 +135,26 @@ plotPosteriorPredictive = function( codaSamplesbias , codaSamplesrepBias, codaSa
           lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
     for ( Pollsteridx in 1:length(PollsterLevels) ) {
       xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
-      yVals = bias[ pollster==Pollsteridx & year==Yearidx ]
+      
+      yVals = demBias[ pollster==Pollsteridx & year==Yearidx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="blue" )
+      
+      yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
               yVals , pch=1 , cex=1.5 , col="red" )
+      
+      yVals = bias[ pollster==Pollsteridx & year==Yearidx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="black" )
+      
+      
+      
       chainSub = round(seq(1,chainLength,length=20))
       
       
       #Marginal Bias
+      mcmcMat = as.matrix(codaSamplesbias,chains=TRUE)
       for ( chnIdx in chainSub ) {
         m = mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
         +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
