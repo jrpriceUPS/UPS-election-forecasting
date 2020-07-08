@@ -87,6 +87,9 @@ for(myPollster in unique(mydata$pollster))
     #combine each of these subsets together
     myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
   }
+  if(subpoll$pollster=="YouGov"){
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
 }
 
 
@@ -108,8 +111,10 @@ myDataFrame$pollster = factor( myDataFrame$pollster)
 # Load the relevant model into R's working memory:
 source("RScripts/3PartPosterior.R")
 
-fileNameRoot = "Markdown/Figures/PosteriorsForPresentation-" 
-fileNameRootSim= "Simulations/PosteriorsForPresentation-"
+#fileNameRoot = "Markdown/Figures/PosteriorsForPresentation-" 
+#fileNameRootSim= "Simulations/PosteriorsForPresentation-"
+fileNameRoot = "Markdown/Figures/PosteriorsForPresentation-4Pollsters" 
+fileNameRootSim= "Simulations/PosteriorsForPresentation-4Pollster"
 graphFileType = "png"
 # Generate the MCMC chain:
 mcmcCodabias = genMCMC( datFrm=myDataFrame , biasName = "bias" , pollsterName = "pollster" , yearName = "year",

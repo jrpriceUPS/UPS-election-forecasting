@@ -340,7 +340,7 @@ plotPosteriorPredictiveV02 = function( codaSamplesbias , codaSamplesrepBias, cod
         lines( xPlotVal-yt , ycomb , col="red" )
       }
       
-      legend( .12, -12, legend=c("Marginal Bias", "Democratic Error", "Republican Error"), col=c("black", "skyblue" ,"red"), lty=1:2, cex=0.9)
+      legend( x = c(.12, .67), y = c(-12, -17), legend=c("Marginal Bias", "Democratic Error", "Republican Error"), col=c("black", "skyblue" ,"red"), lty=1:2, cex=0.9)
       abline(a=0,b=0, col="ivory4")
     }
     if ( !is.null(saveName) ) {
