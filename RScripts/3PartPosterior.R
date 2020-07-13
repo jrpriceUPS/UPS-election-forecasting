@@ -174,6 +174,10 @@ plotPosteriorPredictive = function( codaSamplesbias , codaSamplesrepBias, codaSa
       }
       
       
+    
+      
+      
+      
       #Dem Bias
       mcmcMat = as.matrix(codaSamplesdemBias,chains=TRUE)
       for ( chnIdx in chainSub ) {
@@ -253,7 +257,7 @@ plotPosteriorPredictiveV02 = function( codaSamplesbias , codaSamplesrepBias, cod
          xlab="Pollster Name & Year" ,
          xaxt="n" , ylab="Bias" ,
          ylim=c(min(bias)-0.2*(max(bias)-min(bias)),max(bias)+0.2*(max(bias)-min(bias))) ,
-         main=paste("Comparing Posterior Predictions for Different Measures of Bias - ", YearLevels[Yearidx])
+         main=paste("Posterior Predictions for Margin of Bias - ", YearLevels[Yearidx])
          
          )
     axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
@@ -261,13 +265,7 @@ plotPosteriorPredictiveV02 = function( codaSamplesbias , codaSamplesrepBias, cod
     for ( Pollsteridx in 1:length(PollsterLevels) ) {
       xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
       
-      yVals = demBias[ pollster==Pollsteridx & year==Yearidx ]
-      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
-              yVals , pch=1 , cex=1.5 , col="blue" )
-      
-      yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
-      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
-              yVals , pch=1 , cex=1.5 , col="red" )
+
       
       yVals = bias[ pollster==Pollsteridx & year==Yearidx ]
       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
@@ -297,7 +295,40 @@ plotPosteriorPredictiveV02 = function( codaSamplesbias , codaSamplesrepBias, cod
         yt = 0.67*yt/max(yt)
         lines( xPlotVal-yt , ycomb , col="black" )
       }
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostPred-JustMargin",YearLevels[Yearidx]), type=saveType)
+    }
+  }
       
+  
+  
+  #open new graph
+  for ( Yearidx in 1:length(YearLevels) ) {
+    openGraph(width=5*length(PollsterLevels),height=7)
+    par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+    plot(-10,-10,
+         xlim=c(.2,length(PollsterLevels)+0.1) ,
+         xlab="Pollster Name & Year" ,
+         xaxt="n" , ylab="Bias" ,
+         ylim=c(min(bias)-0.2*(max(bias)-min(bias)),max(bias)+0.2*(max(bias)-min(bias))) ,
+         main=paste("Comparing Posterior Predictions for Different Measures of Bias - ", YearLevels[Yearidx])
+         
+    )
+    axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
+          lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
+    for ( Pollsteridx in 1:length(PollsterLevels) ) {
+      xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
+      
+      yVals = demBias[ pollster==Pollsteridx & year==Yearidx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="blue" )
+      
+      yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="red" )
+      
+      chainSub = round(seq(1,chainLength,length=10))
       
       #Dem Bias
       mcmcMat = as.matrix(codaSamplesdemBias,chains=TRUE)
@@ -340,7 +371,7 @@ plotPosteriorPredictiveV02 = function( codaSamplesbias , codaSamplesrepBias, cod
         lines( xPlotVal-yt , ycomb , col="red" )
       }
       
-      legend( x = c(.12, .67), y = c(-12, -17), legend=c("Marginal Bias", "Democratic Error", "Republican Error"), col=c("black", "skyblue" ,"red"), lty=1:2, cex=0.9)
+      legend( x = c(.12, .67), y = c(-12, -17), legend=c("Democratic Error", "Republican Error"), col=c("skyblue" ,"red"), lty=1:2, cex=0.9)
       abline(a=0,b=0, col="ivory4")
     }
     if ( !is.null(saveName) ) {
