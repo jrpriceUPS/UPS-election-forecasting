@@ -1,0 +1,26 @@
+---
+title: "Citations for Pres"
+author: "Haley Reed"
+date: "7/13/2020"
+output: html_document
+bibliography: electionworkingbib.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newpage
+
+**Works Cited**
+
+---
+#.bib for bib refrence
+nocite: |
+  @538rawpolldata
+  @KrusckeTextbook
+  @MaristAcademy
+  @LatestPolls
+  @538PollsterRatings
+  @linzer2013dynamic
+---

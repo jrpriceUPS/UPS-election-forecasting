@@ -136,3 +136,14 @@ plotPosteriorPredictiveV02( codaSamplesbias=mcmcCodabias, codaSamplesdemBias = m
                          saveName=fileNameRoot , saveType=graphFileType )
 
 
+
+source("RScripts/Jags-2Factor-V03.R")
+fileNameRoot = "Markdown/Figures/HistogramsForPresentation-4Pollsters" 
+fileNameRootSim= "Simulations/HistogramssForPresentation-4Pollster"
+plotPollsterPosterior( mcmcCodabias, 
+                       datFrm=myDataFrame , biasName="bias",
+                       saveName=fileNameRoot , saveType=graphFileType )
+plotYearPosterior( mcmcCodabias, 
+                   datFrm=myDataFrame , biasName="bias" ,
+                   saveName=fileNameRoot , saveType=graphFileType )
+
