@@ -132,7 +132,7 @@ mcmcCodarepBias = genMCMC( datFrm=myDataFrame , biasName = "repBias" , pollsterN
 #------------------------------------------------------------------------------- 
 
 plotPosteriorPredictiveV02( codaSamplesbias=mcmcCodabias, codaSamplesdemBias = mcmcCodademBias, codaSamplesrepBias = mcmcCodarepBias,
-                         datFrm=myDataFrame , biasName="demBias" ,pollsterName="pollsterFull",
+                         datFrm=myDataFrame , bias="bias" ,pollsterName="pollsterFull",
                          saveName=fileNameRoot , saveType=graphFileType )
 
 
