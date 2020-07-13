@@ -42,7 +42,9 @@ mydata=subset(mydata,cand2_party=="REP")
 #Treat year as a factor
 mydata$year = as.factor(mydata$year)
 
+
 #Change so that bias is candiate specific, rather than in terms of margins.
+
 demBias = mydata[,15] - mydata[,22]
 mydata$demBias=demBias
 

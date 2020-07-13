@@ -179,12 +179,12 @@ plotPosteriorPredictive = function( codaSamplesbias , codaSamplesrepBias, codaSa
       
       
       #Dem Bias
-      mcmcMat = as.matrix(codaSamplesdemBias,chains=TRUE)
+      mcmcMatD = as.matrix(codaSamplesdemBias,chains=TRUE)
       for ( chnIdx in chainSub ) {
-        m = mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
-        +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
-        s = mcmcMat[chnIdx,"biasSpread"] # spread
-        nu = mcmcMat[chnIdx,"nuY"]# normality
+        m = mcmcMatD[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+        +         mcmcMatD[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
+        s = mcmcMatD[chnIdx,"biasSpread"] # spread
+        nu = mcmcMatD[chnIdx,"nuY"]# normality
         
         
         tlim = qt( c(0.025,0.975) , df=nu )
@@ -200,12 +200,12 @@ plotPosteriorPredictive = function( codaSamplesbias , codaSamplesrepBias, codaSa
       
       
       #Rep Bias
-      mcmcMat = as.matrix(codaSamplesrepBias,chains=TRUE)
+      mcmcMatR = as.matrix(codaSamplesrepBias,chains=TRUE)
       for ( chnIdx in chainSub ) {
-        m = mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+        m = mcmcMatR[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
         +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
-        s = mcmcMat[chnIdx,"biasSpread"] # spread
-        nu = mcmcMat[chnIdx,"nuY"]# normality
+        s = mcmcMatR[chnIdx,"biasSpread"] # spread
+        nu = mcmcMatR[chnIdx,"nuY"]# normality
         
         
         tlim = qt( c(0.025,0.975) , df=nu )
@@ -241,8 +241,8 @@ plotPosteriorPredictiveV02 = function( codaSamplesbias , codaSamplesrepBias, cod
   chainLength = NROW( mcmcMat )
   #pollsterName="pollster"
   yearName="year"
-  demBias = datFrm[,"repBias"]
-  repBias = datFrm[,"demBias"]
+  demBias = datFrm[,"demBias"]
+  repBias = datFrm[,"repBias"]
   bias = datFrm[,biasName]
   pollster = as.numeric(as.factor(datFrm[,pollsterName]))
   PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
