@@ -150,7 +150,7 @@ plotPosteriorPredictive = function( codaSamplesbias , codaSamplesrepBias, codaSa
       
       
       
-      chainSub = round(seq(1,chainLength,length=20))
+      chainSub = round(seq(1,chainLength,length=10))
       
       
       #Marginal Bias
