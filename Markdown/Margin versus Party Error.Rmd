@@ -259,7 +259,9 @@ PollsterSumm=read.csv("Simulations/PollsterSumm.csv")
 knitr::kable(PollsterSumm)
 ```
 
-Similar to year leans, while generally similar, the models for republican bias based on democratic bias vary by pollster.
+Similar to year leans, while generally similar, the models for republican bias based on democratic bias vary by pollster. You can see statistical evidence for a difference between the pollsters Quinnipiac University and Rasmussen Reports-Pulse Opinion Research with an established Region of Practical Equivalence of -1 to 1. The entire HDI for the difference between these two pollster falls above the ROPE, indicating that the hypothesis that there is no difference in the true parameter values of these two pollsters is not credible. A plot showing the differnce between the two pollsters is shown below:
+
+![](Figures/pollsterError-ANCOVA-RRp-POR.v.QnnpcUn.png)
 
 **Conclusion**
 

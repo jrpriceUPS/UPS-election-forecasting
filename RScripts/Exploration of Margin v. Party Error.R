@@ -266,10 +266,20 @@ for ( parName in parameterNames ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
+
+#contrasts
+contrasts = list( 
+  list( c("TCJRsrc") , c("YouGov") , compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("RRp-POR") , c("QnnpcUn") , 
+        compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("GrvsMrk") , c("SrvyUSA") , 
+        compVal=0.0 , ROPE=c(-1,1) ) 
+)
+
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , xNomName=xNomName , 
-                        xMetName=xMetName , #contrasts=contrasts , 
+                        xMetName=xMetName , contrasts=contrasts , 
                         saveName=fileNameRootSim )
 show(summaryInfo)
 
@@ -283,7 +293,7 @@ write.csv(PollsterSumm,"Simulations/PollsterSumm.csv")
 
 # Display posterior information:
 plotMCMC( mcmcCoda , datFrm=myDataFrame , yName=yName , xNomName=xNomName , 
-          xMetName=xMetName , #contrasts=contrasts , 
+          xMetName=xMetName , contrasts=contrasts , 
           saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
 
