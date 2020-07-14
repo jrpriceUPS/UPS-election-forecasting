@@ -38,7 +38,7 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
     bias = bias,
     repBias=repBias,
     pollster = pollster ,
-    undecided=undediced,
+    undecided=undecided,
     undecidedMean=undecidedMean,
     undecidedSD=undecidedSD,
     year = year ,
@@ -59,16 +59,19 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   
     #Bottom Level (individual poll rep bias):
     for (poll in 1:PollsTotal){
-    repBias ~ dnorm((a*bias[poll] + b*undecided[poll]), 1/repBiasSpread^2)
-    repBiasSpread ~ dunif( repSD/100 , repSD*10 )
-    
-      bias[poll] ~ dt(mu[poll], 1/biasSpread^2, nuY )
-      mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
+    repBias ~ dnorm((beta0+beta1*bias[poll] + beta2*undecided[poll]), 1/repBiasSpread^2)
+    bias[poll] <- dt(mu[poll] , (1/biasSpread^2) , nuY )
+    mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
     }
     nuY ~  dexp(1/30.0) 
+    repBiasSpread ~ dunif( repSD/100 , repSD*10 )
     biasSpread ~ dunif( biasSD/100 , biasSD*10 )
-  
-  
+    
+    beta0 ~ dnorm( 0 , 1/(10)^2 )
+    beta1  ~ dnorm( 0 , 1/(10)^2 )
+    beta2  ~ dnorm( 0 , 1/(10)^2 )
+
+   
     # Middle level of the hierarchy (year lean)
     for ( year in 1:YearLevelsTotal ) { yearLean[year] ~ dnorm( 0.0 , 1/yearSpread^2) }
     yearSpread ~ dunif( biasSD/100 , biasSD*10 )
@@ -81,6 +84,7 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
      }
      pollsterSpread ~ dunif( biasSD/100 , biasSD*10 )
   }
+  
   
   " # close quote for modelstring
   writeLines(modelstring,con="TEMPmodel.txt")
@@ -99,7 +103,6 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
                           model="TEMPmodel.txt" , 
                           monitor=parameters , 
                           data=dataList ,  
-                          #inits=initsList , 
                           n.chains=nChains ,
                           adapt=adaptSteps ,
                           burnin=burnInSteps , 
