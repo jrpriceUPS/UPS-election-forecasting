@@ -14,7 +14,7 @@ library(sjPlot)
 library(sjmisc)
 library(sjlabelled)
 
-#This Markdown Script calls "Exploration of Margin v. Party Error.r" and "ANOVA model just pollsters indirectly by calling their saved csv files. 
+#This Markdown Script calls "Exploration of Margin v. Party Error.r" and "ANOVA model just pollsters" indirectly by calling their saved csv files. 
 ```
 
 
@@ -235,7 +235,26 @@ Interestingly enough, none of the coefficient modes (y-intercept or slope) fall 
  *(y-intercept HDI: -3.28 to -2.94)
  *(slope HDI: -.595 to .495)
  
-This suggests that the relationship between republican error and democratic error varies from year to year. 
+This suggests that the relationship between republican error and democratic error varies from year to year. Futher supporting this theory, we can take a look at the difference between intercept parameter values between years 2012 and 2016:
+
+![](Figures/yearLean-partyBias-ANCOVA-2012.v.2016.png)
+
+Since the entire ROPE (-1% to 1%) falls outside the region of practical equivalence, it is not credible to believe there is no difference between the y-intercepts in these two years.
+
+This is not true for all years however. In stark contrast, we can accept that there is no practical difference between y-intercepts between the years 2004 and 2008 because the Region of Practical Equivalence completely contains the 95% HDI. You can see the differences plotted below:
+
+![](Figures/yearLean-partyBias-ANCOVA-2004.v.2008.png)
+
+Similar relationships emerge when you take a look at the difference between slopes. The established HDI for slopes between years is -.1 to 1. 
+
+The plots showing differences between 2004 and 2008 are shown below. For this relationship, because the HDI and ROPE overlap, without the ROPE completely containing the HDI, we don't have sufficent evidence to yield a decision to accept or reject whether there is a difference.
+
+![](Figures/yearLean-partyBias-ANCOVA-slopecontrast2004.v.2008.png)
+
+For 2012 versus 2016 slope coefficients, however, we can make a decision. Since the HDI entirely excludes the ROPE,  it is not credible to believe there is no difference between the slopes in these two years.
+
+![](Figures/yearLean-partyBias-ANCOVA-slopecontrast2012.v.2016.png)
+
 
 **Bayesian Modeling - Pollster Error**
 
@@ -259,7 +278,7 @@ PollsterSumm=read.csv("Simulations/PollsterSumm.csv")
 knitr::kable(PollsterSumm)
 ```
 
-Similar to year leans, while generally similar, the models for republican bias based on democratic bias vary by pollster. You can see statistical evidence for a difference between the pollsters Quinnipiac University and Rasmussen Reports-Pulse Opinion Research with an established Region of Practical Equivalence of -1 to 1. The entire HDI for the difference between these two pollster falls above the ROPE, indicating that the hypothesis that there is no difference in the true parameter values of these two pollsters is not credible. A plot showing the differnce between the two pollsters is shown below:
+Similar to year leans, while generally similar, the models for republican bias based on democratic bias vary by pollster. You can see statistical evidence for a difference between the pollsters Quinnipiac University and Rasmussen Reports-Pulse Opinion Research slope values with an established Region of Practical Equivalence of -1 to 1. The entire HDI for the difference between these two pollster falls above the ROPE, indicating that the hypothesis that there is no difference in the true parameter values of these two pollsters is not credible. A plot showing the differnce between the two pollsters is shown below:
 
 ![](Figures/pollsterError-ANCOVA-RRp-POR.v.QnnpcUn.png)
 

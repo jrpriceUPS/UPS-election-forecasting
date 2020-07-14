@@ -238,15 +238,18 @@ myDataFrame= myData
 # Specify the column names in the data file relevant to the analysis:
 yName="repBias" 
 xNomName="year" 
-xNomName="pollster"
+#xNomName="pollster"
 xMetName="demBias"             # the covariate
 # Specify desired contrasts of slopes.
 
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
 # out of function calls.
-fileNameRoot = "Markdown/Figures/pollsterError-ANCOVA-" 
-fileNameRootSim = "Simulations/pollsterError-ANCOVA-" 
+
+fileNameRoot="Markdown/Figures/yearLean-partyBias-ANCOVA-slopecontrast"
+fileNameRootSim="Simulations/yearLean-partyBias-ANCOVA-slopecontrast"
+#fileNameRoot = "Markdown/Figures/pollsterError-ANCOVA-" 
+#fileNameRootSim = "Simulations/pollsterError-ANCOVA-" 
 graphFileType = "png" 
 
 #------------------------------------------------------------------------------- 
@@ -258,6 +261,8 @@ source("RScripts/ANCOVA covariate.R")
 mcmcCoda = genMCMC( datFrm=myDataFrame , 
                     yName=yName , xNomName=xNomName , xMetName=xMetName ,
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
+#mcmcCodaPollsters=mcmcCoda
+mcmcCodaYears=mcmcCoda
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
@@ -276,6 +281,16 @@ contrasts = list(
         compVal=0.0 , ROPE=c(-1,1) ) 
 )
 
+
+#year Contrasts
+contrasts = list( 
+  list( c("2000") , c("2004") , compVal=0.0 , ROPE=c(-1,1) ) ,
+  list( c("2004") , c("2008") , 
+        compVal=0.0 , ROPE=c(-.1,.1) ) ,
+  list( c("2012") , c("2016") , 
+        compVal=0.0 , ROPE=c(-.1,.1) ) 
+)
+
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , xNomName=xNomName , 
@@ -287,9 +302,9 @@ PollsterSumm=summaryInfo[1:34,1:7]
 
 write.csv(PollsterSumm,"Simulations/PollsterSumm.csv")
 
-# YearLeanSumm=summaryInfo[1:10,1:7]
+YearLeanSumm=summaryInfo[1:10,1:7]
 # 
-# write.csv(YearLeanSumm,"Simulations/YearLeanSumm.csv")
+write.csv(YearLeanSumm,"Simulations/YearLeanSumm.csv")
 
 # Display posterior information:
 plotMCMC( mcmcCoda , datFrm=myDataFrame , yName=yName , xNomName=xNomName , 

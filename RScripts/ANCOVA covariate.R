@@ -260,7 +260,7 @@ plotMCMC = function( codaSamples , datFrm , yName , xNomName , xMetName ,
         }
         right = normalize(right)
         contrastCoef = matrix( left-right , ncol=1 )
-        postContrast = ( mcmcMat[,paste("aMet[",1:length(xNomlevels),"]",sep="")] 
+        postContrast = ( mcmcMat[,paste("a[",1:length(xNomlevels),"]",sep="")] 
                          %*% contrastCoef )
         openGraph(height=8,width=4)
         layout(matrix(1:2,ncol=1))
