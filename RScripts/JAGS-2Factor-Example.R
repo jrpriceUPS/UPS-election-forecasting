@@ -88,7 +88,7 @@
 #Version 3
 
 graphics.off() # This closes all of R's graphics windows.
-rm(list=ls())  # Clear all of R's memory!
+#rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
 mydata=read.csv("Data/raw-polls_538_cleaned.csv")
