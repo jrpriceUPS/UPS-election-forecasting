@@ -38,7 +38,7 @@ fileNameRoot = "Markdown/Figures/Jags-PartyErrorPredictorPractice-"
 fileNameRootSim= "Simulations/Jags-PartyErrorPredictorPractice-" 
 graphFileType = "png"
 # Generate the MCMC chain:
-mcmcCodaPE = genMCMC( datFrm=myDataFrame , biasName = "demBias" , pollsterName = "pollster" , yearName = "year", undecidedName = "undecided",
+mcmcCodaPE = genMCMC( datFrm=myDataFrame , dembiasName = "demBias" , pollsterName = "pollster" , yearName = "year", undecidedName = "undecided",
                        numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 
 

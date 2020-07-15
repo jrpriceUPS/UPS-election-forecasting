@@ -5,7 +5,7 @@
 source("DBDA2E-utilities.R")
 
 #===============================================================================
-genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , yearName = "year",
+genMCMC = function( datFrm , dembiasName = "demBias" , pollsterName = "pollster" , yearName = "year",
                     repBiasName="repBias", undecidedName="undecided",
                     numSavedSteps=50000 , thinSteps=1 , saveName=NULL ,
                     runjagsMethod=runjagsMethodDefault , 
@@ -14,20 +14,20 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   # THE DATA.
   # Convert data file columns to generic x,y variable names for model:
   undecided = as.numeric(datFrm[,undecidedName])
-  bias = as.numeric(datFrm[,biasName])
+  dembias = as.numeric(datFrm[,dembiasName])
   repBias = as.numeric(datFrm[,repBiasName])
   pollster = as.numeric(as.factor(datFrm[,pollsterName]))
   PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
   year = as.numeric(as.factor(datFrm[,yearName]))
   YearLevels = levels(as.factor(datFrm[,yearName]))
-  PollsTotal = length(bias)
+  PollsTotal = length(dembias)
   PollsterLevelsTotal = length(unique(pollster))
   YearLevelsTotal = length(unique(year))
   # Compute scale properties of data, for passing into prior to make the prior
   # vague on the scale of the data. 
   # For prior on baseline, etc.:
-  biasMean = mean(bias)
-  biasSD = sd(bias)
+  dembiasMean = mean(dembias)
+  dembiasSD = sd(dembias)
   repMean = mean(repBias)
   repSD = sd(repBias)
   undecidedMean=mean(undecided)
@@ -35,7 +35,7 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   
   # Specify the data in a list for sending to JAGS:
   dataList = list(
-    bias = bias,
+    dembias = dembias,
     repBias=repBias,
     pollster = pollster ,
     undecided=undecided,
@@ -48,8 +48,8 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
     # data properties for scaling the prior:
     repMean = repMean,
     repSD = repSD,
-    biasMean = biasMean ,
-    biasSD = biasSD
+    dembiasMean = dembiasMean ,
+    dembiasSD = dembiasSD
   )
 
   #------------------------------------------------------------------------------
@@ -59,30 +59,30 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   
     #Bottom Level (individual poll rep bias):
     for (poll in 1:PollsTotal){
-    repBias[poll] ~ dnorm((beta0+beta1*bias[poll] + beta2*undecided[poll]), 1/repBiasSpread^2)
-    bias[poll] ~ dt(mu[poll] , (1/biasSpread^2) , nuY )
+    repBias[poll] ~ dnorm((repBaselineBias+repResponsetoDemBias*dembias[poll] + UndecidedResponse*undecided[poll]), 1/repBiasSpread^2)
+    dembias[poll] ~ dt(mu[poll] , (1/dembiasSpread^2) , nuY )
     mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
     }
     nuY ~  dexp(1/30.0) 
     repBiasSpread ~ dunif( repSD/100 , repSD*10 )
-    biasSpread ~ dunif( biasSD/100 , biasSD*10 )
+    dembiasSpread ~ dunif( dembiasSD/100 , dembiasSD*10 )
     
-    beta0 ~ dnorm( 0 , 1/(10)^2 )
-    beta1  ~ dnorm( 0 , 1/(10)^2 )
-    beta2  ~ dnorm( 0 , 1/(10)^2 )
+    repBaselineBias ~ dnorm( 0 , 1/(10)^2 )
+    repResponsetoDemBias  ~ dnorm( 0 , 1/(10)^2 )
+    UndecidedResponse  ~ dnorm( 0 , 1/(10)^2 )
 
    
     # Middle level of the hierarchy (year lean)
     for ( year in 1:YearLevelsTotal ) { yearLean[year] ~ dnorm( 0.0 , 1/yearSpread^2) }
-    yearSpread ~ dunif( biasSD/100 , biasSD*10 )
+    yearSpread ~ dunif( dembiasSD/100 , dembiasSD*10 )
     
-    # Middle level of the hierarchy (pollster bias with year)
+    # Middle level of the hierarchy (pollster dem bias with year)
      for ( pollster in 1:PollsterLevelsTotal ) { for ( year in 1:YearLevelsTotal ) { 
      pollsterBias[pollster,year] ~ dnorm(0.0 , 1/pollsterSpread^2) }
      
     
      }
-     pollsterSpread ~ dunif( biasSD/100 , biasSD*10 )
+     pollsterSpread ~ dunif( dembiasSD/100 , dembiasSD*10 )
   }
   
   
@@ -96,7 +96,7 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   require(rjags)
-  parameters = c( "beta0", "beta1", "beta2","repBiasSpread","biasSpread" ,
+  parameters = c( "repBaselineBias", "repResponsetoDemBias", "UndecidedResponse","repBiasSpread","dembiasSpread" ,
                   "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
   adaptSteps = 500 
   burnInSteps = 1000 
@@ -121,7 +121,7 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
 }
 #===============================================================================
 
-smryMCMC = function(  codaSamples , datFrm=NULL , biasName = "demBias" , pollsterName = "pollster" , yearName = "year",
+smryMCMC = function(  codaSamples , datFrm=NULL , dembiasName = "demBias" , pollsterName = "pollster" , yearName = "year",
                        undecidedName="undecided",
                       contrasts=NULL , saveName=NULL ) {
   # All single parameters:
@@ -159,21 +159,21 @@ smryMCMC = function(  codaSamples , datFrm=NULL , biasName = "demBias" , pollste
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
   summaryInfo = rbind( summaryInfo , 
-                       "beta0" = summarizePost( mcmcMat[,"beta0"] 
-                                                #, compVal=compValBeta0 , 
-                                                #ROPE=ropeBeta0 
+                       "repBaselineBias" = summarizePost( mcmcMat[,"repBaselineBias"] 
+                                                #, compVal=compValrepBaselineBias , 
+                                                #ROPE=roperepBaselineBias 
                                                 ) )
   summaryInfo = rbind( summaryInfo , 
-                       "beta1" = summarizePost( mcmcMat[,"beta1"]  
+                       "repResponsetoDemBias" = summarizePost( mcmcMat[,"repResponsetoDemBias"]  
                                                 
-                                              #,compVal=compValBeta1 , 
-                                                #ROPE=ropeBeta1 
+                                              #,compVal=compValrepResponsetoDemBias , 
+                                                #ROPE=roperepResponsetoDemBias 
                                               ) )
  
   summaryInfo = rbind( summaryInfo , 
-                       "beta2" = summarizePost( mcmcMat[,"beta2"] 
-                                               # ,compVal=compValBeta1 , 
-                                                #ROPE=ropeBeta1 
+                       "UndecidedResponse" = summarizePost( mcmcMat[,"UndecidedResponse"] 
+                                               # ,compVal=compValrepResponsetoDemBias , 
+                                                #ROPE=roperepResponsetoDemBias 
                                                ) )
   
   # Save results:
@@ -186,7 +186,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , biasName = "demBias" , pollste
 #===============================================================================
 
 plotDiagnostics= function( ){
-  for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[1,1]"  ) ) {
+  for ( parName in c("dembiasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[1,1]"  ) ) {
     diagMCMC( codaObject=mcmcCodaV03 , parName=parName , 
               saveName=fileNameRoot , saveType=graphFileType )
   }
