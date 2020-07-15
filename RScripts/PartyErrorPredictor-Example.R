@@ -42,7 +42,17 @@ mcmcCodaPE = genMCMC( datFrm=myDataFrame , biasName = "demBias" , pollsterName =
                        numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 
 
-parameterNames = varnames(mcmcCodaV03) 
+parameterNames = varnames(mcmcCodaPE) 
 show( parameterNames ) # show all parameter names, for reference
 
 plotDiagnostics()
+
+
+#------------------------------------------------------------------------------- 
+# Get summary statistics of chain:
+summaryInfo = smryMCMC( mcmcCodaPE , 
+                        datFrm=myDataFrame ,
+                        saveName=fileNameRootSim , )
+show(summaryInfo)
+#------------------------------------------------------------------------------- 
+
