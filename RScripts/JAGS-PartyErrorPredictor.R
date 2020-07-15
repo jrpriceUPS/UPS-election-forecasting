@@ -59,8 +59,8 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   
     #Bottom Level (individual poll rep bias):
     for (poll in 1:PollsTotal){
-    repBias ~ dnorm((beta0+beta1*bias[poll] + beta2*undecided[poll]), 1/repBiasSpread^2)
-    bias[poll] <- dt(mu[poll] , (1/biasSpread^2) , nuY )
+    repBias[poll] ~ dnorm((beta0+beta1*bias[poll] + beta2*undecided[poll]), 1/repBiasSpread^2)
+    bias[poll] ~ dt(mu[poll] , (1/biasSpread^2) , nuY )
     mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
     }
     nuY ~  dexp(1/30.0) 
