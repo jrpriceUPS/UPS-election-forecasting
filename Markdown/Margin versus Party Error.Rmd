@@ -1,5 +1,5 @@
 ---
-title: "Margin Versus Party Error"
+title: "Margin of Bias Versus Party Error"
 author: "Haley Reed"
 date: "7/3/2020"
 output: html_document
@@ -24,7 +24,7 @@ In looking at past polls and elections, the "bias" of a poll is defined around t
 
 What is the relationship between that "bias" and the actual number of percentage points a particular poll is off in judging candidates in a vacuum? 
 
-What is the relationship between Republican Error, Democratic error, and traditional bias with the following definitions?
+What is the relationship between Republican error, Democratic error, and traditional bias with the following definitions?
 
 $$DemocraticError = DemocraticCanditatePollingPercent-DemocraticActualPercentage$$
 
@@ -65,7 +65,7 @@ corrval=cor(myDataFrame$repBias, myDataFrame$demBias)
 corrval1=cor(myDataFrame$demBias, myDataFrame$bias)
 corrval2=cor(myDataFrame$repBias, myDataFrame$bias)
 
-plot(myDataFrame$demBias, myDataFrame$bias, xlab="Democratic Error", ylab="Marginal Bias",main="Maginal Bias Plotted Dependent on Party Error")
+plot(myDataFrame$demBias, myDataFrame$bias, xlab="Democratic Error", ylab="Margin of Bias Bias",main="Magin of Bias Plotted Dependent on Party Error")
 bestfit2=lm(myDataFrame$bias~myDataFrame$demBias)
 abline(bestfit2)
 
@@ -92,9 +92,9 @@ htmltools::includeHTML("Simulations/output.html")
 
 With a correlation value of `r corrval` between Democratic error and Republican error, we can see that the two are moderately correlated.
 
-However, there is a higher correlation between party errors and bias measured in the traditional marginal sense is stronger. The correlation between democratic error and bias is `r corrval1`. And the correlation between republican error and bias is `r corrval2`. 
+However, there is a higher correlation between party errors and margin of bias is stronger. The correlation between democratic error and bias is `r corrval1`. And the correlation between republican error and bias is `r corrval2`. 
 
-A great deal of the values for party error are negative because of the number of undecided voters polled. What is the impact of undecided voters for party error and marginal bias? We can explore these relationships with the plots below. 
+A great deal of the values for party error are negative because of the number of undecided voters polled. What is the impact of undecided voters for party error and margin of bias? We can explore these relationships with the plots below. 
 
 ```{r, Undecided Voter Relationships}
 # Find out how many undecided voters there are in each poll
@@ -112,7 +112,7 @@ abline(demUndecidedRelationship)
 plot(myDataFrame$Undecided,myDataFrame$repBias,xlab="Percent of Undecided Voters", ylab="Republican Error")
 abline(repUndecidedRelationship)
 #stronger relationship between Republican bias and Undecided voters
-plot(myDataFrame$Undecided,myDataFrame$bias,xlab="Percent of Undecided Voters", ylab="Marginal Bias")
+plot(myDataFrame$Undecided,myDataFrame$bias,xlab="Percent of Undecided Voters", ylab="Margin of  Bias")
 marginUndecidedRelationship = lm( bias ~ Undecided, data=myDataFrame)
 
 abline(marginUndecidedRelationship)
@@ -120,7 +120,7 @@ abline(marginUndecidedRelationship)
 ```
 
 
-The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Marginal Bias as the response variables with percent of undecided voters in any poll acting as the explanatory variable. The coefficients and R squared values for each  model can be seen in the table below:
+The lines of best fit plotted above are given by simple linear models with Republican Error, Democratic Error, and Margin of Bias as the response variables with percent of undecided voters in any poll acting as the explanatory variable. The coefficients and R squared values for each  model can be seen in the table below:
 
 ```{r}
 tab_model(repUndecidedRelationship,demUndecidedRelationship,marginUndecidedRelationship)
@@ -133,7 +133,7 @@ From this table, we can see that in general, there is a stronger relationship be
 
 * The entire republican error confidence interval for the slope coefficient (-.40 to -.34) is less than the entire democratic error confidence interval for the slope coefficient (-19 to. -.12). Meaning that as the percent of undecided voters increases, the polls will underestimate the Republican candidate's vote share more dramatically than they will underestimate the Democratic candidate's vote share. 
 
-* The entire confidence interval for marginal bias is above 0 (.16 to .27), meaning as the percent of undecided voters increase, the marginal bias will increase its tendency to overestimate the Democratic party's candidate. 
+* The entire confidence interval for margin of  bias is above 0 (.16 to .27), meaning as the percent of undecided voters increase, the margin of bias will increase its tendency to overestimate the Democratic party's candidate. 
 
 <br>
 
@@ -165,9 +165,9 @@ There are a couple key takeaways here:
 * The entire highest density interval for the y-intercept is below zero. Contextually, meaning that when there is no democratic bias, we would expect polls to underestimate pollsters between 2.94% and 3.28%. 
 
 
-**Bayesian Modeling - Democratic Error and Marginal Bias**
+**Bayesian Modeling - Democratic Error and Margin of Bias**
 
-We can do similar exploration between democratic error and marginal bias. 
+We can do similar exploration between democratic error and margin of bias. 
 
 The diagnostic plots also look good here, take a look at the slope diagnostic visuals for example:
 
@@ -184,7 +184,7 @@ And the posterior distributions of the parameters (as modeled with a t-distribut
 
 ![](Figures/DoubleOneMetric-ErrorandBias-Jags-MarginPostMarg.png)
 
-As we would expect, as the democratic error increases, so does the measure of the marginal democratic bias in polling. However, the marginal bias grows quicker than democratic error. The highest density interval estimates that for every 1% increase in democratic error, an increase in 1.5% to 1.59% in marginal bias should be expected. 
+As we would expect, as the democratic error increases, so does the measure of the margin of democratic bias in polling. However, the margin of bias grows quicker than democratic error. The highest density interval estimates that for every 1% increase in democratic error, an increase in 1.5% to 1.59% in margin of bias should be expected. 
 
 
 **Bayesian Modeling - Republican Error and Undecided Voters**
@@ -286,7 +286,7 @@ Similar to year leans, while generally similar, the models for republican bias b
 
 The relationships between Republican Error, Democratic error, and traditional bias are not as simple as we might initially think. 
 
-The relationship between the two party errors appears to be moderate, while the relationship between either party error and marginal bias is stronger.
+The relationship between the two party errors appears to be moderate, while the relationship between either party error and margin of bias is stronger.
 
 What are some reasons for this?
 
