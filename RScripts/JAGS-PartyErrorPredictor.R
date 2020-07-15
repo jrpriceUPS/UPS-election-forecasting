@@ -96,7 +96,8 @@ genMCMC = function( datFrm , biasName = "demBias" , pollsterName = "pollster" , 
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   require(rjags)
-  parameters = c( "biasSpread" , "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
+  parameters = c( "beta0", "beta1", "beta2","repBiasSpread","biasSpread" ,
+                  "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -139,38 +140,41 @@ smryMCMC = function(  codaSamples , datFrm=NULL , biasName = "demBias" , pollste
       # parameter name is "b1b2[12,34]" then pull out b1b2, 12 and 34:
       strparts = unlist( strsplit( parName , "\\[|,|\\]"  ) )
       # if there are only the param name and a single index:
-      if ( length(strparts)==2 ) { 
+      if ( length(strparts)==2 ) {
         # if param name refers to factor 1:
-        if ( substr(strparts[1],nchar(strparts[1]),nchar(strparts[1]))=="1" ) { 
+        if ( substr(strparts[1],nchar(strparts[1]),nchar(strparts[1]))=="1" ) {
           thisRowName = paste( thisRowName , PollsterLevels[as.numeric(strparts[2])] )
         }
         # if param name refers to factor 2:
-        if ( substr(strparts[1],nchar(strparts[1]),nchar(strparts[1]))=="2" ) { 
+        if ( substr(strparts[1],nchar(strparts[1]),nchar(strparts[1]))=="2" ) {
           thisRowName = paste( thisRowName , YearLevels[as.numeric(strparts[2])] )
         }
       }
       # if there are the param name and two indices:
-      if ( length(strparts)==3 ) { 
-        thisRowName = paste( thisRowName , PollsterLevels[as.numeric(strparts[2])], 
+      if ( length(strparts)==3 ) {
+        thisRowName = paste( thisRowName , PollsterLevels[as.numeric(strparts[2])],
                              YearLevels[as.numeric(strparts[3])] )
       }
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
   summaryInfo = rbind( summaryInfo , 
-                       "beta0" = summarizePost( mcmcMat[,"beta0"] , 
-                                                #compVal=compValBeta0 , 
-                                                ROPE=ropeBeta0 ) )
+                       "beta0" = summarizePost( mcmcMat[,"beta0"] 
+                                                #, compVal=compValBeta0 , 
+                                                #ROPE=ropeBeta0 
+                                                ) )
   summaryInfo = rbind( summaryInfo , 
-                       "beta1" = summarizePost( mcmcMat[,"beta1"] , 
+                       "beta1" = summarizePost( mcmcMat[,"beta1"]  
                                                 
-                                              #compVal=compValBeta1 , 
-                                                ROPE=ropeBeta1 ) )
+                                              #,compVal=compValBeta1 , 
+                                                #ROPE=ropeBeta1 
+                                              ) )
  
   summaryInfo = rbind( summaryInfo , 
-                       "beta2" = summarizePost( mcmcMat[,"beta2"] , 
-                                               # compVal=compValBeta1 , 
-                                                ROPE=ropeBeta1 ) )
+                       "beta2" = summarizePost( mcmcMat[,"beta2"] 
+                                               # ,compVal=compValBeta1 , 
+                                                #ROPE=ropeBeta1 
+                                               ) )
   
   # Save results:
   if ( !is.null(saveName) ) {

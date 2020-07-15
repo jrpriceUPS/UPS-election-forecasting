@@ -52,7 +52,7 @@ plotDiagnostics()
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( mcmcCodaPE , 
                         datFrm=myDataFrame ,
-                        saveName=fileNameRootSim , )
+                        saveName=fileNameRootSim  )
 show(summaryInfo)
 #------------------------------------------------------------------------------- 
 
