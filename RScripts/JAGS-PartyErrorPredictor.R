@@ -59,7 +59,7 @@ genMCMC = function( datFrm , dembiasName = "demBias" , pollsterName = "pollster"
   
     #Bottom Level (individual poll rep bias):
     for (poll in 1:PollsTotal){
-    repBias[poll] ~ dnorm((repBaselineBias+repResponsetoDemBias*dembias[poll] + UndecidedResponse*undecided[poll]), 1/repBiasSpread^2)
+    repBias[poll] ~ dnorm((repResponsetoDemBias*dembias[poll] + UndecidedResponse*undecided[poll]), 1/repBiasSpread^2)
     dembias[poll] ~ dt(mu[poll] , (1/dembiasSpread^2) , nuY )
     mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
     }
@@ -67,7 +67,7 @@ genMCMC = function( datFrm , dembiasName = "demBias" , pollsterName = "pollster"
     repBiasSpread ~ dunif( repSD/100 , repSD*10 )
     dembiasSpread ~ dunif( dembiasSD/100 , dembiasSD*10 )
     
-    repBaselineBias ~ dnorm( 0 , 1/(10)^2 )
+    
     repResponsetoDemBias  ~ dnorm( 0 , 1/(10)^2 )
     UndecidedResponse  ~ dnorm( 0 , 1/(10)^2 )
 
@@ -96,7 +96,7 @@ genMCMC = function( datFrm , dembiasName = "demBias" , pollsterName = "pollster"
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   require(rjags)
-  parameters = c( "repBaselineBias", "repResponsetoDemBias", "UndecidedResponse","repBiasSpread","dembiasSpread" ,
+  parameters = c(  "repResponsetoDemBias", "UndecidedResponse","repBiasSpread","dembiasSpread" ,
                   "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
   adaptSteps = 500 
   burnInSteps = 1000 
@@ -158,11 +158,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , dembiasName = "demBias" , poll
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
-  summaryInfo = rbind( summaryInfo , 
-                       "repBaselineBias" = summarizePost( mcmcMat[,"repBaselineBias"] 
-                                                #, compVal=compValrepBaselineBias , 
-                                                #ROPE=roperepBaselineBias 
-                                                ) )
+    
   summaryInfo = rbind( summaryInfo , 
                        "repResponsetoDemBias" = summarizePost( mcmcMat[,"repResponsetoDemBias"]  
                                                 
