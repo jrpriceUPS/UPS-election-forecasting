@@ -188,3 +188,179 @@ plotDiagnostics= function( ){
   }
 }
 #===============================================================================
+
+#===============================================================================
+
+plotPosteriorPredictive = function( codaSamples , 
+                                    datFrm , dembiasName=NULL , 
+                                    saveName=NULL , saveType="jpg",
+                                    showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  dembiasName = "demBias" 
+  pollsterName = "pollster" 
+  repBiasName="repBias"
+  yearName = "year"
+  undecidedName="undecided"
+  demBias = datFrm[,dembiasName]
+  repBias= datFrm[,repBiasName]
+  pollster = as.numeric(as.factor(datFrm[,pollsterName]))
+  PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
+  year = as.numeric(as.factor(datFrm[,yearName]))
+  YearLevels = levels(as.factor(datFrm[,yearName]))
+  # Display data with posterior predictive distributions
+  for ( Yearidx in 1:length(YearLevels) ) {
+    openGraph(width=2*length(PollsterLevels),height=5)
+    par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+    plot(-10,-10,
+         xlim=c(0.2,length(PollsterLevels)+0.1) ,
+         xlab=paste(pollsterName,yearName,sep="\n") ,
+         xaxt="n" , ylab=dembiasName ,
+         ylim=c(min(demBias)-0.2*(max(demBias)-min(demBias)),max(demBias)+0.2*(max(demBias)-min(demBias))) ,
+         main="Data with Post. Pred.")
+    axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
+          lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
+    for ( Pollsteridx in 1:length(PollsterLevels) ) {
+      xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
+      yVals = demBias[ pollster==Pollsteridx & year==Yearidx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="red" )
+      chainSub = round(seq(1,chainLength,length=20))
+      for ( chnIdx in chainSub ) {
+        m = mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+        +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
+        s = mcmcMat[chnIdx,"dembiasSpread"] # spread
+        nu = mcmcMat[chnIdx,"nuY"]# normality
+        
+        
+        tlim = qt( c(0.025,0.975) , df=nu )
+        yl = m+tlim[1]*s
+        yh = m+tlim[2]*s
+        ycomb=seq(yl,yh,length=201)
+        #ynorm = dnorm(ycomb,mean=m,sd=s)
+        #ynorm = 0.67*ynorm/max(ynorm)
+        yt = dt( (ycomb-m)/s , df=nu )
+        yt = 0.67*yt/max(yt)
+        lines( xPlotVal-yt , ycomb , col="skyblue" )
+        
+        
+        
+      }
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostPred-Dem-",YearLevels[Yearidx]), type=saveType)
+    }
+  }# end for Yearidx
+  
+  
+  
+  for ( Yearidx in 1:length(YearLevels) ) {
+    openGraph(width=2*length(PollsterLevels),height=5)
+    par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+    plot(-10,-10,
+         xlim=c(0.2,length(PollsterLevels)+0.1) ,
+         xlab=paste(pollsterName,yearName,sep="\n") ,
+         xaxt="n" , ylab=repBiasName ,
+         ylim=c(min(repBias)-0.2*(max(repBias)-min(repBias)),max(repBias)+0.2*(max(repBias)-min(repBias))) ,
+         main="Data with Post. Pred.")
+    axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
+          lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
+    for ( Pollsteridx in 1:length(PollsterLevels) ) {
+      xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
+      yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="red" )
+      chainSub = round(seq(1,chainLength,length=20))
+      for ( chnIdx in chainSub ) {
+        m = mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+        +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
+        s = mcmcMat[chnIdx,"repBiasSpread"] # spread
+        nu = mcmcMat[chnIdx,"nuY"]# normality
+        
+        
+        tlim = qt( c(0.025,0.975) , df=nu )
+        yl = m+tlim[1]*s
+        yh = m+tlim[2]*s
+        ycomb=seq(yl,yh,length=201)
+        #ynorm = dnorm(ycomb,mean=m,sd=s)
+        #ynorm = 0.67*ynorm/max(ynorm)
+        yt = dt( (ycomb-m)/s , df=nu )
+        yt = 0.67*yt/max(yt)
+        lines( xPlotVal-yt , ycomb , col="skyblue" )
+        
+        
+        
+      }
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostPred-Rep-",YearLevels[Yearidx]), type=saveType)
+    }
+  
+}
+}
+
+
+#===============================================================================  
+
+plotYearPosterior = function( codaSamples , 
+                              datFrm , dembiasName=NULL , 
+                              saveName=NULL , saveType="jpg",
+                              showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  pollsterName="pollster"
+  yearName="year"
+  demBias = datFrm[,dembiasName]
+  pollster = as.numeric(as.factor(datFrm[,pollsterName]))
+  PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
+  year = as.numeric(as.factor(datFrm[,yearName]))
+  YearLevels = levels(as.factor(datFrm[,yearName]))
+  #plot each year
+  for ( Yearidx in 1:length(YearLevels) ) {
+    openGraph(width=8,height=8)
+    
+    # posterior of the mean for that pollster
+    histInfo = plotPost( mcmcMat[,paste("yearLean[",Yearidx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+                         #compVal=compValMu , ROPE=ropeMu ,
+                         xlab=YearLevels[Yearidx] , main=paste("Mean") ,
+                         col="skyblue" )
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"YearLean-",YearLevels[Yearidx]), type=saveType)
+    }
+  }
+  
+}
+#===============================================================================
+plotPollsterPosterior = function( codaSamples , 
+                                  datFrm , biasName=NULL ,
+                                  saveName=NULL , saveType="jpg",
+                                  showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  pollsterName="pollster"
+  yearName="year"
+  bias = datFrm[,biasName]
+  pollster = as.numeric(as.factor(datFrm[,pollsterName]))
+  PollsterLevels = levels(as.factor(datFrm[,pollsterName]))
+  year = as.numeric(as.factor(datFrm[,yearName]))
+  YearLevels = levels(as.factor(datFrm[,yearName]))
+  #layout(matrix(1:ceiling(length(YearLevels)/4)*4,nrow=4))
+  #plot each pollster
+  for (Pollsteridx in 1:length(PollsterLevels)) { 
+    for (Yearidx in 1:length(YearLevels) )     {
+      
+      openGraph(width=8,height=8)
+      
+      # posterior of the mean for that pollster
+      
+      histInfo = plotPost(mcmcMat[,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+                          #compVal=compValMu , ROPE=ropeMu ,
+                          xlab= PollsterLevels[Pollsteridx]  , main= YearLevels[Yearidx]  ,
+                          col="skyblue" )
+      if ( !is.null(saveName) ) {
+        saveGraph( file=paste0(saveName,"PollsterBias-",PollsterLevels[Pollsteridx],YearLevels[Yearidx]), type=saveType)
+      }
+    }
+  }
+}
+

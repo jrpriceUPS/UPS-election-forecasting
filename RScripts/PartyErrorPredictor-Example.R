@@ -55,4 +55,7 @@ summaryInfo = smryMCMC( mcmcCodaPE ,
                         saveName=fileNameRootSim  )
 show(summaryInfo)
 #------------------------------------------------------------------------------- 
-
+#Get some plotting done
+plotPosteriorPredictive( mcmcCodaPE, 
+                         datFrm=myDataFrame , dembiasName="demBias" ,
+                         saveName=fileNameRoot , saveType=graphFileType )
