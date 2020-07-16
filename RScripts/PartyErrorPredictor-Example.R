@@ -1,6 +1,7 @@
 #example/practice script for "JAGS-PartyErrorPredictor.R"
 
 
+
 graphics.off() # This closes all of R's graphics windows.
 #rm(list=ls())  # Clear all of R's memory!
 
@@ -9,8 +10,7 @@ mydata=read.csv("Data/raw-polls_538_cleaned.csv")
 
 
 #create empty data frame, while maintaining all columns from the mydata structure
-#Pick min. number of acceptable polls
-minPolls=30
+
 myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(mydata$pollster))
 {
@@ -18,16 +18,29 @@ for(myPollster in unique(mydata$pollster))
   #subset to a dataset with just each pollster
   subpoll=subset(mydata, pollster==myPollster)
   
-  #if that subset has more than thirty entries, use it:
-  if(nrow(subpoll)>minPolls){
-    #combine each of these subsets together
+  
+  #Add preferred pollsters
+  if(subpoll$pollster=="YouGov"){
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
+  if(subpoll$pollster=="RRp-POR"){
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
+  if(subpoll$pollster=="SrvyUSA"){
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
+  if(subpoll$pollster=="MrstCll"){
     myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
   }
 }
+
 myDataFrame = myDataMyPollsters
+
+myDataFrame$pollster = factor( myDataFrame$pollster)
+
 Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
 myDataFrame$undecided = Undecided
-myDataFrame$pollster = factor( myDataFrame$pollster)
+
 
 
 #------------------------------------------------------------------------------- 
@@ -59,3 +72,4 @@ show(summaryInfo)
 plotPosteriorPredictive( mcmcCodaPE, 
                          datFrm=myDataFrame , dembiasName="demBias" ,
                          saveName=fileNameRoot , saveType=graphFileType )
+plotMCMCrep( mcmcCodaPE, saveName=fileNameRoot , saveType=graphFileType )
