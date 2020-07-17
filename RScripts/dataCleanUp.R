@@ -140,13 +140,28 @@ for(myPoll in unique(mydata$poll_id))
 }
 myDataFrame = myDataMyPollsters
 myDataFrame$pollster = factor( myDataFrame$pollster)
+
+#add an undecided voter column
+Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
+myDataFrame$undecided = Undecided
 mydata = myDataFrame
-
-
-
 
 
 #Save the csv file.
 write.csv(mydata,'Data/raw-polls_538_cleaned.csv')
 
 
+#Make a version of the data that includes polls exclusively in the week prior to the election
+recentdata = mydata[0,]
+for(i in unique(mydata$daysuntil))
+  {
+    #subset to a dataset with just each day until
+    subpoll=subset(mydata, daysuntil==i)
+
+    #if that subset has more than thirty entries, use it:
+    if(i<8){
+      #combine each of these subsets together
+      recentdata=rbind(recentdata, subpoll)
+    }
+  }
+write.csv(recentdata,'Data/raw-polls_538_weekprior.csv')

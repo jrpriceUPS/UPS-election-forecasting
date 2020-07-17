@@ -251,9 +251,9 @@ plotPosteriorPredictiveDem = function( codaSamples ,
       saveGraph( file=paste0(saveName,"PostPred-Dem-",YearLevels[Yearidx]), type=saveType)
     }
   }# end for Yearidx
-  
-#   
-#   
+
+
+# 
 #   for ( Yearidx in 1:length(YearLevels) ) {
 #     openGraph(width=2*length(PollsterLevels),height=5)
 #     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
@@ -270,32 +270,34 @@ plotPosteriorPredictiveDem = function( codaSamples ,
 #       yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
 #       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
 #               yVals , pch=1 , cex=1.5 , col="red" )
-#       chainSub = round(seq(1,chainLength,length=20))
+#      
+#      # repBias[poll] ~ dnorm((repResponsetoDemBias*dembias[poll] + UndecidedResponse*undecided[poll]), 1/repBiasSpread^2)
+#       
+#        chainSub = round(seq(1,chainLength,length=20))
 #       for ( chnIdx in chainSub ) {
-#         m = mcmcMat[chnIdx,paste("repResponsetoDemBias")]*(mcmcMat[chnIdx,paste("pollsterBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+#         m = mcmcMat[chnIdx,paste("repResponsetoDemBias")]*(mcmcMat[chnIdx,paste("demBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
 #         +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")])  # year lean
 #         s = mcmcMat[chnIdx,"repBiasSpread"] # spread
-#         nu = mcmcMat[chnIdx,"nuY"]# normality
-#         
-#         
-#         tlim = qt( c(0.025,0.975) , df=nu )
-#         yl = m+tlim[1]*s
-#         yh = m+tlim[2]*s
+# 
+# 
+# 
+#         normlim = qnorm( c(0.025,0.975) )
+#         yl = m+normlim[1]*s
+#         yh = m+normlim[2]*s
 #         ycomb=seq(yl,yh,length=201)
-#         #ynorm = dnorm(ycomb,mean=m,sd=s)
-#         #ynorm = 0.67*ynorm/max(ynorm)
-#         yt = dt( (ycomb-m)/s , df=nu )
-#         yt = 0.67*yt/max(yt)
-#         lines( xPlotVal-yt , ycomb , col="skyblue" )
+#         ynorm = dnorm(ycomb,mean=m,sd=s)
+#         ynorm = 0.67*ynorm/max(ynorm)
 #         
-#         
-#         
+#         lines( xPlotVal-ynorm , ycomb , col="skyblue" )
+# 
+# 
+# 
 #       }
 #     }
 #     if ( !is.null(saveName) ) {
 #       saveGraph( file=paste0(saveName,"PostPred-Rep-",YearLevels[Yearidx]), type=saveType)
 #     }
-#   
+# 
 # }
 }
 
