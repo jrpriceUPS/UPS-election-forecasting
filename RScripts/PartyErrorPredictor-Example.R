@@ -38,8 +38,7 @@ myDataFrame = myDataMyPollsters
 
 myDataFrame$pollster = factor( myDataFrame$pollster)
 
-Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
-myDataFrame$undecided = Undecided
+
 
 
 

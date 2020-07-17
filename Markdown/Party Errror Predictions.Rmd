@@ -30,7 +30,7 @@ With that in mind, we will seek to ultimately build a Bayesian model. First let'
 
 ```{r, include=FALSE}
 mydata=read.csv("Data/raw-polls_538_cleaned.csv")
-minPolls=30
+minPolls=80
 myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(mydata$pollster))
 {
@@ -50,8 +50,7 @@ myDataFrame = myDataMyPollsters
 
 myDataFrame$pollster = factor( myDataFrame$pollster)
 myDataFrame$year = factor( myDataFrame$year)
-Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
-myDataFrame$undecided = Undecided
+
 
 
 
