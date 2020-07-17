@@ -44,17 +44,20 @@ myDataFrame$pollster = factor( myDataFrame$pollster)
 
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
-source("RScripts/JAGS-PartyErrorPredictor.R")
+#source("RScripts/JAGS-PartyErrorPredictor.R")
+source("RScripts/JAGS-PartyErrorPredictor-V02.R")
+fileNameRoot = "Markdown/Figures/Jags-PartyErrorPredictorPractice-V02" 
+fileNameRootSim= "Simulations/Jags-PartyErrorPredictorPractice-V02-YearrepResponsetoDemBias" 
 
-fileNameRoot = "Markdown/Figures/Jags-PartyErrorPredictorPractice-" 
-fileNameRootSim= "Simulations/Jags-PartyErrorPredictorPractice-" 
+# fileNameRoot = "Markdown/Figures/Jags-PartyErrorPredictorPractice-" 
+# fileNameRootSim= "Simulations/Jags-PartyErrorPredictorPractice-" 
 graphFileType = "png"
 # Generate the MCMC chain:
-mcmcCodaPE = genMCMC( datFrm=myDataFrame , dembiasName = "demBias" , pollsterName = "pollster" , yearName = "year", undecidedName = "undecided",
+mcmcCodaPE3 = genMCMC( datFrm=myDataFrame , dembiasName = "demBias" , pollsterName = "pollster" , yearName = "year", undecidedName = "undecided",
                        numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 
 
-parameterNames = varnames(mcmcCodaPE) 
+parameterNames = varnames(mcmcCodaPE3) 
 show( parameterNames ) # show all parameter names, for reference
 
 plotDiagnostics()
@@ -62,7 +65,7 @@ plotDiagnostics()
 
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( mcmcCodaPE , 
+summaryInfo = smryMCMC( mcmcCodaPE3 , 
                         datFrm=myDataFrame ,
                         saveName=fileNameRootSim  )
 show(summaryInfo)
