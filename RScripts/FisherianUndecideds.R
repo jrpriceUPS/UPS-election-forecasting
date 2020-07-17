@@ -16,7 +16,7 @@ for(myPollster in unique(mydata$pollster))
     myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
   }
 }
-myDataFrame = myDataMyPollsters
+
 
 myDataFrame = myDataMyPollsters
 
@@ -24,3 +24,14 @@ myDataFrame$pollster = factor( myDataFrame$pollster)
 
 Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
 myDataFrame$undecided = Undecided
+
+
+Model1 = lm(repBias ~ demBias*year + undecided, data=myDataFrame)
+summary(Model1)
+
+
+Model2 = lm(repBias ~ demBias*year + demBias*pollster + undecided, data=myDataFrame)
+summary(Model2)
+
+Model3 = lm(repBias ~ demBias*year*pollster + undecided, data=myDataFrame)
+summary(Model3)

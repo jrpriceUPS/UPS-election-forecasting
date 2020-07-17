@@ -1,0 +1,75 @@
+---
+title: "Party Error Predictions"
+author: "Haley Reed"
+date: "7/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
+knitr::opts_knit$set(root.dir = dirname(getwd()))
+
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+```
+
+## Introduction
+
+In looking at election forecasting models, we can seek to interpret party error. As defined by:
+
+$$DemocraticError = DemocraticCanditatePollingPercent-DemocraticActualPercentage$$
+
+$$RepublicanError = RepublicanCanditatePollingPercent-RepublicanActualPercentage$$
+
+How can we go about doing so? There are several variables but year, pollster, and the number of undecided voters being polled can certainly help predict the party error of a poll. Additionally, democratic error and rebulican error are correlated enough that we express either one as a function of another. See "Margin versus Party Error.Rmd" for development of these ideas.
+
+With that in mind, we will seek to ultimately build a Bayesian model. First let's explore with Fisherian models. 
+
+## Fisherian Models
+
+```{r, include=FALSE}
+mydata=read.csv("Data/raw-polls_538_cleaned.csv")
+minPolls=30
+myDataMyPollsters=  mydata[0,]
+for(myPollster in unique(mydata$pollster))
+{
+
+  #subset to a dataset with just each pollster
+  subpoll=subset(mydata, pollster==myPollster)
+
+  #if that subset has more than thirty entries, use it:
+  if(nrow(subpoll)>minPolls){
+    #combine each of these subsets together
+    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+  }
+}
+
+
+myDataFrame = myDataMyPollsters
+
+myDataFrame$pollster = factor( myDataFrame$pollster)
+
+Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
+myDataFrame$undecided = Undecided
+
+
+Model1 = lm(repBias ~ demBias*year + undecided, data=myDataFrame)
+summary(Model1)
+
+
+Model2 = lm(repBias ~ demBias*year + demBias*pollster + undecided, data=myDataFrame)
+summary(Model2)
+
+Model3 = lm(repBias ~ demBias*year*pollster + undecided, data=myDataFrame)
+summary(Model3)
+
+tab_model(Model1,Model2, Model3, file="Simulations/UndecidedTrad.html")
+
+```
+
+```{r}
+htmltools::includeHTML("Simulations/UndecidedTrad.html")
+
+```
+
