@@ -309,17 +309,26 @@ plotPosteriorPredictiveDem = function( codaSamples ,
 
 #===============================================================================
 
-plotMCMCrep = function( codaSamples , data , xName="undecided" , yName="repBias" ,
+plotMCMCrep = function( codaSamples , data , 
                         
                         showCurve=FALSE ,  
                         saveName=NULL , saveType="jpg" ) {
   # Marginal histograms:
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   repResponsetoDemBias = mcmcMat[,"repResponsetoDemBias"]
-  UndecidedResponse  = mcmcMat[,"UndecidedResponse"]
+  # for (i in 1:5){
+  # 
+  #   UndecidedResponse[i]  = mcmcMat[,paste("UndecidedResponse[",i,"]",sep="")]
+  # }
+  UndecidedResponse1  = mcmcMat[,"UndecidedResponse[1]"]
+  UndecidedResponse2  = mcmcMat[,"UndecidedResponse[2]"]
+  UndecidedResponse3  = mcmcMat[,"UndecidedResponse[3]"]
+  UndecidedResponse4  = mcmcMat[,"UndecidedResponse[4]"]
+  UndecidedResponse5  = mcmcMat[,"UndecidedResponse[5]"]
+  
   repBiasSpread = mcmcMat[,"repBiasSpread"]
   decideOpenGraph = function( panelCount , saveName , finished=FALSE , 
-                              nRow=2 , nCol=3 ) {
+                              nRow=3 , nCol=3 ) {
     
     # If finishing a set:
     if ( finished==TRUE ) {
@@ -354,9 +363,20 @@ plotMCMCrep = function( codaSamples , data , xName="undecided" , yName="repBias"
                        xlab=bquote(repResponsetoDemBias) , main="Republican Response to Democratic Bias" )
   
   panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
-  histInfo = plotPost( UndecidedResponse , cex.lab = 1.75 , showCurve=showCurve ,
-                       xlab=bquote(UndecidedResponse) , main="Rebulican Response to Undecided" )
-  
+  histInfo = plotPost( UndecidedResponse1 , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab=bquote(UndecidedResponse1) , main="Rebulican Response to Undecided" )
+  panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
+  histInfo = plotPost( UndecidedResponse2 , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab=bquote(UndecidedResponse2) , main="Rebulican Response to Undecided" )
+  panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
+  histInfo = plotPost( UndecidedResponse3 , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab=bquote(UndecidedResponse3) , main="Rebulican Response to Undecided" )
+  panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
+  histInfo = plotPost( UndecidedResponse4 , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab=bquote(UndecidedResponse4) , main="Rebulican Response to Undecided" )
+  panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
+  histInfo = plotPost( UndecidedResponse5 , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab=bquote(UndecidedResponse5) , main="Rebulican Response to Undecided" )
   panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
   histInfo = plotPost( repBiasSpread , cex.lab = 1.75 , showCurve=showCurve ,
                        xlab=bquote(repBiasSpread) , main=paste("Scale") )
