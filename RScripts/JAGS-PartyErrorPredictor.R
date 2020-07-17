@@ -333,7 +333,7 @@ plotMCMCrep = function( codaSamples , data , xName="undecided" , yName="repBias"
                      type=saveType)
         }
         # Open new graph
-        openGraph(width=nCol*7.0/3,height=nRow*2.0)
+        openGraph(width=nCol*9.0/3,height=nRow*2.0)
         layout( matrix( 1:(nRow*nCol) , nrow=nRow, byrow=TRUE ) )
         par( mar=c(4,4,2.5,0.5) , mgp=c(2.5,0.7,0) )
       }

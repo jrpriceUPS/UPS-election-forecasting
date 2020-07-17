@@ -49,9 +49,10 @@ for(myPollster in unique(mydata$pollster))
 myDataFrame = myDataMyPollsters
 
 myDataFrame$pollster = factor( myDataFrame$pollster)
-
+myDataFrame$year = factor( myDataFrame$year)
 Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
 myDataFrame$undecided = Undecided
+
 
 
 Model1 = lm(repBias ~ demBias*year + undecided, data=myDataFrame)
@@ -66,10 +67,30 @@ summary(Model3)
 
 tab_model(Model1,Model2, Model3, file="Simulations/UndecidedTrad.html")
 
+
 ```
 
 ```{r}
 htmltools::includeHTML("Simulations/UndecidedTrad.html")
-
 ```
+
+## Bayesian Modeling 
+
+In this example of Bayesian modeling, year and pollster were used as nominal predictors for democratic bias and republican bias was modeling with the two numeric variables of modeled democratic bias and the number of undecided voters. 
+
+The summary for this model is provided below:
+
+```{r}
+Summ=read.csv("Simulations/Jags-PartyErrorPredictorPractice-SummaryInfo.csv")
+knitr::kable(Summ)
+```
+
+The post predictive plot for democratic bias for 2016 is shown for reference:
+
+![](Figures/Jags-PartyErrorPredictorPractice-PostPred-Dem-2016.png)
+
+The Predictions for the coefficients of the rebulican model is shown below:
+
+![](Figures/Jags-PartyErrorPredictorPractice-PostMarg1.png)
+
 

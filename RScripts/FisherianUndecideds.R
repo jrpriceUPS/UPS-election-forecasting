@@ -2,6 +2,8 @@
 
 #create empty data frame, while maintaining all columns from the mydata structure
 #Pick min. number of acceptable polls
+mydata=read.csv("Data/raw-polls_538_cleaned.csv")
+
 minPolls=30
 myDataMyPollsters=  mydata[0,]
 for(myPollster in unique(mydata$pollster))
