@@ -5,32 +5,39 @@ graphics.off() # This closes all of R's graphics windows.
 rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
-mydata=read.csv("Data/raw-polls_538_cleaned.csv")
+mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 
 
-#create empty data frame, while maintaining all columns from the mydata structure
-#Pick min. number of acceptable polls
-minPolls=30
-myDataMyPollsters=  mydata[0,]
-for(myPollster in unique(mydata$pollster))
-{
-  
-  #subset to a dataset with just each pollster
-  subpoll=subset(mydata, pollster==myPollster)
-  
-  #if that subset has more than thirty entries, use it:
-  if(nrow(subpoll)>minPolls){
-    #combine each of these subsets together
-    myDataMyPollsters=rbind(myDataMyPollsters, subpoll)
+
+#Order the data
+
+newdata <- mydata[order(mydata$race_id),]
+
+#create small data frame for reference
+races = unique(mydata$race_id)
+onlyUnique=(data.table::setDT(mydata)[,.SD[which.max(cand1_actual)],keyby=race_id])
+actual = onlyUnique$cand1_actual
+
+ refdataframe=data.frame(races,actual) 
+ 
+#creae the whichrace list. 
+ 
+ desired_length <- ncol(refdataframe) # or whatever length you want
+ whichrace <- vector(mode = "numeric", 0)
+  for (i in unique(newdata$race_id)){
+    subsetrace = subset (newdata, race_id==i)
+    counter=nrow(subsetrace)
+    whichrace = rlist::list.append(whichrace, counter)
   }
-}
-myDataFrame = myDataMyPollsters
-myDataFrame$pollster = factor( myDataFrame$pollster)
-
-#Add Score column to the dataframe, will use as dependent variable for model script.
-score=100-myDataFrame$error
-myDataFrame$score = score
-
+  view(whichrace)
+  
+  #create list to feed info with
+  
+  predictorsframe = newdata[,c("race_id","cand1_actual", "cand1_pct",
+                               "delMode","transparency", "samplesize","LV")]
+  
+myDataFrame=predictorsframe
+    
 fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
 fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
 graphFileType = "png" 

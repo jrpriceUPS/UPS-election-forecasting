@@ -9,7 +9,8 @@
 source("DBDA2E-utilities.R")
 
 #===============================================================================
-genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil", 
+genMCMC = function( datFrm , pollName="poll" , #daysuntilName="daysuntil", 
+                    raceIDName="raceID", actualName="actual",
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize",
                     
@@ -19,8 +20,11 @@ genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil",
   #------------------------------------------------------------------------------
   # THE DATA.
   # Convert data file columns to generic xNom,y variable names for model:
-  score = as.numeric(datFrm[,scoreName])
-  #daysuntil = as.numeric(datFrm[,daysuntilName])
+
+  poll = as.numeric(datFrm[,pollName])
+  actual = as.numeric(datFrm[,actualName])
+  raceID = as.numeric(as.factor(dataFrm[,raceID]))
+  raceIDlevels=levels(as.factor(dataFrm[,raceID]))
   
   delMode = as.numeric(as.factor(datFrm[,delModeName]))
   delModelevels = levels(as.factor(datFrm[,delModeName]))
@@ -31,7 +35,9 @@ genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil",
   
   samplesize = as.numeric(datFrm[,samplesizeName])
   
-  scoreTotal = length(score)
+  
+  pollTotal = length(poll)
+  NraceIDLvl = length(unique(raceID))
   NdelModeLvl = length(unique(delMode))
   NLVLvl = length(unique(LV))
   NtransparencyLvl = length(unique(transparency))
@@ -45,8 +51,8 @@ genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil",
   agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(score)/2 , sd=2*sd(score) ) )
   # Specify the data in a list for sending to JAGS:
   dataList = list(
-    score = score ,
-  #  daysuntil = daysuntil ,
+    poll=poll ,
+    raceID=raceID,
     delMode = delMode,
     LV = LV,
     transparency = transparency,
@@ -55,6 +61,7 @@ genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil",
     NdelModeLvl = NdelModeLvl ,
     NLVLvl = NLVLvl,
     NtransparencyLvl = NtransparencyLvl ,
+    NraceIDLvl=NraceIDLvl,
     # data properties for scaling the prior:
     samplesizeSD = sd(samplesize) ,
     scoreSD = sd(score) ,
@@ -66,7 +73,16 @@ genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil",
   # THE MODEL.
   modelstring = "
   model {
-    for ( outcome in 1:scoreTotal ) {
+  
+  for ( race in 1:NraceIDLvl ){
+    
+  }
+  
+  
+  
+  
+  
+    for ( outcome in 1: ) {
       score[outcome] ~ dnorm( mu[outcome] , 1/scoreSpread^2)
       mu[outcome] <-   
               (modeImpact[delMode[outcome]] + modeImpact[delMode[outcome]]*samplesize[outcome]
