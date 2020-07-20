@@ -9,10 +9,10 @@
 source("DBDA2E-utilities.R")
 
 #===============================================================================
-genMCMC = function( datFrm , pollName="poll" , #daysuntilName="daysuntil", 
+genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName="daysuntil", 
                     raceIDName="raceID", actualName="actual",
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
-                    samplesizeName ="samplesize",
+                    samplesizeName ="samplesize", whichrace,
                     
                     numSavedSteps=50000 , thinSteps=1 , saveName=NULL ,
                     runjagsMethod=runjagsMethodDefault , 
@@ -21,52 +21,53 @@ genMCMC = function( datFrm , pollName="poll" , #daysuntilName="daysuntil",
   # THE DATA.
   # Convert data file columns to generic xNom,y variable names for model:
 
-  poll = as.numeric(datFrm[,pollName])
-  actual = as.numeric(datFrm[,actualName])
-  raceID = as.numeric(as.factor(dataFrm[,raceID]))
-  raceIDlevels=levels(as.factor(dataFrm[,raceID]))
+  poll = as.numeric(datFrmPredictor[,pollName])
+  actual = as.numeric(refFrame[,actualName])
+  raceID = as.numeric(as.factor(refFrame[,raceIDName]))
   
-  delMode = as.numeric(as.factor(datFrm[,delModeName]))
-  delModelevels = levels(as.factor(datFrm[,delModeName]))
-  LV = as.numeric(as.factor(datFrm[,LVName]))
-  LVlevels = levels(as.factor(datFrm[,LVName]))
-  transparency = as.numeric(as.factor(datFrm[,transparencyName]))
-  transparencylevels = levels(as.factor(datFrm[,transparencyName]))  
   
-  samplesize = as.numeric(datFrm[,samplesizeName])
+  delMode = as.numeric(as.factor(datFrmPredictor[,delModeName]))
+  delModelevels = levels(as.factor(datFrmPredictor[,delModeName]))
+  LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
+  LVlevels = levels(as.factor(datFrmPredictor[,LVName]))
+  transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
+  transparencylevels = levels(as.factor(datFrmPredictor[,transparencyName]))  
+  
+  samplesize = as.numeric(datFrmPredictor[,samplesizeName])
   
   
   pollTotal = length(poll)
-  NraceIDLvl = length(unique(raceID))
+  NraceIDLvl = length(raceID)
   NdelModeLvl = length(unique(delMode))
   NLVLvl = length(unique(LV))
   NtransparencyLvl = length(unique(transparency))
   
+  
   # Compute scale properties of data, for passing into prior to make the prior
   # vague on the scale of the data. 
-  lmInfo = lm( datFrm[,scoreName] ~ datFrm[,samplesizeName] + 
-                 datFrm[,delModeName] + datFrm[,delModeName] + datFrm[,LVName] + datFrm[,transparencyName])
-  residSD = sqrt(mean(lmInfo$residuals^2)) # residual root mean squared deviation
+  # lmInfo = lm( datFrm[,scoreName] ~ datFrm[,samplesizeName] + 
+  #                datFrm[,delModeName] + datFrm[,delModeName] + datFrm[,LVName] + datFrm[,transparencyName])
+  # residSD = sqrt(mean(lmInfo$residuals^2)) # residual root mean squared deviation
   # For hyper-prior on deflections:
-  agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(score)/2 , sd=2*sd(score) ) )
+   agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(score)/2 , sd=2*sd(score) ) )
   # Specify the data in a list for sending to JAGS:
   dataList = list(
     poll=poll ,
+    whichrace=whichrace,
     raceID=raceID,
     delMode = delMode,
     LV = LV,
     transparency = transparency,
     samplesize = samplesize,
-    scoreTotal = scoreTotal ,
+   
     NdelModeLvl = NdelModeLvl ,
     NLVLvl = NLVLvl,
     NtransparencyLvl = NtransparencyLvl ,
     NraceIDLvl=NraceIDLvl,
     # data properties for scaling the prior:
     samplesizeSD = sd(samplesize) ,
-    scoreSD = sd(score) ,
-    residSD = residSD ,
-    agammaShRa = agammaShRa,
+    actualSD = sd(actual) ,
+    agammaShRa = agammaShRa
 
   )
   #------------------------------------------------------------------------------
@@ -75,28 +76,28 @@ genMCMC = function( datFrm , pollName="poll" , #daysuntilName="daysuntil",
   model {
   
   for ( race in 1:NraceIDLvl ){
+    actual[race] ~ dnorm(mu[race], 1/actualSpread^2)
+    actualSpread ~ unif(actualSD/100, actualSD*10)
+   for(myPoll in whichrace[race+1]+1:whichrace[race+2]){
+     weight[myPoll]=modeImpact[delMode[myPoll]]+LVImpact[LVImpact[myPoll]]+
+     transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
+   }
+   sumWeight[race]=sum(weight[whichrace[race+1]+1:whichrace[race+2]])
+    for(myPoll in whichrace[race+1]+1:whichrace[race+2]){
+    nWeight=weight[myPoll]/sumWeight[race]
+    }
+   
+    mu[race] <- sum(nWeight[whichrace[race+1]+1:whichrace[race+2]]*poll[whichrace[race+1]+1:whichrace[race+2]])
     
   }
   
+
   
-  
-  
-  
-    for ( outcome in 1: ) {
-      score[outcome] ~ dnorm( mu[outcome] , 1/scoreSpread^2)
-      mu[outcome] <-   
-              (modeImpact[delMode[outcome]] + modeImpact[delMode[outcome]]*samplesize[outcome]
-              + LVImpact[LV[outcome]] + 
-               transparencyImpact[transparency[outcome]] 
-              )
-    }
-    scoreSpread ~ dunif( residSD/100 , scoreSD*10 ) 
-   
     for ( delMode in 1:NdelModeLvl ) { modeImpact[delMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) 
-                              samplesize[delMode] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
+                               }
    
    
-    delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+    delModeSpread ~ unif( agammaShRa[1] , agammaShRa[2] ) 
     
     for ( LV in 1:NLVLvl ) { LVImpact[LV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
                                }
@@ -106,6 +107,7 @@ genMCMC = function( datFrm , pollName="poll" , #daysuntilName="daysuntil",
                               }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
+    samplesizeImpact[samplesize] ~ dnorm( 0 , 1/(2*actualSpread/samplesizeSD)^2 )
     
   }
   " # close quote for modelstring
@@ -265,7 +267,7 @@ plotMCMC = function( codaSamples , datFrm ,
   
   samplesize = as.numeric(datFrm[,samplesizeName])
   
-  scoreTotal = length(score)
+  
   NdelModeLvl = length(unique(delMode))
   NLVLvl = length(unique(LV))
   NtransparencyLvl = length(unique(transparency))
