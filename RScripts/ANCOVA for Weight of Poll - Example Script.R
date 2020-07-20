@@ -41,7 +41,7 @@ graphFileType = "png"
 source("RScripts/WeightPollANCOVA-V03.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
-mcmcCoda = genMCMC( datFrm = myDataFrame , scoreName="score" , daysuntilName="daysuntil", 
+mcmcCoda = genMCMC( datFrm = myDataFrame , scoreName="score" , 
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize",
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRoot )
@@ -49,7 +49,7 @@ mcmcCoda = genMCMC( datFrm = myDataFrame , scoreName="score" , daysuntilName="da
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
-for ( parName in c("scoreSpread",  "nu" , 
+for ( parName in c("scoreSpread",   
                    "delMode[1]", "delMode[717]" ) ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
@@ -60,9 +60,8 @@ summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , 
                         samplesizeName ="samplesize", 
                         saveName=fileNameRoot )
 show(summaryInfo)
-# Display posterior information:
-plotMCMC( mcmcCoda , datFrm=myDataFrame , yName=yName , xNomName=xNomName , 
-          xMetName=xMetName , contrasts=contrasts , 
+# Display posterior information: At this point just for delMode and sample size.
+plotMCMC( mcmcCoda , datFrm=myDataFrame , 
           saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
 

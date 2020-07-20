@@ -9,7 +9,7 @@
 source("DBDA2E-utilities.R")
 
 #===============================================================================
-genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil", 
+genMCMC = function( datFrm , scoreName="score" , #daysuntilName="daysuntil", 
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize",
                     
@@ -20,7 +20,7 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
   # THE DATA.
   # Convert data file columns to generic xNom,y variable names for model:
   score = as.numeric(datFrm[,scoreName])
-  daysuntil = as.numeric(datFrm[,daysuntilName])
+  #daysuntil = as.numeric(datFrm[,daysuntilName])
   
   delMode = as.numeric(as.factor(datFrm[,delModeName]))
   delModelevels = levels(as.factor(datFrm[,delModeName]))
@@ -46,7 +46,7 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
   # Specify the data in a list for sending to JAGS:
   dataList = list(
     score = score ,
-    daysuntil = daysuntil ,
+  #  daysuntil = daysuntil ,
     delMode = delMode,
     LV = LV,
     transparency = transparency,
@@ -60,15 +60,14 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
     scoreSD = sd(score) ,
     residSD = residSD ,
     agammaShRa = agammaShRa,
-    #Give R Euler's Number  
-    e = exp(1)
+
   )
   #------------------------------------------------------------------------------
   # THE MODEL.
   modelstring = "
   model {
     for ( outcome in 1:scoreTotal ) {
-      score[outcome] ~ dt( mu[outcome] , 1/scoreSpread^2, nu )
+      score[outcome] ~ dnorm( mu[outcome] , 1/scoreSpread^2)
       mu[outcome] <-   
               (modeImpact[delMode[outcome]] + modeImpact[delMode[outcome]]*samplesize[outcome]
               + LVImpact[LV[outcome]] + 
@@ -76,7 +75,7 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
               )
     }
     scoreSpread ~ dunif( residSD/100 , scoreSD*10 ) 
-    nu ~  dexp(1/30.0) 
+   
     for ( delMode in 1:NdelModeLvl ) { modeImpact[delMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) 
                               samplesize[delMode] ~ dnorm( 0 , 1/(2*scoreSD/samplesizeSD)^2 ) }
    
@@ -119,7 +118,7 @@ genMCMC = function( datFrm , scoreName="score" , daysuntilName="daysuntil",
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c(  "delMode" , "samplesize" , "LV" , "transparency", "scoreSpread" , "nu" )
+  parameters = c(  "delMode" , "samplesize" , "LV" , "transparency", "scoreSpread"  )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -229,39 +228,60 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
 
 #===============================================================================
 
-plotMCMC = function( codaSamples , datFrm , yName , xNomName , xMetName ,
-                     contrasts=NULL , saveName=NULL , saveType="jpg" ) {
+plotMCMC = function( codaSamples , datFrm ,
+                     contrasts=NULL , saveName=NULL , saveType="jpg",
+                     scoreName="score" , 
+                     delModeName="delMode" ,
+                     samplesizeName ="samplesize"
+                     
+                     ) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  y = as.numeric(datFrm[,yName])
-  xNom = as.numeric(as.factor(datFrm[,xNomName]))
-  xNomlevels = levels(as.factor(datFrm[,xNomName]))
-  xMet = as.numeric(datFrm[,xMetName])
-  Ntotal = length(y)
-  NxNomLvl = length(unique(xNom))
+  score = as.numeric(datFrm[,scoreName])
+  
+ # daysuntil = as.numeric(datFrm[,daysuntilName])
+  delMode = as.numeric(as.factor(datFrm[,delModeName]))
+  delModelevels = levels(as.factor(datFrm[,delModeName]))
+ # LV = as.numeric(as.factor(datFrm[,LVName]))
+#  LVlevels = levels(as.factor(datFrm[,LVName]))
+ # transparency = as.numeric(as.factor(datFrm[,transparencyName]))
+  #transparencylevels = levels(as.factor(datFrm[,transparencyName]))  
+  
+  samplesize = as.numeric(datFrm[,samplesizeName])
+  
+  scoreTotal = length(score)
+  NdelModeLvl = length(unique(delMode))
+  NLVLvl = length(unique(LV))
+  NtransparencyLvl = length(unique(transparency))
+  
+  # xNom = as.numeric(as.factor(datFrm[,xNomName]))
+  # xNomlevels = levels(as.factor(datFrm[,xNomName]))
+  # xMet = as.numeric(datFrm[,xMetName])
+  # Ntotal = length(y)
+  # NxNomLvl = length(unique(xNom))
   
   # Display data with posterior predictive distributions:
-  for ( xNomLvlIdx in 1:NxNomLvl ) {
+  for ( xNomLvlIdx in 1:NdelModeLvl ) {
     # Open blank graph with appropriate limits:
-    xLim = c( min(xMet)-0.2*(max(xMet)-min(xMet)) ,
-              max(xMet)+0.2*(max(xMet)-min(xMet)) )
-    yLim = c( min(y)-0.2*(max(y)-min(y)) , 
-              max(y)+0.2*(max(y)-min(y)) )
+    xLim = c( min(samplesize)-0.2*(max(samplesize)-min(samplesize)) ,
+              max(samplesize)+0.2*(max(samplesize)-min(samplesize)) )
+    yLim = c( min(score)-0.2*(max(score)-min(score)) , 
+              max(score)+0.2*(max(score)-min(score)) )
     openGraph(width=4,height=5)
     par(mar=c(3,3,3,0.5)) # number of margin lines: bottom,left,top,right
     par(mgp=c(1.75,0.5,0)) # which margin lines to use for labels
     plot(2*max(xLim),2*max(yLim), # point out of range not seen 
-         xlab=xMetName , xlim=xLim , ylab=yName , ylim=yLim , 
-         main=paste(xNomlevels[xNomLvlIdx],"Data\nwith Post. Pred. Distrib.") ) 
+         xlab=samplesizeName , xlim=xLim , ylab=yName , ylim=yLim , 
+         main=paste(NLVLvl[xNomLvlIdx],"Data\nwith Post. Pred. Distrib.") ) 
     # plot credible regression lines and noise profiles:
     nSlice = 3
-    curveXpos = seq(min(xMet),max(xMet),length=nSlice)
-    curveWidth = (max(xMet)-min(xMet))/(nSlice+2)
+    curveXpos = seq(min(samplesize),max(samplesize),length=nSlice)
+    curveWidth = (max(samplesize)-min(samplesize))/(nSlice+2)
     nPredCurves=30
     for ( i in floor(seq(from=1,to=nrow(mcmcMat),length=nPredCurves)) ) {
-      intercept = mcmcMat[i,paste0("a[",xNomLvlIdx,"]")]
-      slope = mcmcMat[i,paste0("aMet[",xNomLvlIdx,"]")]
-      noise = mcmcMat[i,"ySigma"]
+      intercept = mcmcMat[i,paste0("modeImpact[",xNomLvlIdx,"]")]
+      slope = mcmcMat[i,paste0("modeImpact[delMode[",xNomLvlIdx,"]]")]
+      noise = mcmcMat[i,"scoreSpread"]
       abline( a=intercept , b=slope , col="skyblue" )
       for ( j in 1:nSlice ) {
         hdiLo = intercept+slope*curveXpos[j] - 1.96*noise
@@ -274,9 +294,9 @@ plotMCMC = function( codaSamples , datFrm , yName , xNomName , xMetName ,
       }
     }
     # plot data points:
-    includeVec = ( xNom == xNomLvlIdx )
-    xVals = xMet[includeVec]
-    yVals = y[includeVec]
+    includeVec = ( delMode == xNomLvlIdx )
+    xVals = samplesize[includeVec]
+    yVals = score[includeVec]
     points( xVals , yVals , pch=1 , cex=1.5 , col="red" )
     
     
@@ -285,51 +305,51 @@ plotMCMC = function( codaSamples , datFrm , yName , xNomName , xMetName ,
                  type=saveType)
     }
   }
-  
-  # Display contrast posterior distributions:
-  if ( !is.null(contrasts) ) {
-    if ( is.null(datFrm) | is.null(xNomName) ) {
-      show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
-    } else {
-      for ( cIdx in 1:length(contrasts) ) {
-        thisContrast = contrasts[[cIdx]]
-        left = right = rep(FALSE,length(xNomlevels))
-        for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
-          left = left | xNomlevels==thisContrast[[1]][nIdx]
-        }
-        left = normalize(left)
-        for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
-          right = right | xNomlevels==thisContrast[[2]][nIdx]
-        }
-        right = normalize(right)
-        contrastCoef = matrix( left-right , ncol=1 )
-        postContrast = ( mcmcMat[,paste("aMet[",1:length(xNomlevels),"]",sep="")] 
-                         %*% contrastCoef )
-        openGraph(height=8,width=4)
-        layout(matrix(1:2,ncol=1))
-        plotPost( postContrast , xlab="Difference" ,
-                  main=paste0( 
-                    paste(thisContrast[[1]],collapse="."), 
-                    "\nvs\n",
-                    paste(thisContrast[[2]],collapse=".") ) ,
-                  compVal=thisContrast$compVal , ROPE=thisContrast$ROPE )
-        plotPost( postContrast/mcmcMat[,"ySigma"] , 
-                  xlab="Effect Size" ,
-                  main=paste0( 
-                    paste(thisContrast[[1]],collapse="."), 
-                    "\nvs\n",
-                    paste(thisContrast[[2]],collapse=".") ) ,
-                  compVal=0.0 , 
-                  ROPE=c(-0.1,0.1) )
-        
-        if ( !is.null(saveName) ) {
-          saveGraph( file=paste0(saveName, paste0( 
-            paste(thisContrast[[1]],collapse=""), 
-            ".v.",
-            paste(thisContrast[[2]],collapse="") ) ), 
-            type=saveType )
-        }
-      }
-    }
-  } # end if ( !is.null(contrasts) )
+  # 
+  # # Display contrast posterior distributions:
+  # if ( !is.null(contrasts) ) {
+  #   if ( is.null(datFrm) | is.null(xNomName) ) {
+  #     show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
+  #   } else {
+  #     for ( cIdx in 1:length(contrasts) ) {
+  #       thisContrast = contrasts[[cIdx]]
+  #       left = right = rep(FALSE,length(xNomlevels))
+  #       for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
+  #         left = left | xNomlevels==thisContrast[[1]][nIdx]
+  #       }
+  #       left = normalize(left)
+  #       for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
+  #         right = right | xNomlevels==thisContrast[[2]][nIdx]
+  #       }
+  #       right = normalize(right)
+  #       contrastCoef = matrix( left-right , ncol=1 )
+  #       postContrast = ( mcmcMat[,paste("aMet[",1:length(xNomlevels),"]",sep="")] 
+  #                        %*% contrastCoef )
+  #       openGraph(height=8,width=4)
+  #       layout(matrix(1:2,ncol=1))
+  #       plotPost( postContrast , xlab="Difference" ,
+  #                 main=paste0( 
+  #                   paste(thisContrast[[1]],collapse="."), 
+  #                   "\nvs\n",
+  #                   paste(thisContrast[[2]],collapse=".") ) ,
+  #                 compVal=thisContrast$compVal , ROPE=thisContrast$ROPE )
+  #       plotPost( postContrast/mcmcMat[,"ySigma"] , 
+  #                 xlab="Effect Size" ,
+  #                 main=paste0( 
+  #                   paste(thisContrast[[1]],collapse="."), 
+  #                   "\nvs\n",
+  #                   paste(thisContrast[[2]],collapse=".") ) ,
+  #                 compVal=0.0 , 
+  #                 ROPE=c(-0.1,0.1) )
+  #       
+  #       if ( !is.null(saveName) ) {
+  #         saveGraph( file=paste0(saveName, paste0( 
+  #           paste(thisContrast[[1]],collapse=""), 
+  #           ".v.",
+  #           paste(thisContrast[[2]],collapse="") ) ), 
+  #           type=saveType )
+  #       }
+  #     }
+  #   }
+  # } # end if ( !is.null(contrasts) )
 }
