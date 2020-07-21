@@ -20,7 +20,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #------------------------------------------------------------------------------
   # THE DATA.
   # Convert data file columns to generic xNom,y variable names for model:
-
+ 
   poll = as.numeric(datFrmPredictor[,pollName])
   actual = as.numeric(refFrame[,actualName])
   raceID = as.numeric(as.factor(refFrame[,raceIDName]))
@@ -49,9 +49,10 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #                datFrm[,delModeName] + datFrm[,delModeName] + datFrm[,LVName] + datFrm[,transparencyName])
   # residSD = sqrt(mean(lmInfo$residuals^2)) # residual root mean squared deviation
   # For hyper-prior on deflections:
-   agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(score)/2 , sd=2*sd(score) ) )
+   agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(actual)/2 , sd=2*sd(actual) ) )
   # Specify the data in a list for sending to JAGS:
   dataList = list(
+    actual=actual,
     poll=poll ,
     whichrace=whichrace,
     raceID=raceID,
@@ -77,38 +78,39 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   
   for ( race in 1:NraceIDLvl ){
     actual[race] ~ dnorm(mu[race], 1/actualSpread^2)
-    actualSpread ~ unif(actualSD/100, actualSD*10)
-   for(myPoll in whichrace[race+1]+1:whichrace[race+2]){
-     weight[myPoll]=modeImpact[delMode[myPoll]]+LVImpact[LVImpact[myPoll]]+
+    
+   for(myPoll in (whichrace[race]+1):whichrace[race+1]){
+     weight[myPoll]=delModeImpact[delMode[myPoll]]+LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
    }
-   sumWeight[race]=sum(weight[whichrace[race+1]+1:whichrace[race+2]])
-    for(myPoll in whichrace[race+1]+1:whichrace[race+2]){
-    nWeight=weight[myPoll]/sumWeight[race]
+   
+   sumWeight[race]=sum(weight[(whichrace[race]+1):whichrace[race+1]])
+    for(myPoll in (whichrace[race]+1):whichrace[race+1]){
+    nWeight[myPoll]=weight[myPoll]/sumWeight[race]
     }
    
-    mu[race] <- sum(nWeight[whichrace[race+1]+1:whichrace[race+2]]*poll[whichrace[race+1]+1:whichrace[race+2]])
+    mu[race] <- sum(nWeight[(whichrace[race]+1):whichrace[race+1]]*poll[(whichrace[race]+1):whichrace[race+1]])
     
   }
   
 
   
-    for ( delMode in 1:NdelModeLvl ) { modeImpact[delMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) 
+    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) 
                                }
    
    
-    delModeSpread ~ unif( agammaShRa[1] , agammaShRa[2] ) 
+    delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    for ( LV in 1:NLVLvl ) { LVImpact[LV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
+    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
                                }
     LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    for ( transparency in 1:NtransparencyLvl ) { transparencyImpact[transparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
+    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
                               }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    samplesizeImpact[samplesize] ~ dnorm( 0 , 1/(2*actualSpread/samplesizeSD)^2 )
-    
+    samplesizeImpact ~ dnorm( 0 , 1/(samplesizeSD*.01)^2 )
+    actualSpread ~ dunif(actualSD/100, actualSD*10)
   }
   " # close quote for modelstring
   writeLines(modelstring,con="TEMPmodel.txt")

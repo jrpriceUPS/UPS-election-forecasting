@@ -12,10 +12,11 @@ mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 #Order the data
 
 newdata <- mydata[order(mydata$race_id),]
+newdata2 = data.frame(newdata)
 
 #create small data frame for reference
 races = unique(newdata$race_id)
-onlyUnique=(data.table::setDT(newdata)[,.SD[which.max(cand1_actual)],keyby=race_id])
+onlyUnique=(data.table::setDT(newdata2)[,.SD[which.max(cand1_actual)],keyby=race_id])
 actual = onlyUnique$cand1_actual
 
  refdataframe=data.frame(races,actual) 
@@ -23,23 +24,26 @@ actual = onlyUnique$cand1_actual
 #create the whichrace list. 
  
  
- whichrace <- vector(mode = "numeric", 0)
-  for (i in unique(newdata$race_id)){
-    subsetrace = subset (newdata, race_id==i)
-    counter=nrow(subsetrace)
-    whichrace = rlist::list.append(whichrace, counter)
-  }
- 
-  
-  whichrace=c(1,cumsum(whichrace))
+ # whichrace <- vector(mode = "numeric", 0)
+ #  for (i in unique(newdata$race_id)){
+ #    subsetrace = subset (newdata, race_id==i)
+ #    counter=nrow(subsetrace)
+ #    whichrace = rlist::list.append(whichrace, counter)
+ #  }
+
  
   #create list to feed info with
   
   predictorsframe = newdata[,c("race_id","cand1_actual", "cand1_pct",
                                "delMode","transparency", "samplesize","LV")]
   
+  whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
+  whichrace=whichrace-1
+  whichrace=c(whichrace,nrow(newdata))
+  
+  
 myDataFrame=predictorsframe
-   
+
 fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
 fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
 graphFileType = "png" 
