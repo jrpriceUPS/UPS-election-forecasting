@@ -82,12 +82,10 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
    for(myPoll in (whichrace[race]+1):whichrace[race+1]){
      weight[myPoll]=delModeImpact[delMode[myPoll]]+LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
+     
+     nWeight[myPoll]=weight[myPoll]/sum(weight[(whichrace[race]+1):whichrace[race+1]])
    }
-   
-   sumWeight[race]=sum(weight[(whichrace[race]+1):whichrace[race+1]])
-    for(myPoll in (whichrace[race]+1):whichrace[race+1]){
-    nWeight[myPoll]=weight[myPoll]/sumWeight[race]
-    }
+
    
     mu[race] <- sum(nWeight[(whichrace[race]+1):whichrace[race+1]]*poll[(whichrace[race]+1):whichrace[race+1]])
     
