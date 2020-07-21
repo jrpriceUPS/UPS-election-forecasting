@@ -83,11 +83,11 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
      weight[myPoll]=delModeImpact[delMode[myPoll]]+LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
      
-     nWeight[myPoll]=weight[myPoll]/sum(weight[(whichrace[race]+1):whichrace[race+1]])
+     #nWeight[myPoll]=weight[myPoll]/sum(weight[(whichrace[race]+1):whichrace[race+1]])
    }
 
    
-    mu[race] <- sum(nWeight[(whichrace[race]+1):whichrace[race+1]]*poll[(whichrace[race]+1):whichrace[race+1]])
+    mu[race] <- sum(weight[(whichrace[race]+1):whichrace[race+1]]*poll[(whichrace[race]+1):whichrace[race+1]])
     
   }
   
@@ -136,7 +136,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c(  "delMode" , "samplesize" , "LV" , "transparency", "scoreSpread"  )
+  parameters = c(  "delModeImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread"  )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
