@@ -64,7 +64,7 @@ mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("actualSpread",   
-                   "delModeImpact[1]", "samplesizeImpact" ) ) {
+                   "delModeImpact[1]", "samplesizeImpact" , "") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
