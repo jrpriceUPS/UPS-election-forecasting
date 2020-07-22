@@ -87,28 +87,25 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
 
     
     mu[race1] <- sum(nWeight[(whichrace[race1]+1):whichrace[race1+1]]*poll[(whichrace[race1]+1):whichrace[race1+1]])
-    summedWeights[race1] ~ sum(weight[])
+    summedWeights[race1] = sum(weight[(whichrace[race1]+1):whichrace[race1+1]])
+    
     for(myPoll1 in (whichrace[race1]+1):whichrace[race1+1]){
-      nWeight[myPoll1]=weight[myPoll1]/summedWeights
+      nWeight[myPoll1]=weight[myPoll1]/summedWeights[race1]
     }
   }
 
+
   
-    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) 
-                               }
-   
-   
+    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) }
     delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dnorm( 0.0 , 1/LVSpread^2 ) 
-                               }
+    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dnorm( 0.0 , 1/LVSpread^2 ) }
     LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) 
-                              }
+    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    samplesizeImpact ~ dnorm( 0 , 1/(samplesizeSD*.01)^2 )
+    samplesizeImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     actualSpread ~ dunif(actualSD/100, actualSD*10)
     
     
@@ -139,7 +136,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c(  "delModeImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread"  )
+  parameters = c(  "delModeImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu"  )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,

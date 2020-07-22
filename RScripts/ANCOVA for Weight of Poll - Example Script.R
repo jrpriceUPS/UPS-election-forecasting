@@ -2,7 +2,7 @@
 #06/30/2020
 
 graphics.off() # This closes all of R's graphics windows.
-#rm(list=ls())  # Clear all of R's memory!
+rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
 mydata=read.csv("Data/raw-polls_538_weekprior.csv")
@@ -47,6 +47,9 @@ myDataFrame=predictorsframe
 fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
 fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
 graphFileType = "png" 
+
+
+myDataFrame$samlesize = myDataFrame$samplesize/1000
 
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
