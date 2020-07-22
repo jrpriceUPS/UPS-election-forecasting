@@ -78,14 +78,13 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   
   for ( race1 in 1:NraceIDLvl ){
     actual[race1] ~ dnorm(mu[race1], 1/actualSpread^2)
-     for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
+    
+   for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
      weight[myPoll]=delModeImpact[delMode[myPoll]]+LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
-     
-     nWeight[race1, myPoll]=weight[race1, myPoll]/summedWeights[race1]
+   
    }
 
-    summedWeights[race1] <- sum(weight[])
     
     mu[race1] <- sum(nWeight[(whichrace[race1]+1):whichrace[race1+1]]*poll[(whichrace[race1]+1):whichrace[race1+1]])
     summedWeights[race1] = sum(weight[(whichrace[race1]+1):whichrace[race1+1]])
@@ -372,3 +371,4 @@ plotMCMC = function( codaSamples , datFrm ,
   #   }
   # } # end if ( !is.null(contrasts) )
 }
+
