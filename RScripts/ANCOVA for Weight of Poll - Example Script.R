@@ -51,7 +51,7 @@ graphFileType = "png"
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA-V03.R")
+source("RScripts/WeightPollANCOVA-V04.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
@@ -63,8 +63,8 @@ mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
-for ( parName in c("scoreSpread",   
-                   "delMode[1]", "delMode[717]" ) ) {
+for ( parName in c("actualSpread",   
+                   "delModeImpact[1]", "samplesizeImpact" ) ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
