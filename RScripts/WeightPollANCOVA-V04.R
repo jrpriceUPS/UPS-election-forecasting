@@ -374,7 +374,7 @@ plotMCMC = function( codaSamples , datFrm ,
 plotSampleSizePosterior = function( codaSamples , 
                               datFrm  , 
                               saveName=NULL , saveType="jpg",
-                              showCurve = FALSE) {
+                              showCurve = FALSE, title="Sample Size Impact") {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   samplesizeName ="samplesize"
@@ -390,7 +390,7 @@ plotSampleSizePosterior = function( codaSamples ,
     mcmcMat = as.matrix(codaSamples,chains=TRUE)
     samplesizeImpact= mcmcMat[,"samplesizeImpact"]
     plotPost( samplesizeImpact , cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(samplesizeImpact) , main="Sample Size Impact" )
+              xlab=bquote(samplesizeImpact) , main=title )
     print(mean(samplesizeImpact))
     if ( !is.null(saveName) ) {
       saveGraph( file=paste0(saveName,"samplesizeImpact", type=saveType))

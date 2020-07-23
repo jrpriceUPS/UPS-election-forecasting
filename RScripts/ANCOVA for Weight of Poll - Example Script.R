@@ -48,9 +48,11 @@ fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-"
 fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
 graphFileType = "png" 
 
+myDataFrame$samplesize =myDataFrame $ samplesize/1000
+#myDataFrame$samplesize = myDataFrame$log(samplesize)
 
-myDataFrame$samplesize = myDataFrame$samplesize/1000
-
+#MarginOfError = sqrt(.25/myDataFrame$samplesize)*100
+#myDataFrame$samplesize =MarginOfError
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
@@ -83,17 +85,19 @@ plotMCMC( mcmcCoda , datFrm=myDataFrame ,
 #------------------------------------------------------------------------------- 
 
 #plot the samplesize 
-plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , saveType=graphFileType)
+plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , 
+                        saveType=graphFileType, title="Sample Size Impact ")
 
 #plot SampleSize Prior 
 
 agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(actual)/2 , sd=2*sd(actual) ) )
 
-X <- rgamma( shape=1.2832, scale=0.0624, n=2750)
+#X <- rgamma( shape=1.2832, scale=0.0624, n=2750)
+X <- rgamma( shape=1.2832, scale=0.0624, n=11000)
 mean(X)
 mode(X)
 
-hist(X,prob=T,main='Gamma Prior', breaks=35)
+hist(X,prob=T,main='Gamma Prior', breaks=47)
 #lines(density(X),col='red',lwd=2)
 
 
