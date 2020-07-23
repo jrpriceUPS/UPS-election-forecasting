@@ -44,15 +44,15 @@ actual = onlyUnique$cand1_actual
   
 myDataFrame=predictorsframe
 
-fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
-fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
+fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-MOE-" 
+fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-MOE0-" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #myDataFrame$samplesize = myDataFrame$log(samplesize)
 
-#MarginOfError = sqrt(.25/myDataFrame$samplesize)*100
-#myDataFrame$samplesize =MarginOfError
+MarginOfError = sqrt(.25/myDataFrame$samplesize)*100
+myDataFrame$samplesize =MarginOfError
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
@@ -107,7 +107,23 @@ hist(X,prob=T,main='Gamma Prior', breaks=47)
 #lines(density(X),col='red',lwd=2)
 
 
+#plot the different samplesize impacts against each other:
+#mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+#samplesizeImpact= mcmcMat[,"samplesizeImpact"]
 
 
+mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+samplesizeImpactLog= mcmcMat[,"samplesizeImpact"]
 
+
+mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+samplesizeImpactMOE= mcmcMat[,"samplesizeImpact"]
+
+
+plot(samplesizeImpact,samplesizeImpactLog, 
+     ylab="Sample Size Impact - Log Transform", xlab="(Sample Size/100) Impact")
+plot(samplesizeImpact,samplesizeImpactMOE,
+     xlab="(Sample Size/100) Impact", ylab="Margin of Error Impact")
+plot(samplesizeImpactLog,samplesizeImpactMOE,
+     ylab="Margin of Error Impact",xlab="Sample Size Impact - Log Transform")
 
