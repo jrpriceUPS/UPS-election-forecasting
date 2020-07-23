@@ -49,7 +49,7 @@ fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-"
 graphFileType = "png" 
 
 
-myDataFrame$samlesize = myDataFrame$samplesize/1000
+myDataFrame$samplesize = myDataFrame$samplesize/1000
 
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
@@ -67,7 +67,7 @@ mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("actualSpread",   
-                   "delModeImpact[1]", "samplesizeImpact" , "") ) {
+                   "delModeImpact[1]", "samplesizeImpact" , "mu[1]") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
@@ -81,4 +81,23 @@ show(summaryInfo)
 plotMCMC( mcmcCoda , datFrm=myDataFrame , 
           saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
+
+#plot the samplesize 
+plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , saveType=graphFileType)
+
+#plot SampleSize Prior 
+
+agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(actual)/2 , sd=2*sd(actual) ) )
+
+X <- rgamma( shape=1.2832, scale=0.0624, n=2750)
+mean(X)
+mode(X)
+
+hist(X,prob=T,main='Gamma Prior', breaks=35)
+#lines(density(X),col='red',lwd=2)
+
+
+
+
+
 

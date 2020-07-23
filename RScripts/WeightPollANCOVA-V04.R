@@ -371,4 +371,32 @@ plotMCMC = function( codaSamples , datFrm ,
   #   }
   # } # end if ( !is.null(contrasts) )
 }
+plotSampleSizePosterior = function( codaSamples , 
+                              datFrm  , 
+                              saveName=NULL , saveType="jpg",
+                              showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  samplesizeName ="samplesize"
+   pollName ="poll"
+
+
+  
+  #plot each year
+ 
+    openGraph(width=8,height=8)
+    
+    # posterior of the mean for sample size distrubtion 
+    mcmcMat = as.matrix(codaSamples,chains=TRUE)
+    samplesizeImpact= mcmcMat[,"samplesizeImpact"]
+    plotPost( samplesizeImpact , cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(samplesizeImpact) , main="Sample Size Impact" )
+    print(mean(samplesizeImpact))
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"samplesizeImpact", type=saveType))
+    
+    }
+}
+  
+
 
