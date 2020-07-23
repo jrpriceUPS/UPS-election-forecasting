@@ -246,131 +246,46 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
 
 #===============================================================================
 
-plotMCMC = function( codaSamples , datFrm ,
-                     contrasts=NULL , saveName=NULL , saveType="jpg",
-                     scoreName="score" , 
-                     delModeName="delMode" ,
-                     samplesizeName ="samplesize"
-                     
-) {
+plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, pollName="poll" , 
+                                    raceIDName, actualName="actual",
+                                    whichrace,
+                                    saveName=NULL , saveType="jpg",
+                                    showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  score = as.numeric(datFrm[,scoreName])
   
-  # daysuntil = as.numeric(datFrm[,daysuntilName])
-  delMode = as.numeric(as.factor(datFrm[,delModeName]))
-  delModelevels = levels(as.factor(datFrm[,delModeName]))
-  # LV = as.numeric(as.factor(datFrm[,LVName]))
-  #  LVlevels = levels(as.factor(datFrm[,LVName]))
-  # transparency = as.numeric(as.factor(datFrm[,transparencyName]))
-  #transparencylevels = levels(as.factor(datFrm[,transparencyName]))  
-  
-  samplesize = as.numeric(datFrm[,samplesizeName])
-  
-  
-  NdelModeLvl = length(unique(delMode))
-  NLVLvl = length(unique(LV))
-  NtransparencyLvl = length(unique(transparency))
-  
-  # xNom = as.numeric(as.factor(datFrm[,xNomName]))
-  # xNomlevels = levels(as.factor(datFrm[,xNomName]))
-  # xMet = as.numeric(datFrm[,xMetName])
-  # Ntotal = length(y)
-  # NxNomLvl = length(unique(xNom))
-  
-  # Display data with posterior predictive distributions:
-  for ( xNomLvlIdx in 1:NdelModeLvl ) {
-    # Open blank graph with appropriate limits:
-    xLim = c( min(samplesize)-0.2*(max(samplesize)-min(samplesize)) ,
-              max(samplesize)+0.2*(max(samplesize)-min(samplesize)) )
-    yLim = c( min(score)-0.2*(max(score)-min(score)) , 
-              max(score)+0.2*(max(score)-min(score)) )
-    openGraph(width=4,height=5)
-    par(mar=c(3,3,3,0.5)) # number of margin lines: bottom,left,top,right
-    par(mgp=c(1.75,0.5,0)) # which margin lines to use for labels
-    plot(2*max(xLim),2*max(yLim), # point out of range not seen 
-         xlab=samplesizeName , xlim=xLim , ylab=yName , ylim=yLim , 
-         main=paste(NLVLvl[xNomLvlIdx],"Data\nwith Post. Pred. Distrib.") ) 
-    # plot credible regression lines and noise profiles:
-    nSlice = 3
-    curveXpos = seq(min(samplesize),max(samplesize),length=nSlice)
-    curveWidth = (max(samplesize)-min(samplesize))/(nSlice+2)
-    nPredCurves=30
-    for ( i in floor(seq(from=1,to=nrow(mcmcMat),length=nPredCurves)) ) {
-      intercept = mcmcMat[i,paste0("modeImpact[",xNomLvlIdx,"]")]
-      slope = mcmcMat[i,paste0("modeImpact[delMode[",xNomLvlIdx,"]]")]
-      noise = mcmcMat[i,"scoreSpread"]
-      abline( a=intercept , b=slope , col="skyblue" )
-      for ( j in 1:nSlice ) {
-        hdiLo = intercept+slope*curveXpos[j] - 1.96*noise
-        hdiHi = intercept+slope*curveXpos[j] + 1.96*noise
-        yComb = seq( hdiLo , hdiHi , length=75 )
-        xVals = dnorm( yComb , mean=intercept+slope*curveXpos[j] , sd=noise ) 
-        xVals = curveWidth * xVals / max(xVals)
-        lines( curveXpos[j] - xVals , yComb , col="skyblue" )
-        lines( curveXpos[j] - 0*xVals , yComb , col="skyblue" , lwd=2 )
-      }
-    }
-    # plot data points:
-    includeVec = ( delMode == xNomLvlIdx )
-    xVals = samplesize[includeVec]
-    yVals = score[includeVec]
-    points( xVals , yVals , pch=1 , cex=1.5 , col="red" )
+  actual = refFrame[,actualName]
+  raceID = as.numeric(as.factor(refFrame[,raceIDName]))
+  NraceIDLvl = length(raceID)
+
+
+  for ( raceidx in 1:NraceIDLvl ){
+    openGraph(width=8,height=8)
+    plot(-10,-10, xlim=c(0,1),xlab="Dem. Bias", main="Post. Predictive" )
+    chainSub = round(seq(1,chainLength,length=20))
+    for ( chnIdx in chainSub ) {
+      m = mcmcMat[chnIdx,paste("mu[",raceidx,"]",sep="")]   
     
+      s = mcmcMat[chnIdx,"actualSpread"] # spread
+   
+      
+      nlim = qnorm( c(0.025,0.975) )
+      yl = m+nlim[1]*s
+      yh = m+nlim[2]*s
+      ycomb=seq(yl,yh,length=201)
+      ynorm = dnorm(ycomb,mean=m,sd=s)
+      ynorm = 0.67*ynorm/max(ynorm)
     
-    if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"PostPred-",xNomlevels[xNomLvlIdx]), 
-                 type=saveType)
+      lines( ynorm , ycomb , col="skyblue" )
+      
+      
+      
     }
-  }
-  # 
-  # # Display contrast posterior distributions:
-  # if ( !is.null(contrasts) ) {
-  #   if ( is.null(datFrm) | is.null(xNomName) ) {
-  #     show(" *** YOU MUST SPECIFY THE DATA FILE AND FACTOR NAMES TO DO CONTRASTS. ***\n")
-  #   } else {
-  #     for ( cIdx in 1:length(contrasts) ) {
-  #       thisContrast = contrasts[[cIdx]]
-  #       left = right = rep(FALSE,length(xNomlevels))
-  #       for ( nIdx in 1:length( thisContrast[[1]] ) ) { 
-  #         left = left | xNomlevels==thisContrast[[1]][nIdx]
-  #       }
-  #       left = normalize(left)
-  #       for ( nIdx in 1:length( thisContrast[[2]] ) ) { 
-  #         right = right | xNomlevels==thisContrast[[2]][nIdx]
-  #       }
-  #       right = normalize(right)
-  #       contrastCoef = matrix( left-right , ncol=1 )
-  #       postContrast = ( mcmcMat[,paste("aMet[",1:length(xNomlevels),"]",sep="")] 
-  #                        %*% contrastCoef )
-  #       openGraph(height=8,width=4)
-  #       layout(matrix(1:2,ncol=1))
-  #       plotPost( postContrast , xlab="Difference" ,
-  #                 main=paste0( 
-  #                   paste(thisContrast[[1]],collapse="."), 
-  #                   "\nvs\n",
-  #                   paste(thisContrast[[2]],collapse=".") ) ,
-  #                 compVal=thisContrast$compVal , ROPE=thisContrast$ROPE )
-  #       plotPost( postContrast/mcmcMat[,"ySigma"] , 
-  #                 xlab="Effect Size" ,
-  #                 main=paste0( 
-  #                   paste(thisContrast[[1]],collapse="."), 
-  #                   "\nvs\n",
-  #                   paste(thisContrast[[2]],collapse=".") ) ,
-  #                 compVal=0.0 , 
-  #                 ROPE=c(-0.1,0.1) )
-  #       
-  #       if ( !is.null(saveName) ) {
-  #         saveGraph( file=paste0(saveName, paste0( 
-  #           paste(thisContrast[[1]],collapse=""), 
-  #           ".v.",
-  #           paste(thisContrast[[2]],collapse="") ) ), 
-  #           type=saveType )
-  #       }
-  #     }
-  #   }
-  # } # end if ( !is.null(contrasts) )
+    
 }
+}
+
+
 plotSampleSizePosterior = function( codaSamples , 
                               datFrm  , 
                               saveName=NULL , saveType="jpg",
@@ -379,10 +294,6 @@ plotSampleSizePosterior = function( codaSamples ,
   chainLength = NROW( mcmcMat )
   samplesizeName ="samplesize"
    pollName ="poll"
-
-
-  
-  #plot each year
  
     openGraph(width=8,height=8)
     
@@ -397,6 +308,33 @@ plotSampleSizePosterior = function( codaSamples ,
     
     }
 }
+
+plotpairs=function(){
+    # Plot the parameters pairwise, to see correlations:
+    openGraph()
+    nPtToPlot = 1000
+    plotIdx = floor(seq(1,chainLength,by=chainLength/nPtToPlot))
+    panel.cor = function(x, y, digits=2, prefix="", cex.cor, ...) {
+      usr = par("usr"); on.exit(par(usr))
+      par(usr = c(0, 1, 0, 1))
+      r = (cor(x, y))
+      txt = format(c(r, 0.123456789), digits=digits)[1]
+      txt = paste(prefix, txt, sep="")
+      if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
+      text(0.5, 0.5, txt, cex=1.25 ) # was cex=cex.cor*r
+    }
+    pairs( cbind( beta0 , beta , sigma , log10nu )[plotIdx,] ,
+           labels=c( "beta[0]" , 
+                     paste0("beta[",1:ncol(beta),"]\n",xName) , 
+                     expression(sigma) ,  expression(log10(nu)) ) , 
+           lower.panel=panel.cor , col="skyblue" )
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste(saveName,"PostPairs",sep=""), type=saveType)
+    }
+  }
   
+
+  
+
 
 

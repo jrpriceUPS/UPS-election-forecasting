@@ -75,14 +75,20 @@ for ( parName in c("actualSpread",
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                         samplesizeName ="samplesize", 
                         saveName=fileNameRoot )
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.
-plotMCMC( mcmcCoda , datFrm=myDataFrame , 
-          saveName=fileNameRoot , saveType=graphFileType )
+#plotPosteriorPredictive( mcmcCoda , datFrm=myDataFrame , 
+    #      saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
+#plot the posterior predictive distubtions
+
+plotPosteriorPredictive(codaSamples=mcmcCoda, refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
+                        actualName="actual", saveName=fileNameRoot , raceIDName="races",
+                        showCurve=TRUE)
+
 
 #plot the samplesize 
 plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , 

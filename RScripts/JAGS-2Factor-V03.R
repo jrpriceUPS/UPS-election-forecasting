@@ -182,7 +182,8 @@ smryMCMC = function(  codaSamples , datFrm=NULL , pollsterName=NULL , yearName =
 #===============================================================================
 
 plotDiagnostics= function( ){
-for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]", "pollsterBias[1,1]"  ) ) {
+for ( parName in c("biasSpread",  "nuY" , "pollsterSpread" , "yearSpread" , "yearLean[1]",
+                   "pollsterBias[1,1]"  ) ) {
   diagMCMC( codaObject=mcmcCodaV03 , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
