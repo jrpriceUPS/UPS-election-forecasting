@@ -50,6 +50,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   # residSD = sqrt(mean(lmInfo$residuals^2)) # residual root mean squared deviation
   # For hyper-prior on deflections:
   agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(actual)/2 , sd=2*sd(actual) ) )
+  agammaShRasamplesizeImpact = unlist( gammaShRaFromModeSD( mode=sd(samplesize)/2 , sd=2*sd(samplesize) ) )
   # Specify the data in a list for sending to JAGS:
   dataList = list(
     actual=actual,
@@ -68,7 +69,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     # data properties for scaling the prior:
     samplesizeSD = sd(samplesize) ,
     actualSD = sd(actual) ,
-    agammaShRa = agammaShRa
+    agammaShRa = agammaShRa,
+    agammaShRasamplesizeImpact = agammaShRasamplesizeImpact
     
   )
   #------------------------------------------------------------------------------
@@ -105,7 +107,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) }
     transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
     
-    samplesizeImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+    samplesizeImpact ~ dgamma( agammaShRasamplesizeImpact[1] , agammaShRasamplesizeImpact[2] ) 
     actualSpread ~ dunif(actualSD/100, actualSD*10)
     
     
@@ -246,45 +248,54 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
 
 #===============================================================================
 
-plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, pollName="poll" , 
-                                    raceIDName, actualName="actual",
+plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, pollName="cand1_pct" , 
+                                    raceIDName="races", actualName="actual",
                                     whichrace,
-                                    saveName=NULL , saveType="jpg",
+                                    saveName=NULL , saveType="jpg", raceplots,
                                     showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   
   actual = refFrame[,actualName]
+  polls= datFrmPredictor[,pollName]
   raceID = as.numeric(as.factor(refFrame[,raceIDName]))
   NraceIDLvl = length(raceID)
 
 
-  for ( raceidx in 1:NraceIDLvl ){
+  for ( raceidx in raceplots ){
     openGraph(width=8,height=8)
-    plot(-10,-10, xlim=c(0,1),xlab="Dem. Bias", main="Post. Predictive" )
+    pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
+     plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
+          ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
+  ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=paste("Post. Predictive ",as.character(raceidx),sep=""))
+    abline(a=0,b=0)
+
+    points(pollresults, runif(length(pollresults))-1.5, col="blue")
     chainSub = round(seq(1,chainLength,length=20))
-    for ( chnIdx in chainSub ) {
-      m = mcmcMat[chnIdx,paste("mu[",raceidx,"]",sep="")]   
     
+  
+    
+    for ( chnIdx in chainSub ) {
+      m = mcmcMat[chnIdx,paste("mu[",raceidx,"]",sep="")]
+
       s = mcmcMat[chnIdx,"actualSpread"] # spread
-   
-      
-      nlim = qnorm( c(0.025,0.975) )
+
+
+      nlim = qnorm( c(0.01,0.99) )
       yl = m+nlim[1]*s
       yh = m+nlim[2]*s
       ycomb=seq(yl,yh,length=201)
       ynorm = dnorm(ycomb,mean=m,sd=s)
-      ynorm = 0.67*ynorm/max(ynorm)
-    
-      lines( ynorm , ycomb , col="skyblue" )
-      
-      
-      
-    }
-    
-}
-}
+      ynorm = 2.75*ynorm/max(ynorm)
 
+      lines( ycomb , ynorm , col="skyblue" )
+
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostPred-",Race[raceidx]), type=saveType)
+    }
+  }
+}
 
 plotSampleSizePosterior = function( codaSamples , 
                               datFrm  , 
@@ -309,29 +320,6 @@ plotSampleSizePosterior = function( codaSamples ,
     }
 }
 
-plotpairs=function(){
-    # Plot the parameters pairwise, to see correlations:
-    openGraph()
-    nPtToPlot = 1000
-    plotIdx = floor(seq(1,chainLength,by=chainLength/nPtToPlot))
-    panel.cor = function(x, y, digits=2, prefix="", cex.cor, ...) {
-      usr = par("usr"); on.exit(par(usr))
-      par(usr = c(0, 1, 0, 1))
-      r = (cor(x, y))
-      txt = format(c(r, 0.123456789), digits=digits)[1]
-      txt = paste(prefix, txt, sep="")
-      if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
-      text(0.5, 0.5, txt, cex=1.25 ) # was cex=cex.cor*r
-    }
-    pairs( cbind( beta0 , beta , sigma , log10nu )[plotIdx,] ,
-           labels=c( "beta[0]" , 
-                     paste0("beta[",1:ncol(beta),"]\n",xName) , 
-                     expression(sigma) ,  expression(log10(nu)) ) , 
-           lower.panel=panel.cor , col="skyblue" )
-    if ( !is.null(saveName) ) {
-      saveGraph( file=paste(saveName,"PostPairs",sep=""), type=saveType)
-    }
-  }
   
 
   

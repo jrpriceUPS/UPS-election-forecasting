@@ -7,7 +7,9 @@ rm(list=ls())  # Clear all of R's memory!
 #load the cleaned data
 mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 
+plot(1/(mydata$samplesize),mydata$demBias)
 
+hist(log(mydata$samplesize))
 
 #Order the data
 
@@ -85,9 +87,8 @@ show(summaryInfo)
 #------------------------------------------------------------------------------- 
 #plot the posterior predictive distubtions
 
-plotPosteriorPredictive(codaSamples=mcmcCoda, refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
-                        actualName="actual", saveName=fileNameRoot , raceIDName="races",
-                        showCurve=TRUE)
+plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
+                        pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace)
 
 
 #plot the samplesize 
