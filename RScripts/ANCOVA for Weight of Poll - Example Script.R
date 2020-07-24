@@ -44,15 +44,15 @@ actual = onlyUnique$cand1_actual
   
 myDataFrame=predictorsframe
 
-fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-MOE-" 
-fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-MOE0-" 
+fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
+fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #myDataFrame$samplesize = myDataFrame$log(samplesize)
 
-MarginOfError = sqrt(.25/myDataFrame$samplesize)*100
-myDataFrame$samplesize =MarginOfError
+#MarginOfError = sqrt(.25/myDataFrame$samplesize)*100
+#myDataFrame$samplesize =MarginOfError
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
@@ -108,16 +108,28 @@ hist(X,prob=T,main='Gamma Prior', breaks=47)
 
 
 #plot the different samplesize impacts against each other:
-#mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
-#samplesizeImpact= mcmcMat[,"samplesizeImpact"]
-
-
 mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
-samplesizeImpactLog= mcmcMat[,"samplesizeImpact"]
+samplesizeImpact= mcmcMat[,"samplesizeImpact"]
+LVImpact1 = mcmcMat[,"LVImpact[1]"]
+LVImpact2 = mcmcMat[,"LVImpact[2]"]
+transparencyImpact1 = mcmcMat[,"transparencyImpact[1]"]
+transparencyImpact2 = mcmcMat[,"transparencyImpact[2]"]
 
+plot(samplesizeImpact,LVImpact1, 
+     ylab="LV Impact [1]", xlab="(Sample Size/100) Impact")
+plot(samplesizeImpact,LVImpact2, 
+     ylab="LV Impact [2]", xlab="(Sample Size/100) Impact")
+plot(samplesizeImpact,transparencyImpact1, 
+     ylab="Transparenct Impact [1]", xlab="(Sample Size/100) Impact")
+plot(samplesizeImpact,transparencyImpact2, 
+     ylab="Transparenct Impact [2]", xlab="(Sample Size/100) Impact")
 
-mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
-samplesizeImpactMOE= mcmcMat[,"samplesizeImpact"]
+# mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+# samplesizeImpactLog= mcmcMat[,"samplesizeImpact"]
+# 
+# 
+# mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+# samplesizeImpactMOE= mcmcMat[,"samplesizeImpact"]
 
 
 plot(samplesizeImpact,samplesizeImpactLog, 
