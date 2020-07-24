@@ -92,12 +92,16 @@ show(summaryInfo)
 #plotPosteriorPredictive( mcmcCoda , datFrm=myDataFrame , 
     #      saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
-#plot the posterior predictive distubtions
+#plot the posterior predictive distrubtions
 
 plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
                         pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
                         saveType=graphFileType)
 
+
+#plot the LV distribution
+plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                saveType=graphFileType)
 
 #plot the samplesize 
 plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , 
@@ -147,4 +151,5 @@ plot(samplesizeImpact,samplesizeImpactMOE,
      xlab="(Sample Size/100) Impact", ylab="Margin of Error Impact")
 plot(samplesizeImpactLog,samplesizeImpactMOE,
      ylab="Margin of Error Impact",xlab="Sample Size Impact - Log Transform")
+
 

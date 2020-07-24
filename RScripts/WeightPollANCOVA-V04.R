@@ -321,6 +321,36 @@ plotSampleSizePosterior = function( codaSamples ,
     }
 }
 
+plotLVPosterior = function( codaSamples , 
+                                    datFrmPredictor  , 
+                                    saveName=NULL , saveType="jpg",
+                                    showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  LVName ="LV"
+  pollName ="poll"
+ 
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
+  LVLevels = levels(as.factor(datFrmPredictor[,LVName]))
+  NLVLvl = length(unique(LV))
+  for ( LVidx in 1:length(LVLevels)) {
+  openGraph(width=8,height=8)
+
+  # posterior of the mean for sample size distrubtion 
+    
+    #give better titles - using LVLevels[1]=FALSE, LVLevels[2]=TRUE
+if(LVidx==1){title="Non Likely-Voter Turnout Model Impact"}
+if(LVidx==2){title="Likely-Voter Turnout Model Impact"}
+    plotPost( mcmcMat[,paste("LVImpact[",LVidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+            xlab=bquote(LVImpact) , main=title)
+
+  if ( !is.null(saveName) ) {
+    saveGraph( file=paste0(saveName,title, type=saveType))
+    
+  }
+  }
+}
   
 
   
