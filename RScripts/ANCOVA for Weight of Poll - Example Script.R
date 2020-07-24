@@ -8,6 +8,7 @@ graphics.off() # This closes all of R's graphics windows.
 mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 
 
+
 #Order the data
 
 newdata <- mydata[order(mydata$race_id),]
@@ -53,6 +54,23 @@ myFullName=refdataframe[i,2]
   
 myDataFrame=predictorsframe
 
+
+#Less Options for Del Mode is Helpful:
+for (i in 1:nrow(myDataFrame)){
+myMode=myDataFrame[i,4]
+if(myMode=="IVR/Live"||myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
+  myDataFrame[i,4]="IVR Combination"
+}
+if(myMode=="Live*"){
+  myDataFrame[i,4]="Live"
+}
+if(myMode=="Live/Text"||myMode=="Online/Live"){
+  myDataFrame[i,4]="Live Combination"
+}
+}
+
+
+
 fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
 fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
 graphFileType = "png" 
@@ -72,7 +90,7 @@ mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName
                     actualName="actual", 
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
-                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRoot )
+                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
@@ -102,6 +120,10 @@ plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredic
 #plot the LV distribution
 plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                 saveType=graphFileType)
+
+#plot delModeImpact Posterior
+plotdelModePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                     saveType=graphFileType)
 
 #plot the samplesize 
 plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , 
