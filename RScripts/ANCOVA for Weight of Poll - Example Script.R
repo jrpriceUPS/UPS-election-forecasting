@@ -2,14 +2,11 @@
 #06/30/2020
 
 graphics.off() # This closes all of R's graphics windows.
-rm(list=ls())  # Clear all of R's memory!
+#rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
 mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 
-plot(1/(mydata$samplesize),mydata$demBias)
-
-hist(log(mydata$samplesize))
 
 #Order the data
 
@@ -20,8 +17,18 @@ newdata2 = data.frame(newdata)
 races = unique(newdata$race_id)
 onlyUnique=(data.table::setDT(newdata2)[,.SD[which.max(cand1_actual)],keyby=race_id])
 actual = onlyUnique$cand1_actual
+raceFullName=unique(newdata$race)
+refdataframe=data.frame(races,raceFullName,actual) 
 
- refdataframe=data.frame(races,actual) 
+for (i in 1:nrow(refdataframe)){
+ 
+myFullName=refdataframe[i,2]
+
+ myFullName= str_replace_all(myFullName, "_", " ")
+ refdataframe[i,2]=myFullName
+}
+
+# refdataframe=data.frame(races,raceFullName,actual) 
  
 #create the whichrace list. 
  
@@ -88,7 +95,8 @@ show(summaryInfo)
 #plot the posterior predictive distubtions
 
 plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
-                        pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace)
+                        pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+                        saveType=graphFileType)
 
 
 #plot the samplesize 

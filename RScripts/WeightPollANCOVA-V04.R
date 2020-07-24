@@ -264,10 +264,11 @@ plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, poll
 
   for ( raceidx in raceplots ){
     openGraph(width=8,height=8)
+    raceNameidx=refFrame[raceidx,2]
     pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
      plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
           ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
-  ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=paste("Post. Predictive ",as.character(raceidx),sep=""))
+  ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=raceNameidx)
     abline(a=0,b=0)
 
     points(pollresults, runif(length(pollresults))-1.5, col="blue")
@@ -292,7 +293,7 @@ plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, poll
 
     }
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"PostPred-",Race[raceidx]), type=saveType)
+      saveGraph( file=paste0(saveName,"PostPred-",raceNameidx), type=saveType)
     }
   }
 }
