@@ -66,6 +66,7 @@ for (i in 1:nrow(myDataFrame)){
 myDataFrame=myDataFrame[myDataFrame$delMode!="Landline",]
 myDataFrame=myDataFrame[myDataFrame$delMode!="Mail",]
 
+predictorsframe=myDataFrame
 #which race indexing:
 whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
 whichrace=whichrace-1

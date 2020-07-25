@@ -364,20 +364,17 @@ plotdelModePosterior = function( codaSamples ,
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   delMode = as.numeric(as.factor(datFrmPredictor[,delModeName]))
   delModeLevels = levels(as.factor(datFrmPredictor[,delModeName]))
-  viewNdelModeLvl = length(unique(delMode))
+  NdelModeLvl = length(unique(delMode))
   for ( delModeidx in 1:length(delModeLevels)) {
-    openGraph(width=8,height=8)
+    openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
     if(delModeidx==1){titleMode="Delivery Mode - IVR Impact"}
-    if(delModeidx==2){titleMode="Delivery Mode - IVR Combination Impact"}
-    if(delModeidx==3){titleMode="Delivery Mode - Landline Impact"}
-    if(delModeidx==4){titleMode="Delivery Mode - Live Impact"}
-    if(delModeidx==4){titleMode="Delivery Mode - 	Live Combination Impact"}
-    if(delModeidx==6){titleMode="Delivery Mode - Mail Impact"}
-    if(delModeidx==7){titleMode="Delivery Mode - Online Impact"}
+    if(delModeidx==2){titleMode="Delivery Mode - Live Impact"}
+    if(delModeidx==3){titleMode="Delivery Mode - Online Impact"}
+  
     
     
     plotPost( mcmcMat[,paste("delModeImpact[",delModeidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
