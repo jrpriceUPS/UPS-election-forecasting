@@ -1,4 +1,4 @@
-#ANCOVA for Weight of Poll V04
+#ANCOVA for just Sample Size
 #06/30/2020
 
 
@@ -10,9 +10,14 @@ source("DBDA2E-utilities.R")
 
 #===============================================================================
 genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName="daysuntil", 
-                    raceIDName="raceID", actualName="actual",
-                    delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
-                    samplesizeName ="samplesize", whichrace,
+                    raceIDName="raceID", 
+                    actualName="actual",
+                    # delModeName="delMode" , 
+                    LVName="LV" , 
+                    #transparencyName="transparency", 
+                    
+                    #samplesizeName ="samplesize", 
+                    whichrace,
                     
                     numSavedSteps=50000 , thinSteps=1 , saveName=NULL ,
                     runjagsMethod=runjagsMethodDefault , 
@@ -26,21 +31,21 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   raceID = as.numeric(as.factor(refFrame[,raceIDName]))
   
   
-  delMode = as.numeric(as.factor(datFrmPredictor[,delModeName]))
-  delModelevels = levels(as.factor(datFrmPredictor[,delModeName]))
-  LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
-  LVlevels = levels(as.factor(datFrmPredictor[,LVName]))
-  transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
-  transparencylevels = levels(as.factor(datFrmPredictor[,transparencyName]))  
+  # delMode = as.numeric(as.factor(datFrmPredictor[,delModeName]))
+  # delModelevels = levels(as.factor(datFrmPredictor[,delModeName]))
+   LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
+   LVlevels = levels(as.factor(datFrmPredictor[,LVName]))
+  # transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
+  # transparencylevels = levels(as.factor(datFrmPredictor[,transparencyName]))  
   
-  samplesize = as.numeric(datFrmPredictor[,samplesizeName])
+  #samplesize = as.numeric(datFrmPredictor[,samplesizeName])
   
   
   pollTotal = length(poll)
   NraceIDLvl = length(raceID)
-  NdelModeLvl = length(unique(delMode))
+ # NdelModeLvl = length(unique(delMode))
   NLVLvl = length(unique(LV))
-  NtransparencyLvl = length(unique(transparency))
+ # NtransparencyLvl = length(unique(transparency))
   
   
   # Compute scale properties of data, for passing into prior to make the prior
@@ -50,27 +55,27 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   # residSD = sqrt(mean(lmInfo$residuals^2)) # residual root mean squared deviation
   # For hyper-prior on deflections:
   agammaShRa = unlist( gammaShRaFromModeSD( mode=sd(actual)/2 , sd=2*sd(actual) ) )
-  agammaShRasamplesizeImpact = unlist( gammaShRaFromModeSD( mode=sd(samplesize)/2 , sd=2*sd(samplesize) ) )
+  #agammaShRasamplesizeImpact = unlist( gammaShRaFromModeSD( mode=sd(samplesize)/2 , sd=2*sd(samplesize) ) )
   # Specify the data in a list for sending to JAGS:
   dataList = list(
     actual=actual,
     poll=poll ,
     whichrace=whichrace,
     raceID=raceID,
-    delMode = delMode,
+    #delMode = delMode,
     LV = LV,
-    transparency = transparency,
-    samplesize = samplesize,
+   # transparency = transparency,
+    #samplesize = samplesize,
     
-    NdelModeLvl = NdelModeLvl ,
+  #  NdelModeLvl = NdelModeLvl ,
     NLVLvl = NLVLvl,
-    NtransparencyLvl = NtransparencyLvl ,
+   # NtransparencyLvl = NtransparencyLvl ,
     NraceIDLvl=NraceIDLvl,
     # data properties for scaling the prior:
-    samplesizeSD = sd(samplesize) ,
+    #samplesizeSD = sd(samplesize) ,
     actualSD = sd(actual) ,
-    agammaShRa = agammaShRa,
-    agammaShRasamplesizeImpact = agammaShRasamplesizeImpact
+    agammaShRa = agammaShRa
+    #agammaShRasamplesizeImpact = agammaShRasamplesizeImpact
     
   )
   #------------------------------------------------------------------------------
@@ -82,8 +87,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     actual[race1] ~ dnorm(mu[race1], 1/actualSpread^2)
     
    for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
-     weight[myPoll]=delModeImpact[delMode[myPoll]]+LVImpact[LV[myPoll]]+
-     transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
+     weight[myPoll]=LVImpact[LV[myPoll]]
    
    }
 
@@ -98,19 +102,10 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
 
 
   
-    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) }
-    delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+ 
+    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dgamma( agammaShRa[1] , agammaShRa[2]) }
     
-    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dnorm( 0.0 , 1/LVSpread^2 ) }
-    LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
-    
-    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) }
-    transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
-    
-    samplesizeImpact ~ dgamma( agammaShRasamplesizeImpact[1] , agammaShRasamplesizeImpact[2] ) 
-    actualSpread ~ dunif(actualSD/100, actualSD*10)
-    
-    
+     actualSpread ~ dunif(actualSD/100, actualSD*10)
   }
   " # close quote for modelstring
   writeLines(modelstring,con="TEMPmodel.txt")
@@ -138,7 +133,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c(  "delModeImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu"  )
+  parameters = c(   "LVImpact" ,  "actualSpread", "mu"  )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -260,37 +255,37 @@ plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, poll
   polls= datFrmPredictor[,pollName]
   raceID = as.numeric(as.factor(refFrame[,raceIDName]))
   NraceIDLvl = length(raceID)
-
-
+  
+  
   for ( raceidx in raceplots ){
     openGraph(width=8,height=8)
     raceNameidx=refFrame[raceidx,2]
     pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
-     plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
-          ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
-  ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=raceNameidx)
+    plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
+         ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
+         ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=raceNameidx)
     abline(a=0,b=0)
-
+    
     points(pollresults, runif(length(pollresults))-1.5, col="blue")
     chainSub = round(seq(1,chainLength,length=20))
     
-  
+    
     
     for ( chnIdx in chainSub ) {
       m = mcmcMat[chnIdx,paste("mu[",raceidx,"]",sep="")]
-
+      
       s = mcmcMat[chnIdx,"actualSpread"] # spread
-
-
+      
+      
       nlim = qnorm( c(0.01,0.99) )
       yl = m+nlim[1]*s
       yh = m+nlim[2]*s
       ycomb=seq(yl,yh,length=201)
       ynorm = dnorm(ycomb,mean=m,sd=s)
       ynorm = 2.75*ynorm/max(ynorm)
-
+      
       lines( ycomb , ynorm , col="skyblue" )
-
+      
     }
     if ( !is.null(saveName) ) {
       saveGraph( file=paste0(saveName,"PostPred-",raceNameidx), type=saveType)
@@ -299,63 +294,63 @@ plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, poll
 }
 
 plotSampleSizePosterior = function( codaSamples , 
-                              datFrm  , 
-                              saveName=NULL , saveType="jpg",
-                              showCurve = FALSE, title="Sample Size Impact") {
+                                    datFrm  , 
+                                    saveName=NULL , saveType="jpg",
+                                    showCurve = FALSE, title="Sample Size Impact") {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   samplesizeName ="samplesize"
-   pollName ="poll"
- 
-    openGraph(width=8,height=8)
+  pollName ="poll"
+  
+  openGraph(width=8,height=8)
+  
+  # posterior of the mean for sample size distrubtion 
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  samplesizeImpact= mcmcMat[,"samplesizeImpact"]
+  plotPost( samplesizeImpact , cex.lab = 1.75 , showCurve=showCurve ,
+            xlab=bquote(samplesizeImpact) , main=title )
+  print(mean(samplesizeImpact))
+  if ( !is.null(saveName) ) {
+    saveGraph( file=paste0(saveName,"samplesizeImpact", type=saveType))
     
-    # posterior of the mean for sample size distrubtion 
-    mcmcMat = as.matrix(codaSamples,chains=TRUE)
-    samplesizeImpact= mcmcMat[,"samplesizeImpact"]
-    plotPost( samplesizeImpact , cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(samplesizeImpact) , main=title )
-    print(mean(samplesizeImpact))
-    if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"samplesizeImpact", type=saveType))
-    
-    }
+  }
 }
 
 plotLVPosterior = function( codaSamples , 
-                                    datFrmPredictor  , 
-                                    saveName=NULL , saveType="jpg",
-                                    showCurve = FALSE) {
+                            datFrmPredictor  , 
+                            saveName=NULL , saveType="jpg",
+                            showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   LVName ="LV"
   pollName ="poll"
- 
+  
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
   LVLevels = levels(as.factor(datFrmPredictor[,LVName]))
   NLVLvl = length(unique(LV))
   for ( LVidx in 1:length(LVLevels)) {
-  openGraph(width=8,height=8)
-
-  # posterior of the mean for sample size distrubtion 
+    openGraph(width=8,height=8)
+    
+    # posterior of the mean for sample size distrubtion 
     
     #give better titles - using LVLevels[1]=FALSE, LVLevels[2]=TRUE
-if(LVidx==1){title="Non Likely-Voter Turnout Model Impact"}
-if(LVidx==2){title="Likely-Voter Turnout Model Impact"}
+    if(LVidx==1){title="Non Likely-Voter Turnout Model Impact"}
+    if(LVidx==2){title="Likely-Voter Turnout Model Impact"}
     plotPost( mcmcMat[,paste("LVImpact[",LVidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(LVImpact) , main=title)
-
-  if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,title, type=saveType))
+              xlab=bquote(LVImpact) , main=title)
     
-  }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,title, type=saveType))
+      
+    }
   }
 }
-  
+
 plotdelModePosterior = function( codaSamples , 
-                            datFrmPredictor  , 
-                            saveName=NULL , saveType="jpg",
-                            showCurve = FALSE) {
+                                 datFrmPredictor  , 
+                                 saveName=NULL , saveType="jpg",
+                                 showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   delModeName ="delMode"
@@ -389,7 +384,3 @@ plotdelModePosterior = function( codaSamples ,
     }
   }
 }
-  
-
-
-

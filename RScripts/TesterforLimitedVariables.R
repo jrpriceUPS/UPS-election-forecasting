@@ -22,57 +22,57 @@ raceFullName=unique(newdata$race)
 refdataframe=data.frame(races,raceFullName,actual) 
 
 for (i in 1:nrow(refdataframe)){
- 
-myFullName=refdataframe[i,2]
-
- myFullName= str_replace_all(myFullName, "_", " ")
- refdataframe[i,2]=myFullName
+  
+  myFullName=refdataframe[i,2]
+  
+  myFullName= str_replace_all(myFullName, "_", " ")
+  refdataframe[i,2]=myFullName
 }
 
 # refdataframe=data.frame(races,raceFullName,actual) 
- 
-#create the whichrace list. 
- 
- 
- # whichrace <- vector(mode = "numeric", 0)
- #  for (i in unique(newdata$race_id)){
- #    subsetrace = subset (newdata, race_id==i)
- #    counter=nrow(subsetrace)
- #    whichrace = rlist::list.append(whichrace, counter)
- #  }
 
- 
-  #create list to feed info with
-  
-  predictorsframe = newdata[,c("race_id","cand1_actual", "cand1_pct",
-                               "delMode","transparency", "samplesize","LV")]
-  
-  whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
-  whichrace=whichrace-1
-  whichrace=c(whichrace,nrow(newdata))
-  
-  
+#create the whichrace list. 
+
+
+# whichrace <- vector(mode = "numeric", 0)
+#  for (i in unique(newdata$race_id)){
+#    subsetrace = subset (newdata, race_id==i)
+#    counter=nrow(subsetrace)
+#    whichrace = rlist::list.append(whichrace, counter)
+#  }
+
+
+#create list to feed info with
+
+predictorsframe = newdata[,c("race_id","cand1_actual", "cand1_pct",
+                             "delMode","transparency", "samplesize","LV")]
+
+whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
+whichrace=whichrace-1
+whichrace=c(whichrace,nrow(newdata))
+
+
 myDataFrame=predictorsframe
 
 
 #Less Options for Del Mode is Helpful:
 for (i in 1:nrow(myDataFrame)){
   myMode=myDataFrame[i,4]
-  if(myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
-    myDataFrame[i,4]="Online"
+  if(myMode=="IVR/Live"||myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
+    myDataFrame[i,4]="IVR Combination"
   }
-  if(myMode=="Live*"||myMode=="Live/Text"||myMode=="Online/Live"||myMode=="IVR/Live"){
+  if(myMode=="Live*"){
     myDataFrame[i,4]="Live"
+  }
+  if(myMode=="Live/Text"||myMode=="Online/Live"){
+    myDataFrame[i,4]="Live Combination"
   }
 }
 
-#remove mail and landline (3 total polls)
-myDataFrame=myDataFrame[myDataFrame$delMode!="Landline",]
-myDataFrame=myDataFrame[myDataFrame$delMode!="Mail",]
 
 
-fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
-fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
+fileNameRootSim = "Simulations/Weight-JustLV-ANCOVA-" 
+fileNameRoot = "Markdown/Figures/Weight-JustLV-ANCOVA-" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -83,20 +83,21 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA-V04.R")
+source("RScripts/WeightPollJustLV.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
-mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
-                    actualName="actual", 
-                    delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
-                    samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
-                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
+mcmcCodaJustLV = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
+                    actualName="actual", LVName="LV",
+                    #delModeName="delMode" ,  transparencyName="transparency", 
+                    #samplesizeName ="samplesize",
+                    raceIDName = "races", whichrace=whichrace,
+                    numSavedSteps=14000 , thinSteps=12 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
-parameterNames = varnames(mcmcCoda) 
+parameterNames = varnames(mcmcCodaJustLV) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("actualSpread",   
-                   "delModeImpact[1]", "samplesizeImpact" , "mu[1]") ) {
+                   "LVImpact[1]",   "LVImpact[2]" , "mu[1]") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
@@ -108,17 +109,17 @@ summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName=
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.
 #plotPosteriorPredictive( mcmcCoda , datFrm=myDataFrame , 
-    #      saveName=fileNameRoot , saveType=graphFileType )
+#      saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
 #plot the posterior predictive distrubtions
 
-plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
+plotPosteriorPredictive(codaSample=mcmcCodaJustLV, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
                         pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
                         saveType=graphFileType)
 
 
 #plot the LV distribution
-plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+plotLVPosterior(codaSample=mcmcCodaJustLV,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                 saveType=graphFileType)
 
 #plot delModeImpact Posterior
@@ -161,7 +162,7 @@ plot(samplesizeImpact,transparencyImpact2,
 
 
 #Look at the correlations between LV and delMode
-mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+mcmcMat = as.matrix(mcmcCodaJustLV,chains=TRUE)
 delModeImpact2 = mcmcMat[,"delModeImpact[2]"]
 delModeImpact7 = mcmcMat[,"delModeImpact[7]"]
 
