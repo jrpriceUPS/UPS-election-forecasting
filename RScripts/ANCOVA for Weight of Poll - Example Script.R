@@ -46,11 +46,7 @@ myFullName=refdataframe[i,2]
   
   predictorsframe = newdata[,c("race_id","cand1_actual", "cand1_pct",
                                "delMode","transparency", "samplesize","LV")]
-  
-  whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
-  whichrace=whichrace-1
-  whichrace=c(whichrace,nrow(newdata))
-  
+ 
   
 myDataFrame=predictorsframe
 
@@ -69,6 +65,11 @@ for (i in 1:nrow(myDataFrame)){
 #remove mail and landline (3 total polls)
 myDataFrame=myDataFrame[myDataFrame$delMode!="Landline",]
 myDataFrame=myDataFrame[myDataFrame$delMode!="Mail",]
+
+#which race indexing:
+whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
+whichrace=whichrace-1
+whichrace=c(whichrace,nrow(newdata))
 
 
 fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
