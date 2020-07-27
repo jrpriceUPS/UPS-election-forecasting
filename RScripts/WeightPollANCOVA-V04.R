@@ -314,14 +314,16 @@ showCurve = FALSE) {
   
   
   for ( raceidx in raceplots ){
-  #Arrange plots to 2 rows and 1 column. 
-   par(mfrow=c(2,1))
+    openGraph(width=13,height=8)
+      #Arrange plots to 2 rows and 1 column. 
+     layout(matrix(c(1,2), ncol=1))
     raceNameidx=refFrame[raceidx,2]
     pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
     
     #plot the mean
     plotPost( mcmcMat[,paste("mu[",raceidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(LVImpact) , main="mu")
+              xlab=bquote(LVImpact) , main="Mean",xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10)
+              )
     
     #plot post-predictive
     plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
@@ -445,7 +447,41 @@ plotdelModePosterior = function( codaSamples ,
     }
   }
 }
+
+plotTransparencyPosterior = function( codaSamples , 
+                                 datFrmPredictor  , 
+                                 saveName=NULL , saveType="jpg",
+                                 showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  transparencyName ="transparency"
+  pollName ="poll"
   
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
+  transparencyLevels = levels(as.factor(datFrmPredictor[,transparencyName]))
+  NtransparencyLvl = length(unique(transparency))
+  for ( transparencyidx in 1:length(transparencyLevels)) {
+    openGraph(width=4,height=4)
+    
+    # posterior of the mean for sample size distrubtion 
+    
+    #give better titles - using delModLevels
+    if(transparencyidx==1){titleT="Untransparent Impact"}
+    if(transparencyidx==2){titleT="Transparent Impact"}
+
+    
+    
+    
+    plotPost( mcmcMat[,paste("transparencyImpact[",transparencyidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(transparencyImpact) , main=titleT)
+    
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,titleT, type=saveType))
+      
+    }
+  }
+}
 
 
 

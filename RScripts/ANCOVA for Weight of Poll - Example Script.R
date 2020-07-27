@@ -27,7 +27,7 @@ for (i in 1:nrow(refdataframe)){
  
 myFullName=refdataframe[i,2]
 
- myFullName= str_replace_all(myFullName, "_", " ")
+ myFullName= stringr::str_replace_all(myFullName, "_", " ")
  refdataframe[i,2]=myFullName
 }
 
@@ -118,7 +118,9 @@ plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredic
                         pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
                         saveType=graphFileType)
 
-
+meanPosterior(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
+              pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+              saveType=graphFileType)
 #plot the LV distribution
 plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                 saveType=graphFileType)
@@ -126,6 +128,10 @@ plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=f
 #plot delModeImpact Posterior
 plotdelModePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                      saveType=graphFileType)
+
+#plot Transparenct Posterior
+plotTransparencyPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                          saveType=graphFileType)
 
 #plot the samplesize 
 plotSampleSizePosterior(mcmcCoda, datFrm=myDataFrame,  saveName=fileNameRoot , 
