@@ -298,6 +298,65 @@ plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, poll
   }
 }
 
+meanPosterior = function (codaSamples, refFrame ,datFrmPredictor, pollName="cand1_pct" , 
+raceIDName="races", actualName="actual",
+whichrace,
+saveName=NULL , saveType="jpg", raceplots,
+showCurve = FALSE) {
+ 
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  
+  actual = refFrame[,actualName]
+  polls= datFrmPredictor[,pollName]
+  raceID = as.numeric(as.factor(refFrame[,raceIDName]))
+  NraceIDLvl = length(raceID)
+  
+  
+  for ( raceidx in raceplots ){
+  #Arrange plots to 2 rows and 1 column. 
+   par(mfrow=c(2,1))
+    raceNameidx=refFrame[raceidx,2]
+    pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
+    
+    #plot the mean
+    plotPost( mcmcMat[,paste("mu[",raceidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(LVImpact) , main="mu")
+    
+    #plot post-predictive
+    plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
+         ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
+         ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=raceNameidx)
+    abline(a=0,b=0)
+    
+    points(pollresults, runif(length(pollresults))-1.5, col="blue")
+    chainSub = round(seq(1,chainLength,length=20))
+    
+    
+    
+    for ( chnIdx in chainSub ) {
+      m = mcmcMat[chnIdx,paste("mu[",raceidx,"]",sep="")]
+      
+      s = mcmcMat[chnIdx,"actualSpread"] # spread
+      
+      
+      nlim = qnorm( c(0.01,0.99) )
+      yl = m+nlim[1]*s
+      yh = m+nlim[2]*s
+      ycomb=seq(yl,yh,length=201)
+      ynorm = dnorm(ycomb,mean=m,sd=s)
+      ynorm = 2.75*ynorm/max(ynorm)
+      
+      lines( ycomb , ynorm , col="skyblue" )
+      
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostMean-",raceNameidx), type=saveType)
+    }
+  }
+}
+
+
 plotSampleSizePosterior = function( codaSamples , 
                               datFrm  , 
                               saveName=NULL , saveType="jpg",

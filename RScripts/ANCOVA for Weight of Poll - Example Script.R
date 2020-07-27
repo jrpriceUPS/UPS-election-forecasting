@@ -6,7 +6,9 @@ graphics.off() # This closes all of R's graphics windows.
 
 #load the cleaned data
 mydata=read.csv("Data/raw-polls_538_weekprior.csv")
-
+#remove mail and landline (3 total polls)
+mydata=mydata[mydata$delMode!="Landline",]
+mydata=mydata[mydata$delMode!="Mail",]
 
 
 #Order the data
@@ -62,9 +64,7 @@ for (i in 1:nrow(myDataFrame)){
   }
 }
 
-#remove mail and landline (3 total polls)
-myDataFrame=myDataFrame[myDataFrame$delMode!="Landline",]
-myDataFrame=myDataFrame[myDataFrame$delMode!="Mail",]
+
 
 predictorsframe=myDataFrame
 #which race indexing:
@@ -190,3 +190,6 @@ plot(samplesizeImpactLog,samplesizeImpactMOE,
 subdata=subset(mydata, year==2000)
 lattice::densityplot(~bias, data = subdata, groups = LV, main = "2000 LV v. Non LV Comparsion")
 lattice::densityplot(~bias, data = subdata, main = "2000 LV v. Non LV Comparsion")
+
+
+
