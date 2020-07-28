@@ -429,12 +429,12 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA-V04.R")
+source("RScripts/WeightedNoLV.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
                     actualName="actual", 
-                    delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+                    delModeName="delMode" , transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 

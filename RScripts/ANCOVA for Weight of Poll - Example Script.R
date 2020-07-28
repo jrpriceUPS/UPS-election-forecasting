@@ -74,8 +74,8 @@ whichrace=whichrace-1
 whichrace=c(whichrace,nrow(newdata))
 
 
-fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-" 
-fileNameRoot = "Markdown/Figures/Weight-Pollster-Bayes-ANCOVA-" 
+fileNameRootSim = "Simulations/Weight-NoLV" 
+fileNameRoot = "Markdown/Figures/Weight-NoLV" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -85,13 +85,14 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #myDataFrame$samplesize =MarginOfError
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
-#source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA-V04.R")
+#Worked without LV.
+source("RScripts/WeightedNoLV.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
                     actualName="actual", 
-                    delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+                    #LVName="LV" ,
+                    delModeName="delMode" ,  transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
@@ -105,7 +106,8 @@ for ( parName in c("actualSpread",
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , #LVName="LV" ,
+                        transparencyName="transparency", 
                         samplesizeName ="samplesize", 
                         saveName=fileNameRoot )
 show(summaryInfo)
@@ -123,8 +125,8 @@ meanPosterior(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDa
               pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
               saveType=graphFileType)
 #plot the LV distribution
-plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                saveType=graphFileType)
+# plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+#                 saveType=graphFileType)
 
 #plot delModeImpact Posterior
 plotdelModePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 

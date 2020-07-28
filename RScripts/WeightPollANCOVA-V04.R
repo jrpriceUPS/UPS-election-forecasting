@@ -187,14 +187,12 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
   if ( !is.null(datFrm) & !is.null(delModeName) ) {
     delModelevels = levels(as.factor(datFrm[,delModeName]))
   }
-  if ( !is.null(datFrm) & !is.null(LVName) ) {
-    delModelevels = levels(as.factor(datFrm[,delModeName]))
-  }
+
   if ( !is.null(datFrm) & !is.null(transparencyName) ) {
-    delModelevels = levels(as.factor(datFrm[,delModeName]))
+    transparencylevels = levels(as.factor(datFrm[,transparencyName]))
   }
   if ( !is.null(datFrm) & !is.null(samplesizeName) ) {
-    delModelevels = levels(as.factor(datFrm[,delModeName]))
+    samplesizelevels = levels(as.factor(datFrm[,samplesizeName]))
   }
   summaryInfo = NULL
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
@@ -248,7 +246,11 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
   #     }
   #   }
   # }
+  
+  # remove the extra columns
+  summaryInfo= summaryInfo[,1:7]
   # Save results:
+
   if ( !is.null(saveName) ) {
     write.csv( summaryInfo , file=paste(saveName,"SummaryInfo.csv",sep="") )
   }
