@@ -640,7 +640,7 @@ source("RScripts/WeightedSampleSizeandDelMode.R")
 mcmcCodaSSDM = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
                     actualName="actual", 
                     #LVName="LV" ,
-                    delModeName="delMode" ,  transparencyName="transparency", 
+                    delModeName="delMode" ,  #transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
                     numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
@@ -655,7 +655,7 @@ for ( parName in c("actualSpread",
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( codaSamples=mcmcCodaSSDM , datFrm=myDataFrame , delModeName="delMode" , #LVName="LV" ,
-                        transparencyName="transparency", 
+                       # transparencyName="transparency", 
                         samplesizeName ="samplesize", 
                         saveName=fileNameRoot )
 show(summaryInfo)
@@ -680,12 +680,9 @@ meanPosterior(codaSample=mcmcCodaSSDM, refFrame=refdataframe, datFrmPredictor = 
 plotdelModePosterior(codaSample=mcmcCodaSSDM,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                      saveType=graphFileType)
 
-#plot Transparenct Posterior
-plotTransparencyPosterior(codaSample=mcmcCodaSSDM,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                          saveType=graphFileType)
 
 #plot the samplesize 
-plotSampleSizePosterior(mcmc, datFrm=myDataFrame,  saveName=fileNameRoot , 
+plotSampleSizePosterior(mcmcCodaSSDM, datFrm=myDataFrame,  saveName=fileNameRoot , 
                         saveType=graphFileType, title="Sample Size Impact ")
 
 #plot SampleSize Prior 
@@ -701,3 +698,75 @@ hist(X,prob=T,main='Gamma Prior', breaks=47)
 #lines(density(X),col='red',lwd=2)
 
 
+
+
+
+
+################################################################################################
+#one for just samplesize and transparency
+predictorsframe=myDataFrame
+#which race indexing:
+whichrace=match(unique(predictorsframe$race_id), predictorsframe$race_id)
+whichrace=whichrace-1
+whichrace=c(whichrace,nrow(newdata))
+
+
+fileNameRootSim = "Simulations/Weight-SampleSizeDelMode" 
+fileNameRoot = "Markdown/Figures/Weight-SampleSizeDelMode" 
+graphFileType = "png" 
+
+myDataFrame$samplesize =myDataFrame $ samplesize/1000
+#myDataFrame$samplesize = myDataFrame$log(samplesize)
+
+#MarginOfError = sqrt(.25/myDataFrame$samplesize)*100
+#myDataFrame$samplesize =MarginOfError
+#------------------------------------------------------------------------------- 
+# Load the relevant model into R's working memory:
+#Worked without LV.
+source("RScripts/WeightedSampleSizeandTransparency.R")
+#------------------------------------------------------------------------------- 
+# Generate the MCMC chain:
+mcmcCodaSST = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
+                        actualName="actual", 
+                        #LVName="LV" ,
+                          transparencyName="transparency", 
+                        samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
+                        numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
+#------------------------------------------------------------------------------- 
+# Display diagnostics of chain, for specified parameters:
+parameterNames = varnames(mcmcCodaSST) 
+show( parameterNames ) # show all parameter names, for reference
+for ( parName in c("actualSpread",   
+                 #  "transparencyImpact[1]", 
+                   "samplesizeImpact" , "mu[1]") ) {
+  diagMCMC( codaObject=mcmcCodaSSDM , parName=parName , 
+            saveName=fileNameRoot , saveType=graphFileType )
+}
+#------------------------------------------------------------------------------- 
+# Get summary statistics of chain:
+summaryInfo = smryMCMC( codaSamples=mcmcCodaSST , datFrm=myDataFrame , transparencyName="transparency" , #LVName="LV" ,
+                        # transparencyName="transparency", 
+                        samplesizeName ="samplesize", 
+                        saveName=fileNameRoot )
+show(summaryInfo)
+# Display posterior information: At this point just for delMode and sample size.
+#plotPosteriorPredictive( mcmcCodaSSDM , datFrm=myDataFrame , 
+#      saveName=fileNameRoot , saveType=graphFileType )
+#------------------------------------------------------------------------------- 
+#plot the posterior predictive distrubtions
+
+plotPosteriorPredictive(codaSample=mcmcCodaSST, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
+                        pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+                        saveType=graphFileType)
+
+meanPosterior(codaSample=mcmcCodaSST, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
+              pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+              saveType=graphFileType)
+plotTransparencyPosterior(codaSample=mcmcCodaSST,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                          saveType=graphFileType)
+
+
+
+#plot the samplesize 
+plotSampleSizePosterior(mcmcCodaSST, datFrm=myDataFrame,  saveName=fileNameRoot , 
+                        saveType=graphFileType, title="Sample Size Impact ")
