@@ -75,7 +75,7 @@ for (i in 1:nrow(myDataFrame)){
 
 
 fileNameRootSim = "Simulations/Weight-JustLV-ANCOVA-" 
-fileNameRoot = "Markdown/Figures/Weight-JustLV-ANCOVA-" 
+fileNameRoot = "Markdown/Figures/WeightedModels/JustLV/Weight-JustLV-ANCOVA-" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -712,7 +712,7 @@ whichrace=c(whichrace,nrow(newdata))
 
 
 fileNameRootSim = "Simulations/Weight-SampleSizeDelMode" 
-fileNameRoot = "Markdown/Figures/Weight-SampleSizeDelMode" 
+fileNameRoot = fileNameRoot = "Markdown/Figures/WeightedModels/SampleSizeDelMode/Weight-SampleSizeDelMode" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -747,7 +747,7 @@ for ( parName in c("actualSpread",
 summaryInfo = smryMCMC( codaSamples=mcmcCodaSST , datFrm=myDataFrame , transparencyName="transparency" , #LVName="LV" ,
                         # transparencyName="transparency", 
                         samplesizeName ="samplesize", 
-                        saveName=fileNameRoot )
+                        saveName=fileNameRootSim )
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.
 #plotPosteriorPredictive( mcmcCodaSSDM , datFrm=myDataFrame , 

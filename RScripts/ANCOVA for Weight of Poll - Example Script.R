@@ -75,7 +75,7 @@ whichrace=c(whichrace,nrow(newdata))
 
 
 fileNameRootSim = "Simulations/Weight-NoLV" 
-fileNameRoot = "Markdown/Figures/Weight-NoLV" 
+fileNameRoot = "Markdown/Figures/WeightedModels/NoLV/Weight-NoLV" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -109,7 +109,7 @@ for ( parName in c("actualSpread",
 summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , #LVName="LV" ,
                         transparencyName="transparency", 
                         samplesizeName ="samplesize", 
-                        saveName=fileNameRoot )
+                        saveName=fileNameRootSim )
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.
 #plotPosteriorPredictive( mcmcCoda , datFrm=myDataFrame , 
