@@ -187,6 +187,15 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
   if ( !is.null(datFrm) & !is.null(delModeName) ) {
     delModelevels = levels(as.factor(datFrm[,delModeName]))
   }
+  if ( !is.null(datFrm) & !is.null(LVName) ) {
+    delModelevels = levels(as.factor(datFrm[,delModeName]))
+  }
+  if ( !is.null(datFrm) & !is.null(transparencyName) ) {
+    delModelevels = levels(as.factor(datFrm[,delModeName]))
+  }
+  if ( !is.null(datFrm) & !is.null(samplesizeName) ) {
+    delModelevels = levels(as.factor(datFrm[,delModeName]))
+  }
   summaryInfo = NULL
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   for ( parName in parameterNames ) {

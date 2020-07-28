@@ -5,6 +5,7 @@ graphics.off() # This closes all of R's graphics windows.
 #rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
+#mydata=read.csv("Data/raw-polls_538_cleaned.csv")
 mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 #remove mail and landline (3 total polls)
 mydata=mydata[mydata$delMode!="Landline",]
