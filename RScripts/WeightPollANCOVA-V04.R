@@ -175,8 +175,6 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   return( codaSamples )
 }
 
-#===============================================================================
-
 smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName="LV" , 
                       transparencyName="transparency", 
                       samplesizeName ="samplesize",
@@ -187,9 +185,12 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
   if ( !is.null(datFrm) & !is.null(delModeName) ) {
     delModelevels = levels(as.factor(datFrm[,delModeName]))
   }
-
+  
   if ( !is.null(datFrm) & !is.null(transparencyName) ) {
     transparencylevels = levels(as.factor(datFrm[,transparencyName]))
+  }
+  if ( !is.null(datFrm) & !is.null(LVName) ) {
+    LVlevels = levels(as.factor(datFrm[,LVName]))
   }
   if ( !is.null(datFrm) & !is.null(samplesizeName) ) {
     samplesizelevels = levels(as.factor(datFrm[,samplesizeName]))
@@ -208,8 +209,9 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
               unlist( strsplit( parName , "\\[|,|\\]"  ) ) , 
               value=TRUE ) )
       if ( length(levelVal) > 0 ) { 
+        
         # Assumes there is only a single factor, i.e., levelVal has only entry: 
-        thisRowName = paste(thisRowName,delModelevels[levelVal]) 
+        # thisRowName = paste(thisRowName,delModelevels[levelVal]) 
       }
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
@@ -250,7 +252,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
   # remove the extra columns
   summaryInfo= summaryInfo[,1:7]
   # Save results:
-
+  
   if ( !is.null(saveName) ) {
     write.csv( summaryInfo , file=paste(saveName,"SummaryInfo.csv",sep="") )
   }
