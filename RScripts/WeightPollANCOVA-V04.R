@@ -98,14 +98,14 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
 
 
   
-    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dnorm( 0.0 , 1/delModeSpread^2 ) }
-    delModeSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
+
     
-    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dnorm( 0.0 , 1/LVSpread^2 ) }
-    LVSpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  }
+   
     
-    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dnorm( 0.0 , 1/transparencySpread^2 ) }
-    transparencySpread ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  }
+   
     
     samplesizeImpact ~ dgamma( agammaShRasamplesizeImpact[1] , agammaShRasamplesizeImpact[2] ) 
     actualSpread ~ dunif(actualSD/100, actualSD*10)

@@ -13,6 +13,9 @@ mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 mydata=mydata[mydata$delMode!="Landline",]
 mydata=mydata[mydata$delMode!="Mail",]
 
+#limit to just US overall, no more consideration of state elections
+mydata=mydata[mydata$location=="US",]
+
 
 #Order the data
 
@@ -95,13 +98,13 @@ mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName
                     actualName="actual", 
                     delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
-                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
+                    numSavedSteps=21000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("actualSpread",   
-                   "delModeImpact[1]", "samplesizeImpact" , "mu[1]") ) {
+                   "delModeImpact[1]", "samplesizeImpact" , "mu[1]","LVImpact[1]") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
@@ -118,11 +121,11 @@ show(summaryInfo)
 #plot the posterior predictive distrubtions
 
 plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
-                        pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+                        pollName = "margin_poll", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
                         saveType=graphFileType)
 
 meanPosterior(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
-              pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+              pollName = "margin_poll", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
               saveType=graphFileType)
 #plot the LV distribution
 plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
