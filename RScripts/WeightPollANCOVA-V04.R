@@ -76,11 +76,11 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     LV = LV,
     transparency = transparency,
     samplesize = samplesize,
-    
-    NIVRLvl=NIVRLvl,
-    NonlineLvl=NonlineLvl,
-    NliveLvl=NliveLvl,
-    NtextLvl=NtextLvl,
+     
+    # NIVRLvl=NIVRLvl,
+    # NonlineLvl=NonlineLvl,
+    # NliveLvl=NliveLvl,
+    # NtextLvl=NtextLvl,
     
     NLVLvl = NLVLvl,
     NtransparencyLvl = NtransparencyLvl ,
@@ -101,8 +101,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     actual[race1] ~ dnorm(mu[race1], 1/actualSpread^2)
     
    for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
-     weight[myPoll]=IVRImpact[IVR[myPoll]]+onlineImpact[online[myPoll]]+
-     liveImpact[live[myPoll]]+textImpact[text[myPoll]]+
+     weight[myPoll]=IVRImpact*IVR + onlineImpact*online +
+     liveImpact*live + textImpact*text+
      LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
    
@@ -117,13 +117,11 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     }
   }
 
+IVRImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+onlineImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+liveImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+textImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
 
-  
-    for ( myIVR in 1:NIVRLvl ) { IVRImpact[myIVR] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
-    for ( myonline in 1:NonlineLvl ) { onlineImpact[myonline] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
-    for ( mylive in 1:NliveLvl ) { liveImpact[mylive] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
-    for ( mytext in 1:NtextLvl ) { textImpact[mytext] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
-    
     for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  }
    
     
