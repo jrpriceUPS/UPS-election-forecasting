@@ -121,7 +121,7 @@ for ( parName in c("actualSpread",
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
 summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , LVName="LV" , transparencyName="transparency", 
-                        samplesizeName ="samplesize", 
+                        samplesizeName ="samplesize",   IVRName="IVR" ,onlineName="online" ,liveName="live" ,textName="text" ,
                         saveName=fileNameRoot )
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.
@@ -141,9 +141,15 @@ meanPosterior(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDa
 plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                 saveType=graphFileType)
 
-#plot delModeImpact Posterior
-plotdelModePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+#plot delModeImpact Posteriors
+plotIVRPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                      saveType=graphFileType)
+plotonlinePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                 saveType=graphFileType)
+plotlivePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                 saveType=graphFileType)
+plottextPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+                 saveType=graphFileType)
 
 #plot Transparenct Posterior
 plotTransparencyPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 

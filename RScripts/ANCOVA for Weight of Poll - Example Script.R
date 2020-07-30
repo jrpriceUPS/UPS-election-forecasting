@@ -106,9 +106,10 @@ for ( parName in c("actualSpread",
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , #LVName="LV" ,
+summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , # LVName="LV" ,
                         transparencyName="transparency", 
                         samplesizeName ="samplesize", 
+                      delModeName="delMode",
                         saveName=fileNameRootSim )
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.

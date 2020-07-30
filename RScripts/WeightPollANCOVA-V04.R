@@ -161,8 +161,9 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c(  "IVRImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu" ,
-                   "onlineImpact","liveImpact","textImpact")
+  parameters = c( "IVRImpact" , "onlineImpact", "liveImpact", "textImpact",
+                   "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu" 
+                  )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -481,17 +482,14 @@ plotIVRPosterior = function( codaSamples ,
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(IVRidx==1){titleMode="Delivery Mode - IVR Impact"}
-    if(IVRidx==2){titleMode="Delivery Mode - Live Impact"}
-    if(IVRidx==3){titleMode="Delivery Mode - Online Impact"}
+    if(IVRidx==1){titleIVR="No IVR Impact"}
+    if(IVRidx==2){titleIVR="IVR Impact"}
   
-    
-    
     plotPost( mcmcMat[,paste("IVRImpact[",IVRidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(IVRImpact) , main=titleMode)
+              xlab=bquote(IVRImpact) , main=titleIVR)
     
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      saveGraph( file=paste0(saveName,titleIVR, type=saveType))
       
     }
   }
@@ -516,17 +514,17 @@ plotonlinePosterior = function( codaSamples ,
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(onlineidx==1){titleMode="Delivery Mode - IVR Impact"}
-    if(onlineidx==2){titleMode="Delivery Mode - Live Impact"}
-    if(onlineidx==3){titleMode="Delivery Mode - Online Impact"}
+    if(onlineidx==1){titleOnline="No Online Impact"}
+    if(onlineidx==2){titleOnline="Online Impact"}
+
     
     
     
     plotPost( mcmcMat[,paste("onlineImpact[",onlineidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(onlineImpact) , main=titleMode)
+              xlab=bquote(onlineImpact) , main=titleOnline)
     
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      saveGraph( file=paste0(saveName,titleOnline, type=saveType))
       
     }
   }
@@ -550,17 +548,16 @@ plottextPosterior = function( codaSamples ,
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(textidx==1){titleMode="Detextry Mode - IVR Impact"}
-    if(textidx==2){titleMode="Detextry Mode - text Impact"}
-    if(textidx==3){titleMode="Detextry Mode - text Impact"}
+    if(textidx==1){titleText="No Text Impact"}
+    if(textidx==2){titleText="Text Impact"}
     
     
     
     plotPost( mcmcMat[,paste("textImpact[",textidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(textImpact) , main=titleMode)
+              xlab=bquote(textImpact) , main=titleText)
     
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      saveGraph( file=paste0(saveName,titleText, type=saveType))
       
     }
   }
@@ -584,17 +581,16 @@ plotlivePosterior = function( codaSamples ,
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(liveidx==1){titleMode="Delivery Mode - IVR Impact"}
-    if(liveidx==2){titleMode="Delivery Mode - Live Impact"}
-    if(liveidx==3){titleMode="Delivery Mode - Online Impact"}
+    if(liveidx==1){titleLive="No  Live Impact"}
+    if(liveidx==2){titleLive="Live Impact"}
     
     
     
     plotPost( mcmcMat[,paste("liveImpact[",liveidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(liveImpact) , main=titleMode)
+              xlab=bquote(liveImpact) , main=titleLive)
     
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      saveGraph( file=paste0(saveName,titleLive, type=saveType))
       
     }
   }
