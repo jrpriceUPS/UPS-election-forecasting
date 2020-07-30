@@ -105,8 +105,9 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
    for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
      weight[myPoll]=IVRImpact*(IVR[myPoll]-1) + onlineImpact*(online[myPoll]-1) +
      liveImpact*(live[myPoll]-1) + textImpact*(text[myPoll]-1)+
-     LVImpact[LV[myPoll]]+
-     transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
+     LVImpact*(LV[myPoll]-1)+
+     transparencyImpact*(transparency[myPoll]-1)
+     +samplesizeImpact*samplesize[myPoll]
    
    }
 
@@ -124,10 +125,10 @@ onlineImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )
 liveImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
 textImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
 
-    for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  }
+LVImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )  
    
     
-    for ( mytransparency in 1:NtransparencyLvl ) { transparencyImpact[mytransparency] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  }
+transparencyImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )  
    
     
     samplesizeImpact ~ dgamma( agammaShRasamplesizeImpact[1] , agammaShRasamplesizeImpact[2] ) 
@@ -445,15 +446,15 @@ plotLVPosterior = function( codaSamples ,
   LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
   LVLevels = levels(as.factor(datFrmPredictor[,LVName]))
   NLVLvl = length(unique(LV))
-  for ( LVidx in 1:length(LVLevels)) {
+  
   openGraph(width=8,height=8)
 
   # posterior of the mean for sample size distrubtion 
     
     #give better titles - using LVLevels[1]=FALSE, LVLevels[2]=TRUE
-if(LVidx==1){title="Non Likely-Voter Turnout Model Impact"}
-if(LVidx==2){title="Likely-Voter Turnout Model Impact"}
-    plotPost( mcmcMat[,paste("LVImpact[",LVidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+title="Likely-Voter Turnout Model Impact"
+
+    plotPost( mcmcMat[,paste("LVImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
             xlab=bquote(LVImpact) , main=title)
 
   if ( !is.null(saveName) ) {
@@ -461,7 +462,7 @@ if(LVidx==2){title="Likely-Voter Turnout Model Impact"}
     
   }
   }
-}
+
   
 plotIVRPosterior = function( codaSamples , 
                             datFrmPredictor  , 
@@ -476,16 +477,16 @@ plotIVRPosterior = function( codaSamples ,
   IVR = as.numeric(as.factor(datFrmPredictor[,IVRName]))
   IVRLevels = levels(as.factor(datFrmPredictor[,IVRName]))
   NIVRLvl = length(unique(IVR))
-  for ( IVRidx in 1:length(IVRLevels)) {
+ 
     openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(IVRidx==1){titleIVR="No IVR Impact"}
-    if(IVRidx==2){titleIVR="IVR Impact"}
+    titleIVR="IVR Impact"
+   
   
-    plotPost( mcmcMat[,paste("IVRImpact[",IVRidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+    plotPost( mcmcMat[,paste("IVRImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
               xlab=bquote(IVRImpact) , main=titleIVR)
     
     if ( !is.null(saveName) ) {
@@ -493,7 +494,7 @@ plotIVRPosterior = function( codaSamples ,
       
     }
   }
-}
+
 
 plotonlinePosterior = function( codaSamples , 
                                  datFrmPredictor  , 
@@ -508,19 +509,19 @@ plotonlinePosterior = function( codaSamples ,
   online = as.numeric(as.factor(datFrmPredictor[,onlineName]))
   onlineLevels = levels(as.factor(datFrmPredictor[,onlineName]))
   NonlineLvl = length(unique(online))
-  for ( onlineidx in 1:length(onlineLevels)) {
+
     openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(onlineidx==1){titleOnline="No Online Impact"}
-    if(onlineidx==2){titleOnline="Online Impact"}
+  titleOnline="Online Impact"
+ 
 
     
     
     
-    plotPost( mcmcMat[,paste("onlineImpact[",onlineidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+    plotPost( mcmcMat[,paste("onlineImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
               xlab=bquote(onlineImpact) , main=titleOnline)
     
     if ( !is.null(saveName) ) {
@@ -528,7 +529,7 @@ plotonlinePosterior = function( codaSamples ,
       
     }
   }
-}
+
 plottextPosterior = function( codaSamples , 
                                  datFrmPredictor  , 
                                  saveName=NULL , saveType="jpg",
@@ -542,18 +543,18 @@ plottextPosterior = function( codaSamples ,
   text = as.numeric(as.factor(datFrmPredictor[,textName]))
   textLevels = levels(as.factor(datFrmPredictor[,textName]))
   NtextLvl = length(unique(text))
-  for ( textidx in 1:length(textLevels)) {
+
     openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(textidx==1){titleText="No Text Impact"}
-    if(textidx==2){titleText="Text Impact"}
+
+   titleText="Text Impact"
     
     
     
-    plotPost( mcmcMat[,paste("textImpact[",textidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+    plotPost( mcmcMat[,paste("textImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
               xlab=bquote(textImpact) , main=titleText)
     
     if ( !is.null(saveName) ) {
@@ -561,7 +562,7 @@ plottextPosterior = function( codaSamples ,
       
     }
   }
-}
+
 plotlivePosterior = function( codaSamples , 
                                  datFrmPredictor  , 
                                  saveName=NULL , saveType="jpg",
@@ -575,18 +576,18 @@ plotlivePosterior = function( codaSamples ,
   live = as.numeric(as.factor(datFrmPredictor[,liveName]))
   liveLevels = levels(as.factor(datFrmPredictor[,liveName]))
   NliveLvl = length(unique(live))
-  for ( liveidx in 1:length(liveLevels)) {
+
     openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
-    #give better titles - using delModLevels
-    if(liveidx==1){titleLive="No  Live Impact"}
-    if(liveidx==2){titleLive="Live Impact"}
+
+
+    titleLive="Live Impact"
     
     
     
-    plotPost( mcmcMat[,paste("liveImpact[",liveidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+    plotPost( mcmcMat[,paste("liveImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
               xlab=bquote(liveImpact) , main=titleLive)
     
     if ( !is.null(saveName) ) {
@@ -594,7 +595,7 @@ plotlivePosterior = function( codaSamples ,
       
     }
   }
-}
+
 
 
 
@@ -619,19 +620,19 @@ plotTransparencyPosterior = function( codaSamples ,
   transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
   transparencyLevels = levels(as.factor(datFrmPredictor[,transparencyName]))
   NtransparencyLvl = length(unique(transparency))
-  for ( transparencyidx in 1:length(transparencyLevels)) {
+
     openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(transparencyidx==1){titleT="Untransparent Impact"}
-    if(transparencyidx==2){titleT="Transparent Impact"}
+
+titleT="Transparent Impact"
 
     
     
     
-    plotPost( mcmcMat[,paste("transparencyImpact[",transparencyidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+    plotPost( mcmcMat[,paste("transparencyImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
               xlab=bquote(transparencyImpact) , main=titleT)
     
     if ( !is.null(saveName) ) {
@@ -639,7 +640,7 @@ plotTransparencyPosterior = function( codaSamples ,
       
     }
   }
-}
+
 
 
 
