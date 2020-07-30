@@ -180,6 +180,25 @@ LVImpact2 = mcmcMat[,"LVImpact[2]"]
 transparencyImpact1 = mcmcMat[,"transparencyImpact[1]"]
 transparencyImpact2 = mcmcMat[,"transparencyImpact[2]"]
 
+IVRImpact1=mcmcMat[,"IVRImpact[1]"]
+IVRImpact2=mcmcMat[,"IVRImpact[2]"]
+onlineImpact1=mcmcMat[,"onlineImpact[1]"]
+onlineImpact2=mcmcMat[,"onlineImpact[2]"]
+liveImpact1=mcmcMat[,"liveImpact[1]"]
+liveImpact2=mcmcMat[,"liveImpact[2]"]
+textImpact1=mcmcMat[,"textImpact[1]"]
+textImpact2=mcmcMat[,"textImpact[2]"]
+
+
+plot(IVRImpact1,IVRImpact2)
+plot(IVRImpact1,transparencyImpact1)
+plot(IVRImpact1,onlineImpact1)
+plot(textImpact1,textImpact2)
+cor(textImpact1,textImpact2)
+cor(IVRImpact1,IVRImpact2)
+cor(IVRImpact1,transparencyImpact1)
+cor(IVRImpact2,onlineImpact2)
+
 plot(samplesizeImpact,LVImpact1, 
      ylab="LV Impact [1]", xlab="(Sample Size/100) Impact")
 plot(samplesizeImpact,LVImpact2, 
@@ -191,9 +210,7 @@ plot(samplesizeImpact,transparencyImpact2,
 
 
 #Look at the correlations between LV and delMode
-mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
-delModeImpact2 = mcmcMat[,"delModeImpact[2]"]
-delModeImpact7 = mcmcMat[,"delModeImpact[7]"]
+
 
 plot(LVImpact1,delModeImpact2, xlab="Non LV Model Impact", ylab="IVR Combo Impact") 
 plot(LVImpact2,delModeImpact7, xlab="LV Model Impact", ylab="Online Impact") 
@@ -208,12 +225,6 @@ abline(a=0, b=1)
 # samplesizeImpactMOE= mcmcMat[,"samplesizeImpact"]
 
 
-plot(samplesizeImpact,samplesizeImpactLog, 
-     ylab="Sample Size Impact - Log Transform", xlab="(Sample Size/100) Impact")
-plot(samplesizeImpact,samplesizeImpactMOE,
-     xlab="(Sample Size/100) Impact", ylab="Margin of Error Impact")
-plot(samplesizeImpactLog,samplesizeImpactMOE,
-     ylab="Margin of Error Impact",xlab="Sample Size Impact - Log Transform")
 
 subdata=subset(mydata, year==2000)
 lattice::densityplot(~bias, data = subdata, groups = LV, main = "2000 LV v. Non LV Comparsion")
