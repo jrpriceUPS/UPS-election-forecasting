@@ -92,6 +92,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     agammaShRasamplesizeImpact = agammaShRasamplesizeImpact
     
   )
+  
+  print(online)
   #------------------------------------------------------------------------------
   # THE MODEL.
   modelstring = "
@@ -101,8 +103,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     actual[race1] ~ dnorm(mu[race1], 1/actualSpread^2)
     
    for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
-     weight[myPoll]=IVRImpact*IVR + onlineImpact*online +
-     liveImpact*live + textImpact*text+
+     weight[myPoll]=IVRImpact*(IVR[myPoll]-1) + onlineImpact*(online[myPoll]-1) +
+     liveImpact*(live[myPoll]-1) + textImpact*(text[myPoll]-1)+
      LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
    
