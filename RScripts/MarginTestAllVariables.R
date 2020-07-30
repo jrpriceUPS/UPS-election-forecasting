@@ -14,7 +14,7 @@ mydata=mydata[mydata$delMode!="Landline",]
 mydata=mydata[mydata$delMode!="Mail",]
 
 #limit to just US overall, no more consideration of state elections
-mydata=mydata[mydata$location=="US",]
+#mydata=mydata[mydata$location=="US",]
 
 
 #Order the data
@@ -53,20 +53,29 @@ for (i in 1:nrow(refdataframe)){
 #create list to feed info with
 
 predictorsframe = newdata[,c("race_id","margin_actual", "margin_poll",
-                             "delMode","transparency", "samplesize","LV")]
+                            "delMode", "transparency", "samplesize","LV")]
 
+
+predictorsframe=cbind(predictorsframe, IVR="FALSE")
+predictorsframe=cbind(predictorsframe, online="FALSE")
+predictorsframe=cbind(predictorsframe, live="FALSE")
+predictorsframe=cbind(predictorsframe, text="FALSE")
 
 myDataFrame=predictorsframe
-
-
 #Less Options for Del Mode is Helpful:
 for (i in 1:nrow(myDataFrame)){
   myMode=myDataFrame[i,4]
-  if(myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
-    myDataFrame[i,4]="Online"
+  if(myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="IVR/Online/Text"||myMode=="IVR/Text"||myMode=="Online/Live"){
+    myDataFrame[i,9]="TRUE"
   }
-  if(myMode=="Live*"||myMode=="Live/Text"||myMode=="Online/Live"||myMode=="IVR/Live"){
-    myDataFrame[i,4]="Live"
+  if(myMode=="Live*"||myMode=="Live/Text"||myMode=="Online/Live"||myMode=="IVR/Live"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"){
+    myDataFrame[i,10]="TRUE"
+  }
+  if(myMode=="IVR"||myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
+    myDataFrame[i,8]="TRUE"
+  }
+  if(myMode=="IVR/Online/Text"||myMode=="IVR/Text"||myMode=="IVR/Online/Live/Text"||myMode=="Live/Text"){
+    myDataFrame[i,11]="TRUE"
   }
 }
 
@@ -79,8 +88,8 @@ whichrace=whichrace-1
 whichrace=c(whichrace,nrow(newdata))
 
 
-fileNameRootSim = "Simulations/Weight-Pollster-Bayes-ANCOVA-Margin" 
-fileNameRoot = "Markdown/Figures/WeightedModels/All Variables/Weight-Pollster-Bayes-ANCOVA-Margin" 
+fileNameRootSim = "Simulations/SplitModes" 
+fileNameRoot = "Markdown/Figures/WeightedModels/All Variables/SplitModes" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -96,7 +105,8 @@ source("RScripts/WeightPollANCOVA-V04.R")
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="margin_poll" ,
                     actualName="actual", 
-                    delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+                    IVRName="IVR", onlineName="online", liveName="live", textName="text",
+                    LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
                     numSavedSteps=21000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
@@ -104,13 +114,13 @@ mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("actualSpread",   
-                   "delModeImpact[1]", "samplesizeImpact" , "mu[1]","LVImpact[1]") ) {
+                   "IVRImpact[1]", "samplesizeImpact" , "mu[1]","LVImpact[1]") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , LVName="LV" , transparencyName="transparency", 
                         samplesizeName ="samplesize", 
                         saveName=fileNameRoot )
 show(summaryInfo)

@@ -11,7 +11,8 @@ source("DBDA2E-utilities.R")
 #===============================================================================
 genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName="daysuntil", 
                     raceIDName="raceID", actualName="actual",
-                    delModeName="delMode" , LVName="LV" , transparencyName="transparency", 
+                    IVRName="IVR" , onlineName="online", liveName="live", textName="text",
+                    LVName="LV" , transparencyName="transparency", 
                     samplesizeName ="samplesize", whichrace,
                     
                     numSavedSteps=50000 , thinSteps=1 , saveName=NULL ,
@@ -26,8 +27,16 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   raceID = as.numeric(as.factor(refFrame[,raceIDName]))
   
   
-  delMode = as.numeric(as.factor(datFrmPredictor[,delModeName]))
-  delModelevels = levels(as.factor(datFrmPredictor[,delModeName]))
+  IVR = as.numeric(as.factor(datFrmPredictor[,IVRName]))
+  IVRlevels = levels(as.factor(datFrmPredictor[,IVRName]))
+  online = as.numeric(as.factor(datFrmPredictor[,onlineName]))
+  onlinelevels = levels(as.factor(datFrmPredictor[,onlineName]))
+  live = as.numeric(as.factor(datFrmPredictor[,liveName]))
+  livelevels = levels(as.factor(datFrmPredictor[,liveName]))
+  text = as.numeric(as.factor(datFrmPredictor[,textName]))
+  textlevels = levels(as.factor(datFrmPredictor[,textName]))
+
+  
   LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
   LVlevels = levels(as.factor(datFrmPredictor[,LVName]))
   transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
@@ -38,7 +47,10 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   
   pollTotal = length(poll)
   NraceIDLvl = length(raceID)
-  NdelModeLvl = length(unique(delMode))
+  NIVRLvl = length(unique(IVR))
+  NonlineLvl = length(unique(online))
+  NliveLvl = length(unique(live))
+  NtextLvl = length(unique(text))
   NLVLvl = length(unique(LV))
   NtransparencyLvl = length(unique(transparency))
   
@@ -57,12 +69,19 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     poll=poll ,
     whichrace=whichrace,
     raceID=raceID,
-    delMode = delMode,
+    IVR=IVR,
+    online=online,
+    live=live,
+    text=text,
     LV = LV,
     transparency = transparency,
     samplesize = samplesize,
     
-    NdelModeLvl = NdelModeLvl ,
+    NIVRLvl=NIVRLvl,
+    NonlineLvl=NonlineLvl,
+    NliveLvl=NliveLvl,
+    NtextLvl=NtextLvl,
+    
     NLVLvl = NLVLvl,
     NtransparencyLvl = NtransparencyLvl ,
     NraceIDLvl=NraceIDLvl,
@@ -82,7 +101,9 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     actual[race1] ~ dnorm(mu[race1], 1/actualSpread^2)
     
    for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
-     weight[myPoll]=delModeImpact[delMode[myPoll]]+LVImpact[LV[myPoll]]+
+     weight[myPoll]=IVRImpact[IVR[myPoll]]+onlineImpact[online[myPoll]]+
+     liveImpact[live[myPoll]]+textImpact[text[myPoll]]+
+     LVImpact[LV[myPoll]]+
      transparencyImpact[transparency[myPoll]]+samplesizeImpact*samplesize[myPoll]
    
    }
@@ -98,8 +119,10 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
 
 
   
-    for ( mydelMode in 1:NdelModeLvl ) { delModeImpact[mydelMode] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
-
+    for ( myIVR in 1:NIVRLvl ) { IVRImpact[myIVR] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
+    for ( myonline in 1:NonlineLvl ) { onlineImpact[myonline] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
+    for ( mylive in 1:NliveLvl ) { liveImpact[mylive] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
+    for ( mytext in 1:NtextLvl ) { textImpact[mytext] ~ dgamma( agammaShRa[1] , agammaShRa[2] ) }
     
     for ( myLV in 1:NLVLvl ) { LVImpact[myLV] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  }
    
@@ -138,7 +161,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c(  "delModeImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu"  )
+  parameters = c(  "IVRImpact" , "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu" ,
+                   "onlineImpact","liveImpact","textImpact")
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -175,16 +199,28 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
   return( codaSamples )
 }
 
-smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName="LV" , 
+smryMCMC = function(  codaSamples , datFrm=NULL ,  LVName="LV" , 
+                      IVRName="IVR", onlineName="online", liveName="live", textName="text",
                       transparencyName="transparency", 
                       samplesizeName ="samplesize",
                       #contrasts=NULL ,
                       saveName=NULL ) {
   # All single parameters:
   parameterNames = varnames(codaSamples) 
-  if ( !is.null(datFrm) & !is.null(delModeName) ) {
-    delModelevels = levels(as.factor(datFrm[,delModeName]))
+  if ( !is.null(datFrm) & !is.null(IVRName) ) {
+    IVRlevels = levels(as.factor(datFrm[,IVRName]))
   }
+  if ( !is.null(datFrm) & !is.null(onlineName) ) {
+    onlinelevels = levels(as.factor(datFrm[,onlineName]))
+  }
+  if ( !is.null(datFrm) & !is.null(liveName) ) {
+    livelevels = levels(as.factor(datFrm[,liveName]))
+  }
+  if ( !is.null(datFrm) & !is.null(textName) ) {
+    textlevels = levels(as.factor(datFrm[,textName]))
+  }
+  
+  
   
   if ( !is.null(datFrm) & !is.null(transparencyName) ) {
     transparencylevels = levels(as.factor(datFrm[,transparencyName]))
@@ -200,7 +236,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , delModeName="delMode" , LVName
   for ( parName in parameterNames ) {
     summaryInfo = rbind( summaryInfo , summarizePost( mcmcMat[,parName] ) )
     thisRowName = parName
-    if ( !is.null(datFrm) & !is.null(delModeName) ) {
+    if ( !is.null(datFrm) & !is.null(transparencyName) ) {
       # For row name, extract numeric digits from parameter name. E.g., if
       # parameter name is "beta[12,34]" then pull out 12 and 34:
       levelVal = as.numeric( 
@@ -426,33 +462,33 @@ if(LVidx==2){title="Likely-Voter Turnout Model Impact"}
   }
 }
   
-plotdelModePosterior = function( codaSamples , 
+plotIVRPosterior = function( codaSamples , 
                             datFrmPredictor  , 
                             saveName=NULL , saveType="jpg",
                             showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  delModeName ="delMode"
+  IVRName ="IVR"
   pollName ="poll"
   
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  delMode = as.numeric(as.factor(datFrmPredictor[,delModeName]))
-  delModeLevels = levels(as.factor(datFrmPredictor[,delModeName]))
-  NdelModeLvl = length(unique(delMode))
-  for ( delModeidx in 1:length(delModeLevels)) {
+  IVR = as.numeric(as.factor(datFrmPredictor[,IVRName]))
+  IVRLevels = levels(as.factor(datFrmPredictor[,IVRName]))
+  NIVRLvl = length(unique(IVR))
+  for ( IVRidx in 1:length(IVRLevels)) {
     openGraph(width=4,height=4)
     
     # posterior of the mean for sample size distrubtion 
     
     #give better titles - using delModLevels
-    if(delModeidx==1){titleMode="Delivery Mode - IVR Impact"}
-    if(delModeidx==2){titleMode="Delivery Mode - Live Impact"}
-    if(delModeidx==3){titleMode="Delivery Mode - Online Impact"}
+    if(IVRidx==1){titleMode="Delivery Mode - IVR Impact"}
+    if(IVRidx==2){titleMode="Delivery Mode - Live Impact"}
+    if(IVRidx==3){titleMode="Delivery Mode - Online Impact"}
   
     
     
-    plotPost( mcmcMat[,paste("delModeImpact[",delModeidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(delModeImpact) , main=titleMode)
+    plotPost( mcmcMat[,paste("IVRImpact[",IVRidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(IVRImpact) , main=titleMode)
     
     if ( !is.null(saveName) ) {
       saveGraph( file=paste0(saveName,titleMode, type=saveType))
@@ -460,6 +496,119 @@ plotdelModePosterior = function( codaSamples ,
     }
   }
 }
+
+plotonlinePosterior = function( codaSamples , 
+                                 datFrmPredictor  , 
+                                 saveName=NULL , saveType="jpg",
+                                 showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  onlineName ="online"
+  pollName ="poll"
+  
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  online = as.numeric(as.factor(datFrmPredictor[,onlineName]))
+  onlineLevels = levels(as.factor(datFrmPredictor[,onlineName]))
+  NonlineLvl = length(unique(online))
+  for ( onlineidx in 1:length(onlineLevels)) {
+    openGraph(width=4,height=4)
+    
+    # posterior of the mean for sample size distrubtion 
+    
+    #give better titles - using delModLevels
+    if(onlineidx==1){titleMode="Delivery Mode - IVR Impact"}
+    if(onlineidx==2){titleMode="Delivery Mode - Live Impact"}
+    if(onlineidx==3){titleMode="Delivery Mode - Online Impact"}
+    
+    
+    
+    plotPost( mcmcMat[,paste("onlineImpact[",onlineidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(onlineImpact) , main=titleMode)
+    
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      
+    }
+  }
+}
+plottextPosterior = function( codaSamples , 
+                                 datFrmPredictor  , 
+                                 saveName=NULL , saveType="jpg",
+                                 showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  textName ="text"
+  pollName ="poll"
+  
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  text = as.numeric(as.factor(datFrmPredictor[,textName]))
+  textLevels = levels(as.factor(datFrmPredictor[,textName]))
+  NtextLvl = length(unique(text))
+  for ( textidx in 1:length(textLevels)) {
+    openGraph(width=4,height=4)
+    
+    # posterior of the mean for sample size distrubtion 
+    
+    #give better titles - using delModLevels
+    if(textidx==1){titleMode="Detextry Mode - IVR Impact"}
+    if(textidx==2){titleMode="Detextry Mode - text Impact"}
+    if(textidx==3){titleMode="Detextry Mode - text Impact"}
+    
+    
+    
+    plotPost( mcmcMat[,paste("textImpact[",textidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(textImpact) , main=titleMode)
+    
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      
+    }
+  }
+}
+plotlivePosterior = function( codaSamples , 
+                                 datFrmPredictor  , 
+                                 saveName=NULL , saveType="jpg",
+                                 showCurve = FALSE) {
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  chainLength = NROW( mcmcMat )
+  liveName ="live"
+  pollName ="poll"
+  
+  mcmcMat = as.matrix(codaSamples,chains=TRUE)
+  live = as.numeric(as.factor(datFrmPredictor[,liveName]))
+  liveLevels = levels(as.factor(datFrmPredictor[,liveName]))
+  NliveLvl = length(unique(live))
+  for ( liveidx in 1:length(liveLevels)) {
+    openGraph(width=4,height=4)
+    
+    # posterior of the mean for sample size distrubtion 
+    
+    #give better titles - using delModLevels
+    if(liveidx==1){titleMode="Delivery Mode - IVR Impact"}
+    if(liveidx==2){titleMode="Delivery Mode - Live Impact"}
+    if(liveidx==3){titleMode="Delivery Mode - Online Impact"}
+    
+    
+    
+    plotPost( mcmcMat[,paste("liveImpact[",liveidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab=bquote(liveImpact) , main=titleMode)
+    
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,titleMode, type=saveType))
+      
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 plotTransparencyPosterior = function( codaSamples , 
                                  datFrmPredictor  , 
