@@ -139,13 +139,13 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
      +samplesizeImpact*samplesize[myPoll]
      
      
-      bias[myPoll] ~ dt(mubias[myPoll], 1/biasSpread^2, nuY )
+  
       mubias[myPoll] <- yearLean[year[myPoll]] + pollsterBias[pollster[myPoll],year[myPoll]] 
    
    }
 
-    poll[(whichrace[race1]+1):whichrace[race1+1]] <- poll[(whichrace[race1]+1):whichrace[race1+1]] + bias[(whichrace[race1]+1):whichrace[race1+1]] 
-    mu[race1] <- sum(nWeight[(whichrace[race1]+1):whichrace[race1+1]]*poll[(whichrace[race1]+1):whichrace[race1+1]])
+    
+    mu[race1] <- sum(nWeight[(whichrace[race1]+1):whichrace[race1+1]]*((poll[(whichrace[race1]+1):whichrace[race1+1]])+(mubias[(whichrace[race1]+1):whichrace[race1+1]]) ))
     summedWeights[race1] = sum(weight[(whichrace[race1]+1):whichrace[race1+1]])
     
     for(myPoll1 in (whichrace[race1]+1):whichrace[race1+1]){
@@ -168,8 +168,7 @@ transparencyImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )
     actualSpread ~ dunif(actualSD/100, actualSD*10)
  
 
-   nuY ~  dexp(1/30.0) 
-    biasSpread ~ dunif( biasSD/100 , biasSD*10 )
+
   
     # Middle level of the hierarchy (year lean)
     for ( year in 1:YearLevelsTotal ) { yearLean[year] ~ dnorm( 0.0 , 1/yearSpread^2) }
@@ -178,10 +177,8 @@ transparencyImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )
     # Middle level of the hierarchy (pollster bias with year)
      for ( pollster in 1:PollsterLevelsTotal ) { for ( year in 1:YearLevelsTotal ) { 
      pollsterBias[pollster,year] ~ dnorm(0.0 , 1/pollsterSpread^2) }
-     
-    
      }
-     pollsterSpread ~ dunif( biasSD/100 , biasSD*10 )   
+     pollsterSpread ~ dunif( biasSD/100 , biasSD*11 )   
     
   }
   " # close quote for modelstring
