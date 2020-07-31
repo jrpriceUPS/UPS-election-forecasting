@@ -1,10 +1,10 @@
-#Margin instead of demError
+
 
 #ANCOVA for Weight of Poll - Example Script
 #06/30/2020
 
 graphics.off() # This closes all of R's graphics windows.
-#rm(list=ls())  # Clear all of R's memory!
+rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
 #mydata=read.csv("Data/raw-polls_538_cleaned.csv")
@@ -53,7 +53,9 @@ for (i in 1:nrow(refdataframe)){
 #create list to feed info with
 
 predictorsframe = newdata[,c("race_id","margin_actual", "margin_poll",
-                            "delMode", "transparency", "samplesize","LV")]
+                             "delMode","transparency", "samplesize","LV", "pollster","year","bias")]
+
+
 
 
 predictorsframe=cbind(predictorsframe, IVR="FALSE")
@@ -88,8 +90,8 @@ whichrace=whichrace-1
 whichrace=c(whichrace,nrow(newdata))
 
 
-fileNameRootSim = "Simulations/SplitModes" 
-fileNameRoot = "Markdown/Figures/WeightedModels/All Variables/SplitModes" 
+fileNameRootSim = "Simulations/WeightedandCorrected" 
+fileNameRoot = "Markdown/Figures/WeightedModels/WeightedandCorrected/V05" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -100,7 +102,7 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA-V04.R")
+source("RScripts/WeightPollANCOVA-V05.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="margin_poll" ,
@@ -143,13 +145,13 @@ plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=f
 
 #plot delModeImpact Posteriors
 plotIVRPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                     saveType=graphFileType)
+                 saveType=graphFileType)
 plotonlinePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                 saveType=graphFileType)
+                    saveType=graphFileType)
 plotlivePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                 saveType=graphFileType)
+                  saveType=graphFileType)
 plottextPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                 saveType=graphFileType)
+                  saveType=graphFileType)
 
 #plot Transparenct Posterior
 plotTransparencyPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
