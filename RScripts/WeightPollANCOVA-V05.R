@@ -122,7 +122,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
     
   )
   
-  print(online)
+
   #------------------------------------------------------------------------------
   # THE MODEL.
   modelstring = "

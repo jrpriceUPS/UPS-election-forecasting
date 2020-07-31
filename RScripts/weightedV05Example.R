@@ -68,16 +68,16 @@ myDataFrame=predictorsframe
 for (i in 1:nrow(myDataFrame)){
   myMode=myDataFrame[i,4]
   if(myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="IVR/Online/Text"||myMode=="IVR/Text"||myMode=="Online/Live"){
-    myDataFrame[i,9]="TRUE"
+    myDataFrame[i,"online"]="TRUE"
   }
   if(myMode=="Live*"||myMode=="Live/Text"||myMode=="Online/Live"||myMode=="IVR/Live"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"){
-    myDataFrame[i,10]="TRUE"
+    myDataFrame[i,"live"]="TRUE"
   }
   if(myMode=="IVR"||myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
-    myDataFrame[i,8]="TRUE"
+    myDataFrame[i,"IVR"]="TRUE"
   }
   if(myMode=="IVR/Online/Text"||myMode=="IVR/Text"||myMode=="IVR/Online/Live/Text"||myMode=="Live/Text"){
-    myDataFrame[i,11]="TRUE"
+    myDataFrame[i,"text"]="TRUE"
   }
 }
 
