@@ -145,7 +145,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="poll" , #daysuntilName=
    }
 
     
-    mu[race1] <- sum(nWeight[(whichrace[race1]+1):whichrace[race1+1]]*((poll[(whichrace[race1]+1):whichrace[race1+1]])+(mubias[(whichrace[race1]+1):whichrace[race1+1]]) ))
+    mu[race1] <- sum(nWeight[(whichrace[race1]+1):whichrace[race1+1]]*((poll[(whichrace[race1]+1):whichrace[race1+1]])-(mubias[(whichrace[race1]+1):whichrace[race1+1]]) ))
     summedWeights[race1] = sum(weight[(whichrace[race1]+1):whichrace[race1+1]])
     
     for(myPoll1 in (whichrace[race1]+1):whichrace[race1+1]){
@@ -464,7 +464,7 @@ plotSampleSizePosterior = function( codaSamples ,
   samplesizeName ="samplesize"
   pollName ="poll"
   
-  openGraph(width=8,height=8)
+  openGraph(width=4,height=4)
   
   # posterior of the mean for sample size distrubtion 
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
@@ -492,7 +492,7 @@ plotLVPosterior = function( codaSamples ,
   LVLevels = levels(as.factor(datFrmPredictor[,LVName]))
   NLVLvl = length(unique(LV))
   
-  openGraph(width=8,height=8)
+  openGraph(width=5,height=4)
   
   # posterior of the mean for sample size distrubtion 
   
