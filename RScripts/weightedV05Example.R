@@ -91,7 +91,8 @@ whichrace=c(whichrace,nrow(newdata))
 
 
 fileNameRootSim = "Simulations/WeightedandCorrected" 
-fileNameRoot = "Markdown/Figures/WeightedModels/WeightedandCorrected/V05" 
+#fileNameRoot = "Markdown/Figures/WeightedModels/WeightedandCorrected/V05" 
+fileNameRoot = "Markdown/Figures/" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
