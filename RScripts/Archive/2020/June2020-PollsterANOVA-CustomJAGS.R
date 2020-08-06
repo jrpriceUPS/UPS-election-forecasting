@@ -1,6 +1,10 @@
-# Accompanies the book:
-#   Kruschke, J. K. (2015). Doing Bayesian Data Analysis, Second Edition: 
-#   A Tutorial with R, JAGS, and Stan. Academic Press / Elsevier.
+# modification of code from Kruschke's DBDA2E book
+# does 2-factor ANOVA to predict bias using pollster and year
+# includes more customized model definition and plotting
+# called by "June2020-PollsterANOVA-CustomJAGS-Example"
+#
+# Runs!
+# Notes by Jake, 8/6/20
 
 source("DBDA2E-utilities.R")
 

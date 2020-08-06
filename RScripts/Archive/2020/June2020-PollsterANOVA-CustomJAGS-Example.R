@@ -1,3 +1,14 @@
+# modification of code from Kruschke's DBDA2E book
+# does 2-factor ANOVA to predict bias using pollster and year
+# includes more customized model definition and plotting
+# Loads cleaned data and restructures it as needed
+#
+# calls "June2020-PollsterANOVA-CustomJAGS" to define
+# JAGS model, mcmc call, summary, and plotting
+#
+# Runs - but fails to save plots?
+# Notes by Jake, 8/6/20
+
 #Basic R Script for JAGS-practice
 
 graphics.off() # This closes all of R's graphics windows.
@@ -47,13 +58,13 @@ contrasts = list(
 # Specify filename root and graphical format for saving output.
 # Otherwise specify as NULL or leave saveName and saveType arguments 
 # out of function calls.
-fileNameRoot = "Markdown/Figures/Jags-practice-Pollster-" 
-fileNameRootSim= "Simulations/Jags-practice-Pollster-"
+fileNameRoot = "Markdown/Figures-" 
+fileNameRootSim= "Simulations-"
 graphFileType = "png" 
 #------------------------------------------------------------------------------- 
 
 # Load the relevant model into R's working memory:
-source("RScripts/Jags-practice.R")
+source("RScripts/Archive/2020/June2020-PollsterANOVA-CustomJAGS.R")
 
 
 # Generate the MCMC chain:
@@ -78,4 +89,6 @@ show(summaryInfo)
 plotMCMC( mcmcCoda , 
           datFrm=myDataFrame , yName=yName , xName=xName ,
           #contrasts=contrasts , 
-          saveName=fileNameRoot , saveType=graphFileType )
+          #saveName=fileNameRoot , saveType=graphFileType ) 
+          # saving plots doesn't work -unclear why, directory structure issue?
+)

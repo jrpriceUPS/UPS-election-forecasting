@@ -1,6 +1,13 @@
-#JAGS-2Factor-V02
-#06-22-2020
-#Modification of JAGS-2Factor.R 
+# Adaptation of code from Kruschke's DBDA2E textbook.
+# 2 Factor ANOVA to predict bias using Year and Pollster with no interactions
+# Customized plotting and model script
+# not called by any particular other script anymore (I believe)
+#
+# Runs!
+# Notes by Jake, 8/6/20
+
+# Custom 2 Factor ANOVA
+
 
 source("DBDA2E-utilities.R")
 
@@ -46,36 +53,36 @@ genMCMC = function( datFrm , yName="y" , x1Name="x1" , x2Name="x2",
     # Bottom level of the hierarchy (individual poll bias)
     for ( i in 1:Ntotal ) {
       y[i] ~ dt(mu[i], 1/ySigma^2, nuY )
-      mu[i] <- a2[x2[i]] + a1[x1[i],x2[i]] 
+      mu[i] <- a1[x1[i]] + a2[x2[i]]
     }
     nuY ~  dexp(1/30.0) 
     ySigma ~ dunif( ySD/100 , ySD*10 )
+    
+    # Middle level of the hierarchy (pollster bias)
+     for ( j1 in 1:Nx1Lvl ) { a1[j1] ~ dnorm( 0.0 , 1/a1Sigma^2) }
+    a1Sigma ~ dunif( ySD/100 , ySD*10 )
   
   
-    # Middle level of the hierarchy (year lean)
+     # Middle level of the hierarchy (year lean)
     for ( j2 in 1:Nx2Lvl ) { a2[j2] ~ dnorm( 0.0 , 1/a2Sigma^2) }
     a2Sigma ~ dunif( ySD/100 , ySD*10 )
-    
-    # Middle level of the hierarchy (pollster bias with year)
-     for ( j1 in 1:Nx1Lvl ) { for ( j2 in 1:Nx2Lvl ) { 
-     a1[j1,j2] ~ dnorm(0.0 , 1/a1Sigma^2) }
-     
-    
-     }
-     a1Sigma ~ dunif( ySD/100 , ySD*10 )
   }
   
   " # close quote for modelstring
   writeLines(modelstring,con="TEMPmodel.txt")
   #------------------------------------------------------------------------------
   # INTIALIZE THE CHAINS.
-
-  # Let JAGS do parameters automatically...
-  #
+  #initsList = list(
+  #  a0 = yMean ,
+  #  a = aggregate( y , list( x ) , mean )[,2] - yMean ,
+  #  ySigma = mean( aggregate( y , list( x ) , sd )[,2] )
+  # Let JAGS do other parameters automatically...
+  #)
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
-  require(rjags)
-  parameters = c( "ySigma" , "nuY" , "a2Sigma", "a1Sigma", "a1", "a2" )
+  
+  require(runjags)
+  parameters = c( "a1" , "a2",  "ySigma" , "nuY" , "a1Sigma", "a2Sigma" )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -137,7 +144,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , x1Name=NULL , x2Name = NULL,
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
-  
+    
   # All contrasts:
   # if ( !is.null(contrasts) ) {
   #   if ( is.null(datFrm) | is.null(xName) ) {
@@ -194,83 +201,77 @@ plotMCMC = function( codaSamples ,
   x1levels = levels(as.factor(datFrm[,x1Name]))
   x2 = as.numeric(as.factor(datFrm[,x2Name]))
   x2levels = levels(as.factor(datFrm[,x2Name]))
-# #Display data with posterior predictive distributions
-#   for ( x2idx in 1:length(x2levels) ) {
-#     openGraph(width=2*length(x1levels),height=5)
-#     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
-#     plot(-10,-10,
-#          xlim=c(0.2,length(x1levels)+0.1) ,
-#          xlab=paste(x1Name,x2Name,sep="\n") ,
-#          xaxt="n" , ylab=yName ,
-#          ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
-#          main="Data with Post. Pred.")
-#     axis( 1 , at=1:length(x1levels) , tick=FALSE ,
-#           lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
-#     for ( x1idx in 1:length(x1levels) ) {
-#       xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
-#       yVals = y[ x1==x1idx & x2==x2idx ]
-#       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
-#               yVals , pch=1 , cex=1.5 , col="red" )
-#       chainSub = round(seq(1,chainLength,length=20))
-#       for ( chnIdx in chainSub ) {
-#         m = mcmcMat[chnIdx,paste("a1[",x1idx,",", x2idx,"]",sep="")]   # pollster bias
-# +         mcmcMat[chnIdx,paste("a2[",x2idx,"]",sep="")]  # year lean
-#         s = mcmcMat[chnIdx,"ySigma"] # spread
-#         nu = mcmcMat[chnIdx,"nuY"]# normality
-# 
-# 
-#         tlim = qt( c(0.025,0.975) , df=nu )
-#         yl = m+tlim[1]*s
-#         yh = m+tlim[2]*s
-#         ycomb=seq(yl,yh,length=201)
-#         #ynorm = dnorm(ycomb,mean=m,sd=s)
-#         #ynorm = 0.67*ynorm/max(ynorm)
-#         yt = dt( (ycomb-m)/s , df=nu )
-#         yt = 0.67*yt/max(yt)
-#         lines( xPlotVal-yt , ycomb , col="skyblue" )
-# 
-# 
-# 
-#       }
-#     }
-#     if ( !is.null(saveName) ) {
-#       saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
-#     }
-#   }# end for x2idx
-
-  #openGraph(width=8,height=8)
-  #layout(matrix(1:4,nrow=2))
-  #layout(matrix(4:4))
-  #layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
+  # Display data with posterior predictive distributions
   for ( x2idx in 1:length(x2levels) ) {
-    openGraph(width=8,height=8)
-    
+    openGraph(width=2*length(x1levels),height=5)
+    par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+    plot(-10,-10,
+         xlim=c(0.2,length(x1levels)+0.1) ,
+         xlab=paste(x1Name,x2Name,sep="\n") ,
+         xaxt="n" , ylab=yName ,
+         ylim=c(min(y)-0.2*(max(y)-min(y)),max(y)+0.2*(max(y)-min(y))) ,
+         main="Data with Post. Pred.")
+    axis( 1 , at=1:length(x1levels) , tick=FALSE ,
+          lab=paste( x1levels , x2levels[x2idx] , sep="\n" ) )
+    for ( x1idx in 1:length(x1levels) ) {
+      xPlotVal = x1idx #+ (x2idx-1)*length(x1levels)
+      yVals = y[ x1==x1idx & x2==x2idx ]
+      points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+              yVals , pch=1 , cex=1.5 , col="red" )
+      chainSub = round(seq(1,chainLength,length=20))
+      for ( chnIdx in chainSub ) {
+        m = mcmcMat[chnIdx,paste("a1[",x1idx,"]",sep="")]  # pollster bias
+               + mcmcMat[chnIdx,paste("a2[",x2idx,"]",sep="")] # year lean
+        s = mcmcMat[chnIdx,"ySigma"] # spread
+        nu = mcmcMat[chnIdx,"nuY"]# normality
+
+
+        tlim = qt( c(0.025,0.975) , df=nu )
+        yl = m+tlim[1]*s
+        yh = m+tlim[2]*s
+        ycomb=seq(yl,yh,length=201)
+        #ynorm = dnorm(ycomb,mean=m,sd=s)
+        #ynorm = 0.67*ynorm/max(ynorm)
+        yt = dt( (ycomb-m)/s , df=nu )
+        yt = 0.67*yt/max(yt)
+        lines( xPlotVal-yt , ycomb , col="skyblue" )
+
+
+
+      }
+    }
+    if ( !is.null(saveName) ) {
+      saveGraph( file=paste0(saveName,"PostPred-",x2levels[x2idx]), type=saveType)
+    }
+  }# end for x2idx
+
+  openGraph(width=8,height=8)
+  layout(matrix(1:((ceiling(length(x2levels)/4)) * 4), nrow = 4))
+  for ( x2idx in 1:length(x2levels) ) {
+
+  
+
+
     # posterior of the mean for that pollster
     histInfo = plotPost( mcmcMat[,paste("a2[",x2idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
                          #compVal=compValMu , ROPE=ropeMu ,
                          xlab=x2levels[x2idx] , main=paste("Mean") ,
                          col="skyblue" )
-    if ( !is.null(saveName) ) {
-            saveGraph( file=paste0(saveName,"YearLean-",x2levels[x2idx]), type=saveType)
-          }
+
   }
   
-  #openGraph(width=8,height=8)
-  #layout(matrix(1:4,nrow=2))
-  
-  #layout(matrix(4:4))
-  #layout(matrix(1:ceiling(length(x2levels)/4)*4,nrow=4))
+  openGraph(width=8,height=8)
+  layout(matrix(1:((ceiling(length(x1levels)/4)) * 4), nrow = 4))
   for ( x1idx in 1:length(x1levels) ) {
-    openGraph(width=8,height=8)
+    
     
     # posterior of the mean for that pollster
-    histInfo = plotPost(mcmcMat[,paste("a1[",x1idx,",", x2idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
+    histInfo = plotPost( mcmcMat[,paste("a1[",x1idx,"]",sep="")] , cex.lab = 1.75 , showCurve=showCurve ,
                          #compVal=compValMu , ROPE=ropeMu ,
                          xlab=x1levels[x1idx] , main=paste("Mean") ,
                          col="skyblue" )
-    if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"PollsterBias-",x1levels[x1idx]), type=saveType)
-    }
+    
   }
   
-}
+  }
+  
