@@ -1,9 +1,17 @@
+# one of the first scripts written by Haley Reed in summer 2020
+# used to clean up data (now pre-cleaned with a different function)
+# and do basic linear regression on margin bias based on year, pollster,
+# race type, and whether the poll is partisan-funded
+# no longer functions (due to restructuring of data, I think)
+#
+# Notes by Jake, 8/6/20
+
 #Comparing Pollsters
 #While looking at one pollster may provide us with some relevant information, it is much more interesting to look at multiple pollsters and compare them. Choose your group below:
 
 
 #load all the data
-mydata <- read.csv("raw-polls_538.csv")
+mydata <- read.csv("Data/raw-polls_538.csv")
 
 #Establish which years you wish to use data from (between 1998 and 2020):
 earlyYear=1998

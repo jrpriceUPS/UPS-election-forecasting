@@ -3,7 +3,7 @@
 
 #load the data
 #in this case from 538
-mydata <- read.csv("raw-polls_538.csv")
+mydata <- read.csv("Data/raw-polls_538.csv")
 
 #Establish which years you wish to use data from (between 1998 and 2020):
 earlyYear=1998
