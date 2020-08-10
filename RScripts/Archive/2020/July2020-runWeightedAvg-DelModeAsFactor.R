@@ -1,4 +1,8 @@
-#Margin instead of demError
+# Script to call various weighted poll average JAGS simulations and visualize the output
+# From before we broke delivery mode into separate indicators
+# Run with any of the weighted poll codes in archive
+# 
+# Notes by Jake 8/10/20
 
 #ANCOVA for Weight of Poll - Example Script
 #06/30/2020
@@ -13,9 +17,6 @@ mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 mydata=mydata[mydata$delMode!="Landline",]
 mydata=mydata[mydata$delMode!="Mail",]
 
-#limit to just US overall, no more consideration of state elections
-#mydata=mydata[mydata$location=="US",]
-
 
 #Order the data
 
@@ -24,58 +25,49 @@ newdata2 = data.frame(newdata)
 
 #create small data frame for reference
 races = unique(newdata$race_id)
-onlyUnique=(data.table::setDT(newdata2)[,.SD[which.max(margin_actual)],keyby=race_id])
-actual = onlyUnique$margin_actual
+onlyUnique=(data.table::setDT(newdata2)[,.SD[which.max(cand1_actual)],keyby=race_id])
+actual = onlyUnique$cand1_actual
 raceFullName=unique(newdata$race)
 refdataframe=data.frame(races,raceFullName,actual) 
 
 for (i in 1:nrow(refdataframe)){
-  
-  myFullName=refdataframe[i,2]
-  
-  myFullName= stringr::str_replace_all(myFullName, "_", " ")
-  refdataframe[i,2]=myFullName
+ 
+myFullName=refdataframe[i,2]
+
+ myFullName= stringr::str_replace_all(myFullName, "_", " ")
+ refdataframe[i,2]=myFullName
 }
 
 # refdataframe=data.frame(races,raceFullName,actual) 
-
+ 
 #create the whichrace list. 
+ 
+ 
+ # whichrace <- vector(mode = "numeric", 0)
+ #  for (i in unique(newdata$race_id)){
+ #    subsetrace = subset (newdata, race_id==i)
+ #    counter=nrow(subsetrace)
+ #    whichrace = rlist::list.append(whichrace, counter)
+ #  }
 
-
-# whichrace <- vector(mode = "numeric", 0)
-#  for (i in unique(newdata$race_id)){
-#    subsetrace = subset (newdata, race_id==i)
-#    counter=nrow(subsetrace)
-#    whichrace = rlist::list.append(whichrace, counter)
-#  }
-
-
-#create list to feed info with
-
-predictorsframe = newdata[,c("race_id","margin_actual", "margin_poll",
-                            "delMode", "transparency", "samplesize","LV")]
-
-
-predictorsframe=cbind(predictorsframe, IVR="FALSE")
-predictorsframe=cbind(predictorsframe, online="FALSE")
-predictorsframe=cbind(predictorsframe, live="FALSE")
-predictorsframe=cbind(predictorsframe, text="FALSE")
-
+ 
+  #create list to feed info with
+  
+  predictorsframe = newdata[,c("race_id","cand1_actual", "cand1_pct",
+                               "delMode","transparency", "samplesize","LV")]
+ 
+  
 myDataFrame=predictorsframe
+
+
 #Less Options for Del Mode is Helpful:
 for (i in 1:nrow(myDataFrame)){
   myMode=myDataFrame[i,4]
-  if(myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="IVR/Online/Text"||myMode=="IVR/Text"||myMode=="Online/Live"){
-    myDataFrame[i,9]="TRUE"
+  if(myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
+    myDataFrame[i,4]="Online"
   }
-  if(myMode=="Live*"||myMode=="Live/Text"||myMode=="Online/Live"||myMode=="IVR/Live"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"){
-    myDataFrame[i,10]="TRUE"
-  }
-  if(myMode=="IVR"||myMode=="IVR/Online"||myMode=="IVR/Online/Live"||myMode=="IVR/Online/Text"||myMode=="IVR/Online/Live/Text"||myMode=="	IVR/Online/Text"||myMode=="IVR/Text"){
-    myDataFrame[i,8]="TRUE"
-  }
-  if(myMode=="IVR/Online/Text"||myMode=="IVR/Text"||myMode=="IVR/Online/Live/Text"||myMode=="Live/Text"){
-    myDataFrame[i,11]="TRUE"
+  if(myMode=="Live*"||myMode=="Live/Text"||myMode=="Online/Live"||myMode=="IVR/Live"){
+    myDataFrame[i,4]="Live"
   }
 }
 
@@ -88,8 +80,8 @@ whichrace=whichrace-1
 whichrace=c(whichrace,nrow(newdata))
 
 
-fileNameRootSim = "Simulations/SplitModes" 
-fileNameRoot = "Markdown/Figures/WeightedModels/All Variables/SplitModes" 
+fileNameRootSim = "Simulations/Weight-NoLV" 
+fileNameRoot = "Markdown/Figures/WeightedModels/NoLV/Weight-NoLV" 
 graphFileType = "png" 
 
 myDataFrame$samplesize =myDataFrame $ samplesize/1000
@@ -99,57 +91,53 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #myDataFrame$samplesize =MarginOfError
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
-#source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollANCOVA-V04.R")
+#Worked without LV.
+source("RScripts/Archive/2020/July2020-WeightedAverage-NoLV.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
-mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="margin_poll" ,
+mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
                     actualName="actual", 
-                    IVRName="IVR", onlineName="online", liveName="live", textName="text",
-                    LVName="LV" , transparencyName="transparency", 
+                    #LVName="LV" ,
+                    delModeName="delMode" ,  transparencyName="transparency", 
                     samplesizeName ="samplesize", raceIDName = "races", whichrace=whichrace,
-                    numSavedSteps=21000 , thinSteps=10 , saveName=fileNameRootSim )
+                    numSavedSteps=11000 , thinSteps=10 , saveName=fileNameRootSim )
 #------------------------------------------------------------------------------- 
 # Display diagnostics of chain, for specified parameters:
 parameterNames = varnames(mcmcCoda) 
 show( parameterNames ) # show all parameter names, for reference
 for ( parName in c("actualSpread",   
-                   "IVRImpact", "samplesizeImpact" , "mu[1]","LVImpact") ) {
+                   "delModeImpact[1]", "samplesizeImpact" , "mu[1]") ) {
   diagMCMC( codaObject=mcmcCoda , parName=parName , 
             saveName=fileNameRoot , saveType=graphFileType )
 }
 #------------------------------------------------------------------------------- 
 # Get summary statistics of chain:
-summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , LVName="LV" , transparencyName="transparency", 
-                        samplesizeName ="samplesize",   IVRName="IVR" ,onlineName="online" ,liveName="live" ,textName="text" ,
-                        saveName=fileNameRoot )
+summaryInfo = smryMCMC( codaSamples=mcmcCoda , datFrm=myDataFrame , # LVName="LV" ,
+                        transparencyName="transparency", 
+                        samplesizeName ="samplesize", 
+                      delModeName="delMode",
+                        saveName=fileNameRootSim )
 show(summaryInfo)
 # Display posterior information: At this point just for delMode and sample size.
 #plotPosteriorPredictive( mcmcCoda , datFrm=myDataFrame , 
-#      saveName=fileNameRoot , saveType=graphFileType )
+    #      saveName=fileNameRoot , saveType=graphFileType )
 #------------------------------------------------------------------------------- 
 #plot the posterior predictive distrubtions
 
 plotPosteriorPredictive(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
-                        pollName = "margin_poll", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+                        pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
                         saveType=graphFileType)
 
 meanPosterior(codaSample=mcmcCoda, refFrame=refdataframe, datFrmPredictor = myDataFrame, 
-              pollName = "margin_poll", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
+              pollName = "cand1_pct", raceIDName="races", raceplots=1:10, whichrace=whichrace, saveName=fileNameRoot , 
               saveType=graphFileType)
 #plot the LV distribution
-plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                saveType=graphFileType)
+# plotLVPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+#                 saveType=graphFileType)
 
-#plot delModeImpact Posteriors
-plotIVRPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
+#plot delModeImpact Posterior
+plotdelModePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
                      saveType=graphFileType)
-plotonlinePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                 saveType=graphFileType)
-plotlivePosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                 saveType=graphFileType)
-plottextPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
-                 saveType=graphFileType)
 
 #plot Transparenct Posterior
 plotTransparencyPosterior(codaSample=mcmcCoda,  datFrmPredictor = myDataFrame , saveName=fileNameRoot , 
@@ -180,25 +168,6 @@ LVImpact2 = mcmcMat[,"LVImpact[2]"]
 transparencyImpact1 = mcmcMat[,"transparencyImpact[1]"]
 transparencyImpact2 = mcmcMat[,"transparencyImpact[2]"]
 
-IVRImpact1=mcmcMat[,"IVRImpact[1]"]
-IVRImpact2=mcmcMat[,"IVRImpact[2]"]
-onlineImpact1=mcmcMat[,"onlineImpact[1]"]
-onlineImpact2=mcmcMat[,"onlineImpact[2]"]
-liveImpact1=mcmcMat[,"liveImpact[1]"]
-liveImpact2=mcmcMat[,"liveImpact[2]"]
-textImpact1=mcmcMat[,"textImpact[1]"]
-textImpact2=mcmcMat[,"textImpact[2]"]
-
-
-plot(IVRImpact1,IVRImpact2)
-plot(IVRImpact1,transparencyImpact1)
-plot(IVRImpact1,onlineImpact1)
-plot(textImpact1,textImpact2)
-cor(textImpact1,textImpact2)
-cor(IVRImpact1,IVRImpact2)
-cor(IVRImpact1,transparencyImpact1)
-cor(IVRImpact2,onlineImpact2)
-
 plot(samplesizeImpact,LVImpact1, 
      ylab="LV Impact [1]", xlab="(Sample Size/100) Impact")
 plot(samplesizeImpact,LVImpact2, 
@@ -210,7 +179,9 @@ plot(samplesizeImpact,transparencyImpact2,
 
 
 #Look at the correlations between LV and delMode
-
+mcmcMat = as.matrix(mcmcCoda,chains=TRUE)
+delModeImpact2 = mcmcMat[,"delModeImpact[2]"]
+delModeImpact7 = mcmcMat[,"delModeImpact[7]"]
 
 plot(LVImpact1,delModeImpact2, xlab="Non LV Model Impact", ylab="IVR Combo Impact") 
 plot(LVImpact2,delModeImpact7, xlab="LV Model Impact", ylab="Online Impact") 
@@ -225,7 +196,16 @@ abline(a=0, b=1)
 # samplesizeImpactMOE= mcmcMat[,"samplesizeImpact"]
 
 
+plot(samplesizeImpact,samplesizeImpactLog, 
+     ylab="Sample Size Impact - Log Transform", xlab="(Sample Size/100) Impact")
+plot(samplesizeImpact,samplesizeImpactMOE,
+     xlab="(Sample Size/100) Impact", ylab="Margin of Error Impact")
+plot(samplesizeImpactLog,samplesizeImpactMOE,
+     ylab="Margin of Error Impact",xlab="Sample Size Impact - Log Transform")
 
 subdata=subset(mydata, year==2000)
 lattice::densityplot(~bias, data = subdata, groups = LV, main = "2000 LV v. Non LV Comparsion")
 lattice::densityplot(~bias, data = subdata, main = "2000 LV v. Non LV Comparsion")
+
+
+

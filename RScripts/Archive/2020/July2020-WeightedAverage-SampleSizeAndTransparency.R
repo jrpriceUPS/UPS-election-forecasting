@@ -1,4 +1,5 @@
-#Weighted with Just sample size and transparenc predictors
+#Weighted with Just sample size and transparency predictors
+# Notes by Jake 8/10/20
 
 
 source("DBDA2E-utilities.R")

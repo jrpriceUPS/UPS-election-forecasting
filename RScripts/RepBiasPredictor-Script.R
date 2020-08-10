@@ -1,3 +1,12 @@
+# Calls July2020-RepBiasModeling.R to run simulation
+# that estimates republican bias using dem bias and undecideds
+# can instead call RScripts/Archive/2020/July2020-RepBiasModeling-demResponseYear.R
+# to allow the response to dem bias to differ by year
+#
+# Runs!
+#
+# Notes by Jake 8/10/20
+
 #example/practice script for "JAGS-PartyErrorPredictor.R"
 
 
@@ -45,7 +54,7 @@ myDataFrame$pollster = factor( myDataFrame$pollster)
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("RScripts/JAGS-PartyErrorPredictor.R")
-source("RScripts/JAGS-PartyErrorPredictor.R")
+source("RScripts/July2020-RepBiasModeling.R")
 fileNameRoot = "Markdown/Figures/Jags-PartyErrorPredictorPractice-" 
 fileNameRootSim= "Simulations/Jags-PartyErrorPredictorPractice-" 
 
@@ -60,7 +69,7 @@ mcmcCodaPE = genMCMC( datFrm=myDataFrame , dembiasName = "demBias" , pollsterNam
 parameterNames = varnames(mcmcCodaPE) 
 show( parameterNames ) # show all parameter names, for reference
 
-plotDiagnostics()
+#plotDiagnostics()
 
 
 #------------------------------------------------------------------------------- 
@@ -71,7 +80,7 @@ summaryInfo = smryMCMC( mcmcCodaPE ,
 show(summaryInfo)
 #------------------------------------------------------------------------------- 
 #Get some plotting done
-plotPosteriorPredictive( mcmcCodaPE, 
+plotPosteriorPredictiveDem( mcmcCodaPE, 
                          datFrm=myDataFrame , dembiasName="demBias" ,
                          saveName=fileNameRoot , saveType=graphFileType )
 plotMCMCrep( mcmcCodaPE, saveName=fileNameRoot , saveType=graphFileType )

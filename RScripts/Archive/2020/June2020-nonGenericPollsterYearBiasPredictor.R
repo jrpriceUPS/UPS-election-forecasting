@@ -1,3 +1,7 @@
+# non-generic version of JAGS script to predict bias using pollster and year
+# Notes by Jake 8/10/20
+
+
 #JAGS-2Factor-V03
 #06-29-2020
 #Modification of JAGS-2Factor-V02.R 

@@ -143,6 +143,11 @@ Undecided = 100 - myDataFrame$cand1_pct - myDataFrame$cand2_pct
 myDataFrame$undecided = Undecided
 mydata = myDataFrame
 
+# Script to clean raw 538 polling data and include variables we want!
+#
+# Runs
+# Notes by Jake 8/10/20
+
 
 #Save the csv file.
 write.csv(mydata,'Data/raw-polls_538_cleaned.csv')

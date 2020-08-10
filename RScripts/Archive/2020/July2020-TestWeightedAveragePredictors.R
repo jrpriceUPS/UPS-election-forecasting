@@ -1,3 +1,9 @@
+# runs a variety of weighted average simulations with different combinations of predictors
+# Throws errors for some plots, but I think all the sims work
+#
+# Notes by Jake 8/10/20
+
+
 #ANCOVA for Weight of Poll - Example Script
 #06/30/2020
 #First off - just LV!
@@ -28,7 +34,7 @@ for (i in 1:nrow(refdataframe)){
   
   myFullName=refdataframe[i,2]
   
-  myFullName= str_replace_all(myFullName, "_", " ")
+  myFullName= stringr::str_replace_all(myFullName, "_", " ")
   refdataframe[i,2]=myFullName
 }
 
@@ -86,7 +92,7 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollJustLV.R")
+source("RScripts/Archive/2020/July2020-WeightPollJustLV.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCodaJustLV = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
@@ -285,7 +291,7 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightPollJustSS.R")
+source("RScripts/Archive/2020/July2020-WeightPollJustSS.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCodaJustSS = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
@@ -429,7 +435,7 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("Jags-Ymet-Xnom1met1-MnormalHom.R")
-source("RScripts/WeightedNoLV.R")
+source("RScripts/Archive/2020/July2020-WeightedAverage-NoLV.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCoda = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
@@ -634,7 +640,7 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #Worked without LV.
-source("RScripts/WeightedSampleSizeandDelMode.R")
+source("RScripts/Archive/2020/July2020-WeightedAverage-SampleSizeAndDelMode.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCodaSSDM = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
@@ -723,7 +729,7 @@ myDataFrame$samplesize =myDataFrame $ samplesize/1000
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #Worked without LV.
-source("RScripts/WeightedSampleSizeandTransparency.R")
+source("RScripts/Archive/2020/July2020-WeightedAverage-SampleSizeAndTransparency.R")
 #------------------------------------------------------------------------------- 
 # Generate the MCMC chain:
 mcmcCodaSST = genMCMC( refFrame=refdataframe, datFrmPredictor=myDataFrame, pollName="cand1_pct" ,
