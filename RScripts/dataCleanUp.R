@@ -7,9 +7,6 @@ mydata=read.csv("Data/raw-polls_538.csv")
 
 #Limit to just president
 preferredType="Pres-G"
-
-#Limit to just president
-preferredType="Pres-G"
 mydata=subset(mydata, type_simple==preferredType)
 
 #Treat pollster as a factor.
@@ -165,3 +162,4 @@ for(i in unique(mydata$daysuntil))
     }
   }
 write.csv(recentdata,'Data/raw-polls_538_weekprior.csv')
+
