@@ -1,3 +1,11 @@
+# final weighted polling average made by Haley in summer 2020
+# uses polls in week before election and has no time dependence
+# delivery mode, transparency, etc. are coded as logical variables
+# best results applied to margin
+# includes adjustment for house and year effects!
+#
+# Notes by Jake 8/11/20
+
 #ANCOVA for Weight of Poll V04
 #06/30/2020
 
