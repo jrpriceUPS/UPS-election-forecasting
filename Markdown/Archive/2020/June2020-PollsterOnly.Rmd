@@ -8,6 +8,9 @@ bibliography: electionworkingbib.bib
 
 
 ```{r setup, include=FALSE}
+# NOTE - THIS CODE DOESN'T RUN
+# this is due to a change in how "mydata" is defined which causes the specific year to not be singled out anymore. Still useful as a starting point though
+
 knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
@@ -19,7 +22,7 @@ To understand pollster bias, we can use a Bayesian modeling to describe metric d
 It is of interest to include this nominal predictor of pollster because there is a historical precedent for bias due to systematic polling error and housing effects [@ReadPollsBetter]. 
 
 ```{r, include=FALSE, fig.show='hide'}
-source(here::here('RScripts', 'ANOVA model - just pollsters.R'))
+source(here::here('RScripts/Archive/2020', 'June2020-PollsterANOVA-CustomJAGS-Example.R'))
 ```
 
 Because there are so many pollsters, for the sake of simplification, we will look at just the few pollsters with at least `r minPolls` in the `r DesiredYear` `r preferredType` election.

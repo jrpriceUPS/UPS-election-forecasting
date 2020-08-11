@@ -7,6 +7,8 @@ bibliography: electionworkingbib.bib
 ---
 
 ```{r setup, include=FALSE}
+# No longer knits, I think due to how structure of variables continually changed
+
 knitr::opts_chunk$set(echo = FALSE, error=FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir = dirname(getwd()))
 ```
@@ -20,7 +22,7 @@ It is of interest to include this nominal predictor of pollster because there is
 Including year is logical because of the swings in bias of pollsters throughout the years. For example, during the 08' and 12' elections, pollsters seemed to underestimate the power of democratic vote share, where in 2016 the opposite appeared to be true.
 
 ```{r, include=FALSE, fig.show='hide'}
-source(here::here('RScripts', 'twoWayANOVA.R'))
+source(here::here('RScripts/Archive/2020', 'July2020-PollsterYearPredBias-Interaction.R'))
 ```
 
 ##Data Exploration

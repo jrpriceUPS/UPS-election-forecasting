@@ -7,11 +7,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = dirname(dirname(dirname(getwd()))))
+
 ```
 
 To better understand polls, we can attempt to model the bias from polls with other measurable variables. 
 
-```{r}
+```{r, echo = TRUE}
 #load the data
 #in this case from 538
 mydata <- read.csv("Data/raw-polls_538.csv")
