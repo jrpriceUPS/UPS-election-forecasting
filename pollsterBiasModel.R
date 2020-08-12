@@ -1,8 +1,10 @@
-# First script used to model repBias with demBias, undecideds using JAGS
-# demBias modeled with t-distribution, center determined by pollster + year (with interactions)
-# repBias modeled with ANCOVA response to demBias and undecideds
-#
-# Notes by Jake 8/10/20
+# A script that models the bias of pollster in a given year ("house effect")
+#  * Models demBias and repBias separately 
+#     - one is "primary" and other is "secondary"
+#     - secondary is modeled on primary and undecided voters in poll
+#  * Overall year lean pulled from parent distribution of year leans
+#  * Pollster bias in a given year comes from parent distribution for that pollster
+#     - Pollster parent dist. comes from larger parent distribution of pollster centers
 
 # Let us predict rebBias with demBias. 
 
@@ -57,7 +59,7 @@ genMCMC = function( datFrm ,
     dembiasMean = dembiasMean ,
     dembiasSD = dembiasSD
   )
-
+  
   #------------------------------------------------------------------------------
   # THE MODEL.
   modelstring = "
@@ -103,7 +105,7 @@ genMCMC = function( datFrm ,
   # RUN THE CHAINS
   require(rjags)
   parameters = c(  "repResponsetoDemBias", "UndecidedResponse","repBiasSpread","dembiasSpread" ,
-                  "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
+                   "nuY" , "pollsterSpread", "yearSpread", "yearLean", "pollsterBias" )
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -128,7 +130,7 @@ genMCMC = function( datFrm ,
 #===============================================================================
 
 smryMCMC = function(  codaSamples , datFrm=NULL , dembiasName = "demBias" , pollsterName = "pollster" , yearName = "year",
-                       undecidedName="undecided",
+                      undecidedName="undecided",
                       contrasts=NULL , saveName=NULL ) {
   # All single parameters:
   parameterNames = varnames(codaSamples) 
@@ -164,19 +166,19 @@ smryMCMC = function(  codaSamples , datFrm=NULL , dembiasName = "demBias" , poll
     }
     rownames(summaryInfo)[NROW(summaryInfo)] = thisRowName
   }
-    
+  
   summaryInfo = rbind( summaryInfo , 
                        "repResponsetoDemBias" = summarizePost( mcmcMat[,"repResponsetoDemBias"]  
-                                                
-                                              #,compVal=compValrepResponsetoDemBias , 
-                                                #ROPE=roperepResponsetoDemBias 
-                                              ) )
- 
+                                                               
+                                                               #,compVal=compValrepResponsetoDemBias , 
+                                                               #ROPE=roperepResponsetoDemBias 
+                       ) )
+  
   summaryInfo = rbind( summaryInfo , 
                        "UndecidedResponse" = summarizePost( mcmcMat[,"UndecidedResponse"] 
-                                               # ,compVal=compValrepResponsetoDemBias , 
-                                                #ROPE=roperepResponsetoDemBias 
-                                               ) )
+                                                            # ,compVal=compValrepResponsetoDemBias , 
+                                                            #ROPE=roperepResponsetoDemBias 
+                       ) )
   
   # Save results:
   if ( !is.null(saveName) ) {
@@ -198,9 +200,9 @@ plotDiagnostics= function( ){
 #===============================================================================
 
 plotPosteriorPredictiveDem = function( codaSamples , 
-                                    datFrm , dembiasName=NULL , 
-                                    saveName=NULL , saveType="jpg",
-                                    showCurve = FALSE) {
+                                       datFrm , dembiasName=NULL , 
+                                       saveName=NULL , saveType="jpg",
+                                       showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
   dembiasName = "demBias" 
@@ -257,54 +259,54 @@ plotPosteriorPredictiveDem = function( codaSamples ,
       saveGraph( file=paste0(saveName,"PostPred-Dem-",YearLevels[Yearidx]), type=saveType)
     }
   }# end for Yearidx
-
-
-# 
-#   for ( Yearidx in 1:length(YearLevels) ) {
-#     openGraph(width=2*length(PollsterLevels),height=5)
-#     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
-#     plot(-10,-10,
-#          xlim=c(0.2,length(PollsterLevels)+0.1) ,
-#          xlab=paste(pollsterName,yearName,sep="\n") ,
-#          xaxt="n" , ylab=repBiasName ,
-#          ylim=c(min(repBias)-0.2*(max(repBias)-min(repBias)),max(repBias)+0.2*(max(repBias)-min(repBias))) ,
-#          main="Data with Post. Pred.")
-#     axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
-#           lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
-#     for ( Pollsteridx in 1:length(PollsterLevels) ) {
-#       xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
-#       yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
-#       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
-#               yVals , pch=1 , cex=1.5 , col="red" )
-#      
-#      # repBias[poll] ~ dnorm((repResponsetoDemBias*dembias[poll] + UndecidedResponse*undecided[poll]), 1/repBiasSpread^2)
-#       
-#        chainSub = round(seq(1,chainLength,length=20))
-#       for ( chnIdx in chainSub ) {
-#         m = mcmcMat[chnIdx,paste("repResponsetoDemBias")]*(mcmcMat[chnIdx,paste("demBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
-#         +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")])  # year lean
-#         s = mcmcMat[chnIdx,"repBiasSpread"] # spread
-# 
-# 
-# 
-#         normlim = qnorm( c(0.025,0.975) )
-#         yl = m+normlim[1]*s
-#         yh = m+normlim[2]*s
-#         ycomb=seq(yl,yh,length=201)
-#         ynorm = dnorm(ycomb,mean=m,sd=s)
-#         ynorm = 0.67*ynorm/max(ynorm)
-#         
-#         lines( xPlotVal-ynorm , ycomb , col="skyblue" )
-# 
-# 
-# 
-#       }
-#     }
-#     if ( !is.null(saveName) ) {
-#       saveGraph( file=paste0(saveName,"PostPred-Rep-",YearLevels[Yearidx]), type=saveType)
-#     }
-# 
-# }
+  
+  
+  # 
+  #   for ( Yearidx in 1:length(YearLevels) ) {
+  #     openGraph(width=2*length(PollsterLevels),height=5)
+  #     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
+  #     plot(-10,-10,
+  #          xlim=c(0.2,length(PollsterLevels)+0.1) ,
+  #          xlab=paste(pollsterName,yearName,sep="\n") ,
+  #          xaxt="n" , ylab=repBiasName ,
+  #          ylim=c(min(repBias)-0.2*(max(repBias)-min(repBias)),max(repBias)+0.2*(max(repBias)-min(repBias))) ,
+  #          main="Data with Post. Pred.")
+  #     axis( 1 , at=1:length(PollsterLevels) , tick=FALSE ,
+  #           lab=paste( PollsterLevels , YearLevels[Yearidx] , sep="\n" ) )
+  #     for ( Pollsteridx in 1:length(PollsterLevels) ) {
+  #       xPlotVal = Pollsteridx #+ (Yearidx-1)*length(PollsterLevels)
+  #       yVals = repBias[ pollster==Pollsteridx & year==Yearidx ]
+  #       points( rep(xPlotVal,length(yVals))+runif(length(yVals),-0.05,0.05) ,
+  #               yVals , pch=1 , cex=1.5 , col="red" )
+  #      
+  #      # repBias[poll] ~ dnorm((repResponsetoDemBias*dembias[poll] + UndecidedResponse*undecided[poll]), 1/repBiasSpread^2)
+  #       
+  #        chainSub = round(seq(1,chainLength,length=20))
+  #       for ( chnIdx in chainSub ) {
+  #         m = mcmcMat[chnIdx,paste("repResponsetoDemBias")]*(mcmcMat[chnIdx,paste("demBias[",Pollsteridx,",", Yearidx,"]",sep="")]   # pollster bias
+  #         +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")])  # year lean
+  #         s = mcmcMat[chnIdx,"repBiasSpread"] # spread
+  # 
+  # 
+  # 
+  #         normlim = qnorm( c(0.025,0.975) )
+  #         yl = m+normlim[1]*s
+  #         yh = m+normlim[2]*s
+  #         ycomb=seq(yl,yh,length=201)
+  #         ynorm = dnorm(ycomb,mean=m,sd=s)
+  #         ynorm = 0.67*ynorm/max(ynorm)
+  #         
+  #         lines( xPlotVal-ynorm , ycomb , col="skyblue" )
+  # 
+  # 
+  # 
+  #       }
+  #     }
+  #     if ( !is.null(saveName) ) {
+  #       saveGraph( file=paste0(saveName,"PostPred-Rep-",YearLevels[Yearidx]), type=saveType)
+  #     }
+  # 
+  # }
 }
 
 
@@ -313,9 +315,9 @@ plotPosteriorPredictiveDem = function( codaSamples ,
 #===============================================================================
 
 plotMCMCrep = function( codaSamples , data , xName="undecided" , yName="repBias" ,
-                    
-                     showCurve=FALSE ,  
-                     saveName=NULL , saveType="jpg" ) {
+                        
+                        showCurve=FALSE ,  
+                        saveName=NULL , saveType="jpg" ) {
   # Marginal histograms:
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   repResponsetoDemBias = mcmcMat[,"repResponsetoDemBias"]
@@ -355,15 +357,15 @@ plotMCMCrep = function( codaSamples , data , xName="undecided" , yName="repBias"
   panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
   histInfo = plotPost( repResponsetoDemBias , cex.lab = 1.75 , showCurve=showCurve ,
                        xlab=bquote(repResponsetoDemBias) , main="Republican Response to Democratic Bias" )
-
-    panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
-    histInfo = plotPost( UndecidedResponse , cex.lab = 1.75 , showCurve=showCurve ,
-                         xlab=bquote(UndecidedResponse) , main="Rebulican Response to Undecided" )
+  
+  panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
+  histInfo = plotPost( UndecidedResponse , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab=bquote(UndecidedResponse) , main="Rebulican Response to Undecided" )
   
   panelCount = decideOpenGraph( panelCount , saveName=paste0(saveName,"PostMarg") )
   histInfo = plotPost( repBiasSpread , cex.lab = 1.75 , showCurve=showCurve ,
                        xlab=bquote(repBiasSpread) , main=paste("Scale") )
   
- 
+  
   panelCount = decideOpenGraph( panelCount , finished=TRUE , saveName=paste0(saveName,"PostMarg") )
-  }
+}

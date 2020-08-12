@@ -15,7 +15,8 @@ graphics.off() # This closes all of R's graphics windows.
 #rm(list=ls())  # Clear all of R's memory!
 
 #load the cleaned data
-mydata=read.csv("Data/raw-polls_538_cleaned.csv")
+#mydata=read.csv("Data/raw-polls_538_cleaned.csv")
+mydata=read.csv("Data/raw-polls_538_weekprior.csv")
 
 
 #create empty data frame, while maintaining all columns from the mydata structure
@@ -54,7 +55,7 @@ myDataFrame$pollster = factor( myDataFrame$pollster)
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
 #source("RScripts/JAGS-PartyErrorPredictor.R")
-source("RScripts/July2020-RepBiasModeling.R")
+source("RScripts/RepBiasModeling.R")
 fileNameRoot = "Markdown/Figures/Jags-PartyErrorPredictorPractice-" 
 fileNameRootSim= "Simulations/Jags-PartyErrorPredictorPractice-" 
 
