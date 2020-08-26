@@ -1,57 +1,46 @@
 # Author: Jake Price
-# Date: 8/12/20
+# Date: 8/25/20
 #
-# A script that models the bias of pollster in a given year ("house effect")
-#  * Models demBias and repBias separately 
-#     - one is "primary" and other is "secondary"
-#     - secondary is modeled on primary and undecided voters in poll
+# A set of functions for running the margin bias of a pollster in a given year ("house effect")
+# simulation and making plots
 #  * Overall year lean pulled from parent distribution of year leans
 #  * Pollster bias in a given year comes from parent distribution for that pollster
 #     - Pollster parent dist. comes from larger parent distribution of pollster centers
-
-# Let us predict rebBias with demBias. 
 
 
 # source summary functions (look at this later and pull in only the functions we need)
 source("DBDA2E-utilities.R")
 
 #===============================================================================
-runSimulation = function( datFrm , party1 = "demBias", party2 = "repBias",
-                          numSavedSteps=50000 , thinSteps=1 , saveName=NULL,
+runSimulation = function( datFrm , numSavedSteps=50000 , thinSteps=1 , saveName=NULL,
                           runjagsMethod=runjagsMethodDefault , nChains=nChainsDefault ) 
-  { 
+{ 
   #------------------------------------------------------------------------------
   # THE DATA.
   # Convert data file columns to lists for delivery to JAGS
-  undecided = as.numeric(datFrm[,"undecided"])
-  p1bias = as.numeric(datFrm[,party1])
-  p2bias = as.numeric(datFrm[,party2])
+ 
+  marginBias = as.numeric(datFrm[,"bias"])
+  
   pollster = as.numeric(as.factor(datFrm[,"pollster"]))
   PollsterLevels = levels(as.factor(datFrm[,"pollster"]))
   year = as.numeric(as.factor(datFrm[,"year"]))
   YearLevels = levels(as.factor(datFrm[,"year"]))
   
   # indexing
-  PollsTotal = length(p1bias)
+  PollsTotal = length(marginBias)
   PollsterLevelsTotal = length(unique(pollster))
   YearLevelsTotal = length(unique(year))
   
   # Compute scale properties of data, for passing into prior to make the prior
   # vague on the scale of the data. 
   # For prior on baseline, etc.:
-  p1mean = mean(p1bias)
-  p1SD = sd(p1bias)
-  p2Mean = mean(p2bias)
-  p2SD = sd(p2bias)
-  undecidedMean=mean(undecided)
-  undecidedSD=sd(undecided)
+  marginMean = mean(marginBias)
+  marginSD = sd(marginBias)
   
   # Specify the data in a list for sending to JAGS:
   dataList = list(
-    p1bias = p1bias,
-    p2bias = p2bias,
+    marginBias = marginBias,
     pollster = pollster,
-    undecided=undecided,
     year = year,
     
     # indexing
@@ -60,12 +49,8 @@ runSimulation = function( datFrm , party1 = "demBias", party2 = "repBias",
     YearLevelsTotal =  YearLevelsTotal ,
     
     # data properties for scaling the prior:
-    p1mean = p1mean,
-    p1SD = p1SD,
-    p2mean = p2Mean,
-    p2SD = p2SD,
-    undecidedMean=undecidedMean,
-    undecidedSD=undecidedSD
+    marginMean = marginMean,
+    marginSD = marginSD
   )
   
   #------------------------------------------------------------------------------
@@ -77,25 +62,18 @@ runSimulation = function( datFrm , party1 = "demBias", party2 = "repBias",
     
     for (poll in 1:PollsTotal){
     
-      # primary party is modeled as t-distribution with center dictated by year lean + house effects
+      # margin is modeled as t-distribution with center dictated by year lean + house effects
       mu[poll] <- yearLean[year[poll]] + pollsterBias[pollster[poll],year[poll]] 
-      p1bias[poll] ~ dt(mu[poll] , (1/p1PollSpread^2) , nu1 )
-    
-      # secondary party is modeled on primary party and undecideds
-      p2bias[poll] ~ dnorm((responseFirstPartyBias*p1bias[poll] + responseUndecideds*undecided[poll]), 1/p2PollSpread^2)
+      marginBias[poll] ~ dt(mu[poll] , (1/marginSpread^2) , nu )
     
     }
     
-    # vague prior for normality of party 1 poll bias
-    nu1 ~  dexp(1/30.0) 
+    # vague prior for normality of margin bias
+    nu ~  dexp(1/30.0) 
     
     # vague priors on appropriate scale for spread of poll biases
-    p1PollSpread ~ dunif( p1SD/100 , p1SD*10 )
-    p2PollSpread ~ dunif( p2SD/100 , p2SD*10 )
+    marginSpread ~ dunif( marginSD/100 , marginSD*10 )
     
-    
-    responseFirstPartyBias  ~ dnorm( 0 , 1/(10)^2 ) # extremely vague prior for response between parties
-    responseUndecideds  ~ dnorm( 0 , 1/(10)^2 ) # vague prior for response to undecideds
 
    
     # Year lean branch of hierarchy
@@ -128,8 +106,8 @@ runSimulation = function( datFrm , party1 = "demBias", party2 = "repBias",
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   require(rjags)
-  parameters = c("pollsterBias","pollsterCenter","pollsterSpread","yearSpread","yearLean","responseUndecideds","responseFirstPartyBias",
-                 "p1PollSpread","p2PollSpread","nu1")
+  parameters = c("pollsterBias","pollsterCenter","pollsterSpread","yearSpread","yearLean",
+                 "marginSpread","nu")
   adaptSteps = 500 
   burnInSteps = 1000 
   runJagsOut <- run.jags( method=runjagsMethod ,
@@ -213,8 +191,7 @@ smryMCMC = function(  codaSamples , datFrm=NULL , dembiasName = "demBias" , poll
 
 #===============================================================================
 plotDiagnostics= function( codaObject ){
-  
-  for ( parName in c("p1PollSpread",  "nu1" , "pollsterSpread[1]" , "yearSpread" , "yearLean[1]", "pollsterBias[1,1]"  ) ) {
+  for ( parName in c("marginSpread",  "nu"  , "yearSpread" , "yearLean[1]", "pollsterBias[1,1]", "pollsterCenter[1]", "pollsterSpread[1]"  ) ) {
     diagMCMC( codaObject=codaObject , parName=parName)
   }
 }
@@ -222,24 +199,19 @@ plotDiagnostics= function( codaObject ){
 
 #===============================================================================
 
-plotParty1PosteriorPredictive = function( codaSamples , 
-                                          p1Name,
+plotPosteriorPredictive = function( codaSamples , 
                                           datFrm ,
                                           whichPollsters,
                                           saveName=NULL , 
                                           saveType="jpg",
                                           showCurve = FALSE) {
-  if(p1Name == "demBias"){
-    myCol = "blue"
-    myLabel = "Democratic Bias"}
-  if(p1Name == "repBias"){
-    myCol = "red"
-    myLabel = "Republican Bias"}
+  myCol = "purple"
+  myLabel = "Democratic Margin Bias (Dem - Rep)"
   
   
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  p1bias = datFrm[,p1Name]
+  marginBias = datFrm[,"bias"]
   year = as.numeric(as.factor(datFrm[,"year"]))
   YearLevels = levels(as.factor(datFrm[,"year"]))
   
@@ -248,7 +220,7 @@ plotParty1PosteriorPredictive = function( codaSamples ,
     openGraph(width=2*length(whichPollsters),height=5)
     par( mar=c(4,4,2,1) , mgp=c(3,1,0) )
     
-    limits = c(min(p1bias)-0.2*(max(p1bias)-min(p1bias)),max(p1bias)+0.2*(max(p1bias)-min(p1bias))) 
+    limits = c(min(marginBias)-0.2*(max(marginBias)-min(marginBias)),max(marginBias)+0.2*(max(marginBias)-min(marginBias))) 
     
     plot(-10,-10,
          xlim=c(0.2,length(whichPollsters)+0.1), xlab = "",
@@ -263,15 +235,15 @@ plotParty1PosteriorPredictive = function( codaSamples ,
       
       
       xPlotVal = i
-      y1Vals = p1bias[ as.numeric(as.factor(datFrm$pollster))==pollsterIdx & year==Yearidx ]
+      y1Vals = marginBias[ as.numeric(as.factor(datFrm$pollster))==pollsterIdx & year==Yearidx ]
       points( rep(xPlotVal,length(y1Vals))+runif(length(y1Vals),-0.05,0.05) ,
               y1Vals , pch=1 , cex=1.5 , col=myCol )
       chainSub = round(seq(1,chainLength,length=20))
       for ( chnIdx in chainSub ) {
         m = mcmcMat[chnIdx,paste("pollsterBias[",pollsterIdx,",", Yearidx,"]",sep="")]   # pollster bias
         +         mcmcMat[chnIdx,paste("yearLean[",Yearidx,"]",sep="")]  # year lean
-        s = mcmcMat[chnIdx,"p1PollSpread"] # spread
-        nu = mcmcMat[chnIdx,"nu1"]# normality
+        s = mcmcMat[chnIdx,"marginSpread"] # spread
+        nu = mcmcMat[chnIdx,"nu"]# normality
         
         
         tlim = qt( c(0.025,0.975) , df=nu )
@@ -288,7 +260,7 @@ plotParty1PosteriorPredictive = function( codaSamples ,
       }
     }
     if ( !is.null(saveName) ) {
-      saveGraph( file=paste0(saveName,"PostPred-",p1Name,"-",YearLevels[Yearidx]), type=saveType)
+      saveGraph( file=paste0(saveName,"PostPred-margin-",YearLevels[Yearidx]), type=saveType)
     }
   }# end for Yearidx
 }
@@ -302,7 +274,6 @@ plotParty1PosteriorPredictive = function( codaSamples ,
 
 
 plotMarginalDistributions = function( codaSamples , data , 
-                                      p1Name,
                                       datFrm,
                                       whichPollsters,
                                       showCurve=FALSE ,  
@@ -312,21 +283,21 @@ plotMarginalDistributions = function( codaSamples , data ,
   
   
   # Marginal histograms for regression coefficients
-  coeffMarginal(mcmcMat, p1Name, showCurve, saveName, saveType)
+  coeffMarginal(mcmcMat, showCurve, saveName, saveType)
   
   # marginal distributions for years
-  yearMarginal(mcmcMat,datFrm, p1Name, showCurve, saveName, saveType)
+  yearMarginal(mcmcMat,datFrm, showCurve, saveName, saveType)
   
   
   
   
   # marginal distributions for pollsters
-  pollsterMarginal( mcmcMat, datFrm, p1Name, whichPollsters, showCurve, saveName, saveType)
+  pollsterMarginal( mcmcMat, datFrm, whichPollsters, showCurve, saveName, saveType)
   
 }
 
 
-yearMarginal = function( mcmcMat, datFrm, p1Name, showCurve, saveName, saveType) {
+yearMarginal = function( mcmcMat, datFrm, showCurve, saveName, saveType) {
   # marginal distributions for years
   
   YearLevels = levels(as.factor(datFrm[,"year"]))
@@ -343,52 +314,31 @@ yearMarginal = function( mcmcMat, datFrm, p1Name, showCurve, saveName, saveType)
   histInfo = plotPost( mcmcMat[,"yearSpread"], cex.lab = 1.75 , showCurve=showCurve ,
                        xlab="Year Spread" )
   
-  saveGraph( file=paste0(saveName,"YearMarginals-",p1Name), type=saveType)
+  saveGraph( file=paste0(saveName,"YearMarginals-"), type=saveType)
   
 }
 
-coeffMarginal = function( mcmcMat, p1Name, showCurve, saveName, saveType ) {
-  # Marginal histograms for regression coefficients
-  
-  responseFirstPartyBias = mcmcMat[,"responseFirstPartyBias"]
-  responseUndecideds  = mcmcMat[,"responseUndecideds"]
-  
-  openGraph(width=10,height=4)
-  par( mar=c(4,1,2,1) )
-  layout( matrix( 1:2 , nrow=1 ) )
-  
-  histInfo = plotPost( responseFirstPartyBias , cex.lab = 1.75 , showCurve=showCurve ,
-                       xlab=paste0("Response to ",p1Name) , main="Coefficient" )
-  histInfo = plotPost( responseUndecideds , cex.lab = 1.75 , showCurve=showCurve ,
-                       xlab="Response to Undecideds" , main="Coefficient" )
-  
-  saveGraph( file=paste0(saveName,"ResponseCoefficients-",p1Name), type=saveType)
-  
+coeffMarginal = function( mcmcMat, showCurve, saveName, saveType ) {
   
   # marginal histograms for bias spread
-  p1PollSpread = mcmcMat[,"p1PollSpread"]
-  p2PollSpread = mcmcMat[,"p2PollSpread"]
-  nu1 = mcmcMat[,"nu1"]
-  
-  xlims = c(floor(min(p1PollSpread,p2PollSpread)),ceiling(max(p1PollSpread,p2PollSpread)))
+  marginSpread = mcmcMat[,"marginSpread"]
+  nu = mcmcMat[,"nu"]
   
   
   openGraph(width=10,height=4)
-  par( mar=c(4,1,2,1) )
-  layout( matrix( 1:4 , nrow=2 ) )
+  par( mar=c(6,1,2,1) )
+  layout( matrix( 1:2 , nrow=1 ) )
   
-  histInfo = plotPost( p1PollSpread , cex.lab = 1.75 , showCurve=showCurve ,
-                       xlab="Party 1 Spread" , main="Scale", xlim = xlims )
-  histInfo = plotPost( p2PollSpread , cex.lab = 1.75 , showCurve=showCurve ,
-                       xlab="Party 2 Spread" , main="Scale", xlim = xlims )
-  histInfo = plotPost( nu1 , cex.lab = 1.75 , showCurve=showCurve ,
-                       xlab="Party 1 Normality" , main="nu")
+  histInfo = plotPost( marginSpread , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab="Margin Bias (Dem - Rep) Spread" , main="Scale" )
+  histInfo = plotPost( nu , cex.lab = 1.75 , showCurve=showCurve ,
+                       xlab="Margin Bias Normality" , main="nu")
   
-  saveGraph( file=paste0(saveName,"SpreadMarginals-",p1Name), type=saveType)
+  saveGraph( file=paste0(saveName,"SpreadNormalityMarginals-"), type=saveType)
   
 }
 
-pollsterMarginal = function( mcmcMat, datFrm, p1Name, whichPollsters, showCurve, saveName, saveType){
+pollsterMarginal = function( mcmcMat, datFrm, whichPollsters, showCurve, saveName, saveType){
   # create marginal distributions for each pollster requested
   
   YearLevels = levels(as.factor(datFrm[,"year"]))
@@ -421,7 +371,7 @@ pollsterMarginal = function( mcmcMat, datFrm, p1Name, whichPollsters, showCurve,
                            xlab=paste(YearLevels[yearIdx]," House Effect + Year Lean",sep=""), main = fullName )
     }
     
-    saveGraph( file=paste0(saveName,whichPollsters[i],"-",p1Name), type=saveType)
+    saveGraph( file=paste0(saveName,whichPollsters[i],"-"), type=saveType)
   }
   
   

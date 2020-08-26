@@ -1,15 +1,11 @@
 # Author: Jake Price
 # Date: 8/25/20
 #
-# A script that models the bias of pollster in a given year ("house effect")
-#  * Models demBias and repBias separately 
-#     - one is "primary" and other is "secondary"
-#     - secondary is modeled on primary and undecided voters in poll
+# A script that models the margin bias of a pollster in a given year ("house effect")
 #  * Overall year lean pulled from parent distribution of year leans
 #  * Pollster bias in a given year comes from parent distribution for that pollster
 #     - Pollster parent dist. comes from larger parent distribution of pollster centers
 
-# Let us predict rebBias with demBias. 
 
 
 graphics.off() # This closes all of R's graphics windows.
@@ -29,23 +25,19 @@ myPollsters = c("RRp-POR","SrvyUSA","ZIn-JZA","MrstCll")
 
 #------------------------------------------------------------------------------- 
 # Load the relevant model into R's working memory:
-source("RScripts/pollsterBiasModel.R")
-
-dir.create("Markdown/Figures/Jags-pollsterBias/")
-dir.create("Simulations/Jags-pollsterBias/")
+source("RScripts/marginBiasModel.R")
 
 fileNameRoot = "Markdown/Figures/Jags-pollsterBias/" 
 fileNameRootSim= "Simulations/Jags-pollsterBias/" 
 graphFileType = "png"
 
-# Generate the MCMC chain:
-demPrimarySim = runSimulation( mydata , party1 = "demBias", party2 = "repBias",
-                               numSavedSteps=100000 , thinSteps=1 , saveName=fileNameRootSim) 
-plotDiagnostics(demPrimarySim)
+dir.create(fileNameRoot)
+dir.create(fileNameRootSim)
 
-repPrimarySim = runSimulation( mydata , party1 = "repBias", party2 = "demBias",
+# Generate the MCMC chain:
+marginSim = runSimulation( mydata ,
                                numSavedSteps=100000 , thinSteps=1 , saveName=fileNameRootSim) 
-plotDiagnostics(repPrimarySim)
+plotDiagnostics(marginSim)
 
 
 #------------------------------------------------------------------------------- 
@@ -56,15 +48,9 @@ plotDiagnostics(repPrimarySim)
 # show(summaryInfo)
 #------------------------------------------------------------------------------- 
 #Get some plotting done
-plotParty1PosteriorPredictive( demPrimarySim, p1Name = "demBias",
-                               datFrm=mydata, whichPollsters = myPollsters, saveName=fileNameRoot , saveType=graphFileType)
-
-plotParty1PosteriorPredictive( repPrimarySim, p1Name = "repBias",
+plotPosteriorPredictive( marginSim, 
                                datFrm=mydata, whichPollsters = myPollsters, saveName=fileNameRoot , saveType=graphFileType)
 
 
-plotMarginalDistributions( demPrimarySim, datFrm = mydata, whichPollsters = myPollsters,
-                           p1Name = "demBias", saveName=fileNameRoot , saveType=graphFileType )
-
-plotMarginalDistributions( repPrimarySim, datFrm = mydata,  whichPollsters = myPollsters,
-                           p1Name = "repBias", saveName=fileNameRoot , saveType=graphFileType )
+plotMarginalDistributions( marginSim, datFrm = mydata, whichPollsters = myPollsters,
+                            saveName=fileNameRoot , saveType=graphFileType )
