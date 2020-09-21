@@ -62,3 +62,6 @@ pollingData2012 <- pollingData2012[,-(6:7)]
 
 
 newFrame = rbind(pollingData2008,pollingData2012,pollingData2016Con)
+newFrame$race_id <- seq.int(nrow(newFrame))
+
+write.csv(newFrame,'Data/economist_cleaned.csv')
