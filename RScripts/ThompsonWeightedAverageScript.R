@@ -1,13 +1,4 @@
-# final weighted polling average made by Haley in summer 2020
-# uses polls in week before election and has no time dependence
-# delivery mode, transparency, etc. are coded as logical variables
-# best results applied to margin
-# includes adjustment for house and year effects!
-#
-# Notes by Jake 8/11/20
 
-#ANCOVA for Weight of Poll V04
-#06/30/2020
 
 
 # Accompanies the book:
@@ -17,12 +8,11 @@
 source("DBDA2E-utilities.R")
 
 #===============================================================================
-genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="daysuntil", 
-                    raceIDName="raceID", actualName="actual",
-                    IVRName="IVR" , onlineName="online", liveName="live", textName="text",
-                    LVName="LV" , transparencyName="transparency", 
-                    samplesizeName ="samplesize", whichrace, yearName="year", pollsterName="pollster",
-                    biasName="bias",
+genMCMC = function( refFrame ,datFrmPredictor, pollName="margin" , #daysuntilName="daysuntil", 
+                    raceIDName="races", actualName="actual",
+                    modeName = "mode", popName = "pop",
+                    samplesizeName ="n", whichrace, yearName="year", pollsterName="pollster",
+                    biasName="demBias",
                     
                     numSavedSteps=50000 , thinSteps=1 , saveName=NULL ,
                     runjagsMethod=runjagsMethodDefault , 
@@ -36,34 +26,23 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="
   raceID = as.numeric(as.factor(refFrame[,raceIDName]))
   
   
-  IVR = as.numeric(as.factor(datFrmPredictor[,IVRName]))
-  IVRlevels = levels(as.factor(datFrmPredictor[,IVRName]))
-  online = as.numeric(as.factor(datFrmPredictor[,onlineName]))
-  onlinelevels = levels(as.factor(datFrmPredictor[,onlineName]))
-  live = as.numeric(as.factor(datFrmPredictor[,liveName]))
-  livelevels = levels(as.factor(datFrmPredictor[,liveName]))
-  text = as.numeric(as.factor(datFrmPredictor[,textName]))
-  textlevels = levels(as.factor(datFrmPredictor[,textName]))
+  mode = as.numeric(as.factor(datFrmPredictor[,modeName]))
+  modelevels = levels(as.factor(datFrmPredictor[,modeName]))
   
   
-  LV = as.numeric(as.factor(datFrmPredictor[,LVName]))
-  LVlevels = levels(as.factor(datFrmPredictor[,LVName]))
-  transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
-  transparencylevels = levels(as.factor(datFrmPredictor[,transparencyName]))  
+  LV = as.numeric(as.factor(datFrmPredictor[,popName]))
+  LVlevels = levels(as.factor(datFrmPredictor[,popName]))
   
   samplesize = as.numeric(datFrmPredictor[,samplesizeName])
   
   
   pollTotal = length(poll)
   NraceIDLvl = length(raceID)
-  NIVRLvl = length(unique(IVR))
-  NonlineLvl = length(unique(online))
-  NliveLvl = length(unique(live))
-  NtextLvl = length(unique(text))
-  NLVLvl = length(unique(LV))
-  NtransparencyLvl = length(unique(transparency))
+  NmodeLvl = length(unique(modelevels))
+  NLVlevels = length(unique(LVlevels))
   
- #data for bias part of the model
+  
+  #data for bias part of the model
   
   bias = as.numeric(datFrmPredictor[,biasName])
   pollster = as.numeric(as.factor(datFrmPredictor[,pollsterName]))
@@ -94,12 +73,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="
     poll=poll ,
     whichrace=whichrace,
     raceID=raceID,
-    IVR=IVR,
-    online=online,
-    live=live,
-    text=text,
+    mode = mode,
     LV = LV,
-    transparency = transparency,
     samplesize = samplesize,
     
     # NIVRLvl=NIVRLvl,
@@ -107,8 +82,8 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="
     # NliveLvl=NliveLvl,
     # NtextLvl=NtextLvl,
     
-    NLVLvl = NLVLvl,
-    NtransparencyLvl = NtransparencyLvl ,
+    NmodeLvl = NmodeLvl,
+    NLVLvl = NLVlevels,
     NraceIDLvl=NraceIDLvl,
     # data properties for scaling the prior:
     samplesizeSD = sd(samplesize) ,
@@ -124,13 +99,14 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="
     PollsTotal = PollsTotal ,
     PollsterLevelsTotal = PollsterLevelsTotal ,
     YearLevelsTotal =  YearLevelsTotal ,
+    
     # data properties for scaling the prior:
     biasMean = biasMean ,
     biasSD = biasSD
     
   )
   
-
+  
   #------------------------------------------------------------------------------
   # THE MODEL.
   modelstring = "
@@ -140,11 +116,7 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="
     actual[race1] ~ dnorm(mu[race1], 1/actualSpread^2)
     
    for(myPoll in (whichrace[race1]+1):whichrace[race1+1]){
-     weight[myPoll]=IVRImpact*(IVR[myPoll]-1) + onlineImpact*(online[myPoll]-1) +
-     liveImpact*(live[myPoll]-1) + textImpact*(text[myPoll]-1)+
-     LVImpact*(LV[myPoll]-1)+
-     transparencyImpact*(transparency[myPoll]-1)
-     +samplesizeImpact*samplesize[myPoll]
+     weight[myPoll]=modeImpact[mode[myPoll]] + LVImpact[LV[myPoll]] + samplesizeImpact*samplesize[myPoll]
      
      
   
@@ -161,15 +133,13 @@ genMCMC = function( refFrame ,datFrmPredictor, pollName="dem" , #daysuntilName="
     }
   }
 
-IVRImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
-onlineImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
-liveImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
-textImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] ) 
+for(modeIdx in 1:NmodeLvl){
+modeImpact[modeIdx] ~ dgamma( agammaShRa[1] , agammaShRa[2] )
+}
 
-LVImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )  
-   
-    
-transparencyImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )  
+for(LVidx in 1:NLVLvl){
+LVImpact[LVidx] ~ dgamma( agammaShRa[1] , agammaShRa[2] )  
+} 
    
     
     samplesizeImpact ~ dgamma( agammaShRasamplesizeImpact[1] , agammaShRasamplesizeImpact[2] ) 
@@ -183,8 +153,8 @@ transparencyImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )
     yearSpread ~ dunif( biasSD/100 , biasSD*10 )
     
     # Middle level of the hierarchy (pollster bias with year)
-     for ( pollster in 1:PollsterLevelsTotal ) { for ( year in 1:YearLevelsTotal ) { 
-     pollsterBias[pollster,year] ~ dnorm(0.0 , 1/pollsterSpread^2) }
+     for ( myPollster in 1:PollsterLevelsTotal ) { for ( myYear in 1:YearLevelsTotal ) { 
+     pollsterBias[myPollster,myYear] ~ dnorm(0.0 , 1/pollsterSpread^2) }
      }
      pollsterSpread ~ dunif( biasSD/100 , biasSD*11 )   
     
@@ -215,8 +185,7 @@ transparencyImpact ~ dgamma( agammaShRa[1] , agammaShRa[2] )
   #------------------------------------------------------------------------------
   # RUN THE CHAINS
   
-  parameters = c( "IVRImpact" , "onlineImpact", "liveImpact", "textImpact",
-                  "samplesizeImpact" , "LVImpact" , "transparencyImpact", "actualSpread", "mu" 
+  parameters = c( "modeImpact" , "samplesizeImpact" , "LVImpact" , "actualSpread", "mu" 
   )
   adaptSteps = 500 
   burnInSteps = 1000 
@@ -370,13 +339,16 @@ plotPosteriorPredictive = function( codaSamples, refFrame ,datFrmPredictor, poll
     openGraph(width=8,height=8)
     raceNameidx=refFrame[raceidx,2]
     pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
-    plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
-         ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
-         ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=raceNameidx)
-    abline(a=0,b=0)
     
-    points(pollresults, runif(length(pollresults))-1.5, col="blue")
+    
+    pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
+    plot(pollresults, runif(length(pollresults))-1.5, col="blue", xlim = c(-30,30),ylim = c(-2,3),
+         ylab="Posterior Density for Actual Result", xlab="Margin (Dem - Rep)", main=raceNameidx)
+    abline(v = actual[raceidx], lwd = 3, col = "black")
+    abline(a=0,b=0)
     chainSub = round(seq(1,chainLength,length=20))
+    
+   
     
     
     
@@ -426,16 +398,15 @@ meanPosterior = function (codaSamples, refFrame ,datFrmPredictor, pollName="cand
     
     #plot the mean
     plotPost( mcmcMat[,paste("mu[",raceidx,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-              xlab=bquote(LVImpact) , main="Mean",xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10)
+              xlab=bquote(LVImpact) , main="Mean",xlim = c(-30,30)
     )
     
     #plot post-predictive
-    plot(actual[raceidx],-.1, xlim = c(floor(min(c(pollresults,actual[raceidx]))/10)*10,ceiling(max(c(pollresults,actual[raceidx]))/10)*10),
-         ylim=c(-2,3), cex=2, pch=8, col="steelblue", 
+    pollresults = polls[(whichrace[raceidx]+1):whichrace[raceidx+1]]
+    plot(pollresults, runif(length(pollresults))-1.5, col="blue", xlim = c(-30,30),ylim = c(-2,3),
          ylab="Posterior Density for Actual Result", xlab="Dem. Voting Share", main=raceNameidx)
+    abline(v = actual[raceidx], lwd = 3, col = "black")
     abline(a=0,b=0)
-    
-    points(pollresults, runif(length(pollresults))-1.5, col="blue")
     chainSub = round(seq(1,chainLength,length=20))
     
     
@@ -492,7 +463,7 @@ plotLVPosterior = function( codaSamples ,
                             showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  LVName ="LV"
+  LVName ="pop"
   pollName ="poll"
   
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
@@ -500,15 +471,20 @@ plotLVPosterior = function( codaSamples ,
   LVLevels = levels(as.factor(datFrmPredictor[,LVName]))
   NLVLvl = length(unique(LV))
   
-  openGraph(width=5,height=4)
+  openGraph(width=5,height=10)
   
   # posterior of the mean for sample size distrubtion 
   
   #give better titles - using LVLevels[1]=FALSE, LVLevels[2]=TRUE
   title="Likely-Voter Turnout Model Impact"
   
-  plotPost( mcmcMat[,paste("LVImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(LVImpact) , main=title)
+  layout(matrix(c(1,2), ncol=1))
+  
+  plotPost( mcmcMat[,paste("LVImpact[1]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+            xlab=bquote(LVImpact) , main="Weight due to Likely Voter")
+  
+  plotPost( mcmcMat[,paste("LVImpact[2]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+            xlab=bquote(LVImpact) , main="Weight due to Registered Voter")
   
   if ( !is.null(saveName) ) {
     saveGraph( file=paste0(saveName,title, type=saveType))
@@ -517,179 +493,34 @@ plotLVPosterior = function( codaSamples ,
 }
 
 
-plotIVRPosterior = function( codaSamples , 
-                             datFrmPredictor  , 
-                             saveName=NULL , saveType="jpg",
-                             showCurve = FALSE) {
+plotModePosterior = function( codaSamples , 
+                            datFrmPredictor  , 
+                            saveName=NULL , saveType="jpg",
+                            showCurve = FALSE) {
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
   chainLength = NROW( mcmcMat )
-  IVRName ="IVR"
+  modeName ="mode"
   pollName ="poll"
   
   mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  IVR = as.numeric(as.factor(datFrmPredictor[,IVRName]))
-  IVRLevels = levels(as.factor(datFrmPredictor[,IVRName]))
-  NIVRLvl = length(unique(IVR))
+  mode = as.numeric(as.factor(datFrmPredictor[,modeName]))
+  modeLevels = levels(as.factor(datFrmPredictor[,modeName]))
+  NmodeLvl = length(unique(modeLevels))
   
-  openGraph(width=4,height=4)
+  openGraph(width=20,height=10)
   
-  # posterior of the mean for sample size distrubtion 
+  layout(matrix(1:(NmodeLvl+1), nrow=2))
   
-  #give better titles - using delModLevels
-  titleIVR="IVR Impact"
-  
-  
-  plotPost( mcmcMat[,paste("IVRImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(IVRImpact) , main=titleIVR)
-  
-  if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,titleIVR, type=saveType))
+  for(myMode in 1:NmodeLvl){
+    
+    plotPost( mcmcMat[,paste("modeImpact[",myMode,"]",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
+              xlab="Impact on Weight" , main="Weight due to Likely Voter")
     
   }
-}
 
-
-plotonlinePosterior = function( codaSamples , 
-                                datFrmPredictor  , 
-                                saveName=NULL , saveType="jpg",
-                                showCurve = FALSE) {
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  chainLength = NROW( mcmcMat )
-  onlineName ="online"
-  pollName ="poll"
-  
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  online = as.numeric(as.factor(datFrmPredictor[,onlineName]))
-  onlineLevels = levels(as.factor(datFrmPredictor[,onlineName]))
-  NonlineLvl = length(unique(online))
-  
-  openGraph(width=4,height=4)
-  
-  # posterior of the mean for sample size distrubtion 
-  
-  #give better titles - using delModLevels
-  titleOnline="Online Impact"
-  
-  
-  
-  
-  
-  plotPost( mcmcMat[,paste("onlineImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(onlineImpact) , main=titleOnline)
   
   if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,titleOnline, type=saveType))
-    
-  }
-}
-
-plottextPosterior = function( codaSamples , 
-                              datFrmPredictor  , 
-                              saveName=NULL , saveType="jpg",
-                              showCurve = FALSE) {
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  chainLength = NROW( mcmcMat )
-  textName ="text"
-  pollName ="poll"
-  
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  text = as.numeric(as.factor(datFrmPredictor[,textName]))
-  textLevels = levels(as.factor(datFrmPredictor[,textName]))
-  NtextLvl = length(unique(text))
-  
-  openGraph(width=4,height=4)
-  
-  # posterior of the mean for sample size distrubtion 
-  
-  #give better titles - using delModLevels
-  
-  titleText="Text Impact"
-  
-  
-  
-  plotPost( mcmcMat[,paste("textImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(textImpact) , main=titleText)
-  
-  if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,titleText, type=saveType))
-    
-  }
-}
-
-plotlivePosterior = function( codaSamples , 
-                              datFrmPredictor  , 
-                              saveName=NULL , saveType="jpg",
-                              showCurve = FALSE) {
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  chainLength = NROW( mcmcMat )
-  liveName ="live"
-  pollName ="poll"
-  
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  live = as.numeric(as.factor(datFrmPredictor[,liveName]))
-  liveLevels = levels(as.factor(datFrmPredictor[,liveName]))
-  NliveLvl = length(unique(live))
-  
-  openGraph(width=4,height=4)
-  
-  # posterior of the mean for sample size distrubtion 
-  
-  
-  
-  titleLive="Live Impact"
-  
-  
-  
-  plotPost( mcmcMat[,paste("liveImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(liveImpact) , main=titleLive)
-  
-  if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,titleLive, type=saveType))
-    
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-plotTransparencyPosterior = function( codaSamples , 
-                                      datFrmPredictor  , 
-                                      saveName=NULL , saveType="jpg",
-                                      showCurve = FALSE) {
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  chainLength = NROW( mcmcMat )
-  transparencyName ="transparency"
-  pollName ="poll"
-  
-  mcmcMat = as.matrix(codaSamples,chains=TRUE)
-  transparency = as.numeric(as.factor(datFrmPredictor[,transparencyName]))
-  transparencyLevels = levels(as.factor(datFrmPredictor[,transparencyName]))
-  NtransparencyLvl = length(unique(transparency))
-  
-  openGraph(width=4,height=4)
-  
-  # posterior of the mean for sample size distrubtion 
-  
-  #give better titles - using delModLevels
-  
-  titleT="Transparent Impact"
-  
-  
-  
-  
-  plotPost( mcmcMat[,paste("transparencyImpact",sep="")], cex.lab = 1.75 , showCurve=showCurve ,
-            xlab=bquote(transparencyImpact) , main=titleT)
-  
-  if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,titleT, type=saveType))
+    saveGraph( file=paste0(saveName,title, type=saveType))
     
   }
 }

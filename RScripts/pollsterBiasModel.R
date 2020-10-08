@@ -400,7 +400,7 @@ pollsterMarginal = function( mcmcMat, datFrm, p1Name, whichPollsters, showCurve,
     
     openGraph(width=20,height=8)
     par( mar=c(4,1,2,1) )
-    layout( matrix( 1:8 , nrow=2, byrow = TRUE ) )
+    layout( matrix( 1:6 , nrow=2, byrow = TRUE ) )
     
     pollsterIdx = which(levels(as.factor(datFrm$pollster))==whichPollsters[i])
     fullName = datFrm$pollsterFullName[which(datFrm$pollster==whichPollsters[i])[1]]
